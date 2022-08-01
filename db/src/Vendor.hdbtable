@@ -1,0 +1,11 @@
+COLUMN TABLE "VENDOR" (
+    "ID" CHAR(10) NOT NULL COMMENT 'Vendor ID',
+    "LAND" CHAR(3) NOT NULL COMMENT 'Location code',
+    "NAME1" VARCHAR(35) NOT NULL COMMENT 'Name 1',
+    "NAME2" VARCHAR(35) COMMENT 'Name 2',
+    "NAME3" VARCHAR(35) COMMENT 'Name 3',
+    "CITY" VARCHAR(35) COMMENT 'City',
+    "LINK" VARCHAR(50) COMMENT 'Weblink',
+    "LOGO" VARCHAR(60) COMMENT 'Link to logo',
+    PRIMARY KEY("ID")
+) COMMENT 'Goods vendor'

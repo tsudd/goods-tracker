@@ -5,6 +5,9 @@ modules:
   - name: db
     type: hdb
     path: db
+    # parameters:
+    # memory: 512M
+    # disk-quota: 1024M
     requires:
       - name: hdi_container
         properties:

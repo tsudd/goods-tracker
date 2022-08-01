@@ -1,0 +1,6 @@
+COLUMN TABLE "GOOD" (
+    "ID" INTEGER NOT NULL COMMENT 'Good ID',
+    "NAME" VARCHAR(100) COMMENT 'Good Name',
+    "LASTUPDATE" TIMESTAMP COMMENT 'Timestamp of the last update',
+    PRIMARY KEY ("ID")
+) COMMENT 'Good'
