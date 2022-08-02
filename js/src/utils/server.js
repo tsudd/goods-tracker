@@ -3,7 +3,7 @@ import express from "express";
 import hdbext from "@sap/hdbext"
 
 import * as xsenv from "@sap/xsenv"
-import open from 'open'
+import * as routes from "./routes.js"
 
 export default class ExpressServer {
     constructor() {
@@ -34,10 +34,11 @@ export default class ExpressServer {
         )
 
         //Load routes
-        // loader.importFolder('routes/**/*.js', app)
+        // TODO: get rid of hello world message
         app.get('/', (req, res) => {
             res.send('Hello world!' + hanaOptions.hana.host + ':' + hanaOptions.hana.port)
         })
+        routes.loadRoutes(app)
 
         this.httpServer = app.listen(this.port)
         let serverAddr = `http://localhost:${this.port}`
