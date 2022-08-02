@@ -5,13 +5,31 @@ modules:
   - name: db
     type: hdb
     path: db
-    # parameters:
-    # memory: 512M
-    # disk-quota: 1024M
+    parameters:
+      memory: 512M
+      disk-quota: 1024M
     requires:
       - name: hdi_container
         properties:
           TARGET_CONTAINER: ~{hdi-container-name}
+      - name: MyConnection
+  - name: js
+    type: nodejs
+    path: js
+    parameters:
+      host: tracker-srv
+      register-service-url: true
+      service-name: tracker-srv
+      service-url: "${default-url}"
+      memory: 512M
+      disk-quota: 1024M
+    provides:
+      - name: js_api
+        properties:
+          url: "${default-url}"
+    requires:
+      - name: db
+      - name: hdi_container
       - name: MyConnection
 resources:
   - name: hdi_container

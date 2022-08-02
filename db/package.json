@@ -4,6 +4,6 @@
       "@sap/hdi-deploy": "^4.*"
     },
     "scripts": {
-      "start": "node node_modules/@sap/hdi-deploy/deploy.js"
+      "start": "npm install -g npm@8.15.1 && node node_modules/@sap/hdi-deploy/deploy.js"
     }
   }

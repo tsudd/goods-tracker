@@ -10,6 +10,27 @@ modules:
     properties:
       TARGET_CONTAINER: ~{hdi-container-name}
   - name: MyConnection
+  parameters:
+    disk-quota: 1024M
+    memory: 512M
+- name: js
+  type: javascript.nodejs
+  path: js
+  requires:
+  - name: db
+  - name: hdi_container
+  - name: MyConnection
+  provides:
+  - name: js_api
+    properties:
+      url: ${default-url}
+  parameters:
+    disk-quota: 1024M
+    host: tracker-srv
+    memory: 512M
+    register-service-url: true
+    service-name: tracker-srv
+    service-url: ${default-url}
 resources:
 - name: hdi_container
   type: com.sap.xs.hdi-container

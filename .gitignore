@@ -107,6 +107,7 @@ dist
 /mta_archives/
 /node_modules/
 /resources/
+default-services.json
 .vscode
 
 *.mtar
