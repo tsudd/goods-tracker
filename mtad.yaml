@@ -1,6 +1,6 @@
 _schema-version: "3.1"
 ID: goods-tracker
-version: 0.0.1
+version: 0.0.3
 modules:
 - name: db
   type: com.sap.xs.hdi
@@ -11,8 +11,8 @@ modules:
       TARGET_CONTAINER: ~{hdi-container-name}
   - name: MyConnection
   parameters:
-    disk-quota: 1024M
-    memory: 512M
+    disk-quota: 256M
+    memory: 256M
 - name: js
   type: javascript.nodejs
   path: js

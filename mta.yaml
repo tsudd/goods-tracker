@@ -1,13 +1,13 @@
 _schema-version: "2.1"
 ID: goods-tracker
-version: 0.0.1
+version: 0.0.3
 modules:
   - name: db
     type: hdb
     path: db
     parameters:
-      memory: 512M
-      disk-quota: 1024M
+      memory: 256M
+      disk-quota: 256M
     requires:
       - name: hdi_container
         properties:
@@ -31,6 +31,28 @@ modules:
       - name: db
       - name: hdi_container
       - name: MyConnection
+  # - name: ui
+  #   type: nodejs
+  #   path: ui
+  #   provides:
+  #     - name: ui
+  #       properties:
+  #         ui-url: "${default-url}"
+  #   parameters:
+  #     host: goods-tracker
+  #     register-service-url: true
+  #     service-name: goods-tracker-ui
+  #     service-url: "${default-url}"
+  #     memory: 256M
+  #     disk-quota: 256M
+  #   requires:
+  #     - name: tracker-uaa
+  #     - name: js_api
+  #       group: destinations
+  #       properties:
+  #         name: js_api
+  #         url: "~{url}"
+  #         forwardAuthToken: true
 resources:
   - name: hdi_container
     type: com.sap.xs.hdi-container

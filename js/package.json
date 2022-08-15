@@ -1,11 +1,14 @@
 {
     "dependencies": {
+        "@sap/approuter": "11.3.1",
         "@sap/hdbext": "^7.6.4",
         "@sap/xsenv": "^3.2.2",
+        "@sap/xssec": "^3.2.13",
         "dotenv": "^16.0.1",
         "express": "^4.18.1",
-        "sap-hdbext-promisfied": "^2.202203.1",
-        "open": "^8.3.0"
+        "open": "^8.3.0",
+        "passport": "^0.6.0",
+        "sap-hdbext-promisfied": "^2.202203.1"
     },
     "files": [],
     "main": "start.js",

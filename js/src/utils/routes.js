@@ -1,11 +1,12 @@
 import * as express from 'express';
 import dbClass from "sap-hdbext-promisfied";
-import * as hdbext from '@sap/hdbext';
 
 export const loadRoutes = (app) => {
-    app.get("/api/vendors", async (/** @type {express.Request} */ req, /** @type {express.Response} */ res) => {
+    app.get("/vendors", async (/** @type {express.Request} */ req, /** @type {express.Response} */ res) => {
+        console.log(req)
         try {
             let db = new dbClass(req.db)
+            console.log(db)
             const statement = await db.preparePromisified('select * from "VENDOR"')
             const results = await db.statementExecPromisified(statement, [])
             return res.type("application/json").status(200).send(results)
