@@ -1,34 +1,62 @@
+using HtmlAgilityPack;
 namespace Common.Requesters;
 
 public class BasicRequester : IRequester
 {
-    public string Get(string url)
+    public BasicRequester(HttpClient? client = null)
     {
-        throw new NotImplementedException();
+        if (client is null)
+        {
+            Client = new HttpClient();
+        }
+        else
+        {
+            Client = client;
+        }
     }
 
-    public HtmlDocument GetPageHtml(string url)
+    public HttpClient Client { get; private set; }
+
+    public async Task<HtmlDocument> GetPageHtmlAsync(string url)
     {
-        throw new NotImplementedException();
+        var result = new HtmlDocument();
+        var response = await Client.GetAsync(url);
+        result.LoadHtml(await response.Content.ReadAsStringAsync());
+        return result;
     }
 
-    public Task<HtmlDocument> GetPageHtmlAsync(string url)
+    public async Task<string> PostAsync(string url, Dictionary<string, string>? headers = null, string data = "")
     {
-        throw new NotImplementedException();
+        var result = "";
+        var request = new HttpRequestMessage(HttpMethod.Post, url);
+        if ((headers != null))
+        {
+            foreach (var header in headers)
+            {
+                request.Headers.Add(header.Key, header.Value);
+            }
+        }
+        request.Content = new StringContent(data);
+        using (var response = await Client.SendAsync(request))
+        {
+            using (var reader = new StreamReader(await response.Content.ReadAsStreamAsync()))
+            {
+                result = await reader.ReadToEndAsync();
+            }
+        }
+        return result;
     }
 
-    public string Post(string url, Dictionary<string, string> headers = null, string data = "")
+    public async Task<string> GetAsync(string url)
     {
-        throw new NotImplementedException();
-    }
-
-    public Task<string> PostAsync(string url, Dictionary<string, string> headers = null, string data = "")
-    {
-        throw new NotImplementedException();
-    }
-
-    Task<string> IRequester.Get(string url)
-    {
-        throw new NotImplementedException();
+        var result = "";
+        using (var response = await Client.GetAsync(url))
+        {
+            using (var str = new StreamReader(await response.Content.ReadAsStreamAsync()))
+            {
+                result = await str.ReadToEndAsync();
+            }
+        }
+        return result;
     }
 }
