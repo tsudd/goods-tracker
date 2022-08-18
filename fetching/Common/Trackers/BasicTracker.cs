@@ -19,6 +19,7 @@ public class BasicTracker : ITracker
         Scrapers = new List<IScraper>();
         foreach (var conf in _config.ScrapersConfigurations)
         {
+            //TODO: creation exception handling and log them
             Scrapers.Append<IScraper>(
                 scraperFactory.CreateScraper(
                     conf,
