@@ -25,6 +25,7 @@ public class NeighborsScraper : IScraper
         _logger = logger;
         _config = config;
         _parser = parser;
+        _logger.LogInformation("Scraper was created");
     }
 
     public Task<IEnumerable<Item>> GetItems()

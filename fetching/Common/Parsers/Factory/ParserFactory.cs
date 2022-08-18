@@ -27,7 +27,8 @@ public class ParserFactory
             case nameof(NeighborsParser):
                 return new NeighborsParser(loggerFactory.CreateLogger<NeighborsParser>());
             default:
-                throw new ArgumentException("No such parser in the app.");
+                throw new ArgumentException(
+                    string.Format("couldn't create {0}: no such parser in the app.", parser));
         }
     }
 

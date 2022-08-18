@@ -8,25 +8,30 @@ namespace Common.Trackers;
 
 public class BasicTracker : ITracker
 {
-    public IEnumerable<IScraper> Scrapers { get; private set; }
+    public List<IScraper> Scrapers { get; private set; }
     private ILogger<BasicTracker> _logger;
     private TrackerConfig _config;
 
-    public BasicTracker(TrackerConfig config, ILoggerFactory loggerFactory, ScraperFactory scraperFactory, ParserFactory parserFactory)
+    public BasicTracker(
+        TrackerConfig config,
+        ILoggerFactory loggerFactory,
+        ScraperFactory scraperFactory,
+        ParserFactory parserFactory)
     {
         _config = config;
         _logger = loggerFactory.CreateLogger<BasicTracker>();
         Scrapers = new List<IScraper>();
+        _logger.LogInformation("Scrapers creation from provided configs...");
         foreach (var conf in _config.ScrapersConfigurations)
         {
-            //TODO: creation exception handling and log them
-            Scrapers.Append<IScraper>(
+            _logger.LogInformation("Creating scraper: '{0}'", conf.Name);
+            Scrapers.Add(
                 scraperFactory.CreateScraper(
-                    conf,
-                    loggerFactory,
-                    parserFactory.CreateParser(conf.ParserName, loggerFactory)));
+                conf,
+                loggerFactory,
+                parserFactory.CreateParser(conf.ParserName, loggerFactory)));
         }
-
+        _logger.LogInformation("Tracker was created.");
     }
 
     public void ClearData()

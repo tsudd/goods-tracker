@@ -21,14 +21,23 @@ public class ScraperFactory
         return _instance;
     }
 
-    public IScraper CreateScraper(ScraperConfig scraperConfig, ILoggerFactory loggerFactory, IParser parser, IRequester? requester = null)
+    public IScraper CreateScraper(
+        ScraperConfig scraperConfig,
+        ILoggerFactory loggerFactory,
+        IParser parser,
+        IRequester? requester = null)
     {
         switch (scraperConfig.Name)
         {
             case nameof(NeighborsScraper):
-                return new NeighborsScraper(scraperConfig, loggerFactory.CreateLogger<NeighborsScraper>(), parser, requester);
+                return new NeighborsScraper(
+                    scraperConfig,
+                    loggerFactory.CreateLogger<NeighborsScraper>(),
+                    parser,
+                    requester);
             default:
-                throw new ArgumentException("No such scraper in the app");
+                throw new ArgumentException(
+                    string.Format("couldn't create {0}: no such scraper in the app", scraperConfig.Name));
         }
     }
 }
