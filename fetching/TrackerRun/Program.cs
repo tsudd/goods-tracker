@@ -20,11 +20,11 @@ var loggerFactory = LoggerFactory.Create(builder =>
 
 var log = loggerFactory.CreateLogger<Program>();
 log.LogInformation("Configuration was loaded. Tracker is starting now.");
-var trackerConfig = config.GetSection("TrackerConfig").Get<TrackerConfig>();
-trackerConfig.ScrapersConfigurations = config
+var trackerName = config.GetSection("TrackerConfig").Get<TrackerConfig>();
+trackerName.ScrapersConfigurations = config
                                             .GetSection("TrackerConfig:ScrapersConfigurations")
                                             .Get<List<ScraperConfig>>();
 log.LogInformation("Tracker to be launched: '{0}'. Number of configs for scrapers: '{1}'",
-    trackerConfig.TrackerName,
-    trackerConfig.ScrapersConfigurations.Count());
+    trackerName.TrackerName,
+    trackerName.ScrapersConfigurations.Count());
 
