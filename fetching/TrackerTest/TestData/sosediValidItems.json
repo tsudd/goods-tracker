@@ -1,0 +1,75 @@
+[
+    [{
+        "title": "КОЛБАСА МАДЕРА С/К В/С 1КГ",
+        "description": null,
+        "href": "#",
+        "countInCardNow": 0,
+        "typeSale": "63389",
+        "list": [
+            "Акция действует с 10 по 23 августа 2022 года при наличии товара в магазине",
+            "Внешний вид товара может отличаться от представленного на фото"
+        ],
+        "sale": 20,
+        "price": "21.99",
+        "priceBack": "27.59",
+        "id": 87109,
+        "src": "/upload/iblock/b93/e2fkm4gnfqxpk5lhgbvix97smtil0nom.jpg",
+        "categoryId": "1348",
+        "typeSelect": "osobaya-tsena"
+    }],
+    [{
+            "title": "ВЕТЧИНА БЕЛОВЕЖСКАЯ СВ.К/В В/У 1КГ",
+            "description": null,
+            "href": "#",
+            "countInCardNow": 0,
+            "typeSale": "63389",
+            "list": [
+                "Акция действует с 10 по 23 августа 2022 года при наличии товара в магазине",
+                "Внешний вид товара может отличаться от представленного на фото"
+            ],
+            "sale": 32,
+            "price": "12.99",
+            "priceBack": "19.19",
+            "id": 73381,
+            "src": "/upload/iblock/682/ekcdrpmnmjrc0jxvdm3en2b2l39d520o.jpg",
+            "categoryId": "1348",
+            "typeSelect": "osobaya-tsena"
+        },
+        {
+            "title": "Ветчина БЕЛОВЕЖСКАЯ к/в 1 кг Славянский МК",
+            "description": null,
+            "href": "#",
+            "countInCardNow": 0,
+            "typeSale": "63389",
+            "list": [
+                "Акция действует с 10 по 23 августа 2022 года при наличии товара в магазине",
+                "Внешний вид товара может отличаться от представленного на фото"
+            ],
+            "sale": 32,
+            "price": "12.99",
+            "priceBack": "19.29",
+            "id": 42280,
+            "src": "/upload/iblock/1a5/nuswje033s393ay1s0bkp969c3r59jz2.jpg",
+            "categoryId": "1348",
+            "typeSelect": "osobaya-tsena"
+        }
+    ],
+    [{
+        "title": "КОЛБАСА ВАР.МОРТАД.ПРЕМ.СУС.МАЕН.В/С 1КГ",
+        "description": null,
+        "href": "#",
+        "countInCardNow": 0,
+        "typeSale": "63389",
+        "list": [
+            "Акция действует с 10 по 23 августа 2022 года при наличии товара в магазине",
+            "Внешний вид товара может отличаться от представленного на фото"
+        ],
+        "sale": 13,
+        "price": "6.49",
+        "priceBack": "7.49",
+        "id": 87110,
+        "src": "/upload/iblock/6c5/7tk0rgqxd5vr5d0crn6ouqy26plte3w3.jpg",
+        "categoryId": "1348",
+        "typeSelect": "osobaya-tsena"
+    }]
+]

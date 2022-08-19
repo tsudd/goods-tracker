@@ -3,7 +3,6 @@ using Common.Trackers;
 using Common.Scrapers;
 using Common.Parsers;
 using Microsoft.Extensions.Configuration;
-// using Microsoft.Extensions.Configuration.Binder;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Configuration;
 
@@ -20,9 +19,10 @@ var loggerFactory = LoggerFactory.Create(builder =>
         .AddConsole()
         .AddConfiguration(config.GetSection("Logging"));
 });
-
 var log = loggerFactory.CreateLogger<Program>();
 log.LogInformation("Configuration was loaded. Tracker is starting now.");
+
+//------------------handling tracker configuration
 var trackerConfig = config.GetSection("TrackerConfig").Get<TrackerConfig>();
 if (trackerConfig is null)
 {
@@ -36,6 +36,7 @@ log.LogInformation("Tracker to be launched: '{0}'. Number of configs for scraper
     trackerConfig.TrackerName,
     trackerConfig.ScrapersConfigurations.Count());
 
+//------------------initialization of the tracker with provided config
 log.LogInformation("Tracker instance creation...");
 ITracker? tracker;
 try
@@ -53,4 +54,18 @@ catch (ArgumentException ex)
     log.LogError("Error while tracker initialization: {0}", ex.Message);
     return;
 }
-log.LogInformation("OK.");
+catch (Exception ex)
+{
+    log.LogError("Unspecified error occurred while tracker creation: {0}", ex.Message);
+    return;
+}
+
+//------------------fetching data with configured tracker
+try
+{
+    await tracker.FetchItems();
+}
+catch (Exception)
+{
+
+}
