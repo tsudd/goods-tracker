@@ -6,6 +6,6 @@ namespace Common.Trackers;
 public interface ITracker
 {
     Task FetchItems();
-    IEnumerable<Item> GetShopItems(int shopId);
+    IEnumerable<Item>? GetShopItems(string shopId);
     void ClearData();
 }

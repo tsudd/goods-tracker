@@ -34,10 +34,10 @@ public class NeighborsScraper : IScraper
     {
         var page = 1;
         var pagesAmount = 0;
-        var body = BuildRequestDataForPage(page);
         var items = new List<Item>();
         do
         {
+            var body = BuildRequestDataForPage(page);
             try
             {
                 var jsonData = await RequestJSONDataWithBody(body);
@@ -60,6 +60,7 @@ public class NeighborsScraper : IScraper
             }
             page++;
         } while (pagesAmount != 1);
+        _logger.LogInformation("'{0}' items where scrapped from '{1}'", items.Count, _config.ShopName);
         return items;
     }
 
@@ -67,7 +68,7 @@ public class NeighborsScraper : IScraper
     {
         return string.Format(
             "{{\"selected\": \"all\", " +
-            "\"selectedCategory\": \"all\", \"paginationItem\": {0}}}", pageNumber);
+            "\"selectedCategory\": \"all\", \"paginationItem\": {0}}}", pageNumber.ToString());
     }
 
     private async Task<JsonDocument> RequestJSONDataWithBody(string requestBody)
@@ -97,8 +98,16 @@ public class NeighborsScraper : IScraper
         return itemsPortion;
     }
 
-    public string GetConfig()
+    public ScraperConfig GetConfig()
     {
-        throw new NotImplementedException();
+        return new ScraperConfig()
+        {
+            Name = _config.Name,
+            ParserName = _config.ParserName,
+            ShopID = _config.ShopID,
+            ShopUrl = _config.ShopUrl,
+            ShopApi = _config.ShopApi,
+            ShopName = _config.ShopName
+        };
     }
 }

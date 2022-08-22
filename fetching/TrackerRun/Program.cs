@@ -2,9 +2,12 @@
 using Common.Trackers;
 using Common.Scrapers;
 using Common.Parsers;
+using Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Configuration;
+using CsvHelper;
+using System.Globalization;
 
 
 var config = new ConfigurationBuilder()
@@ -24,7 +27,8 @@ log.LogInformation("Configuration was loaded. Tracker is starting now.");
 
 //------------------handling tracker configuration
 var trackerConfig = config.GetSection("TrackerConfig").Get<TrackerConfig>();
-if (trackerConfig is null)
+var shopIDs = config.GetSection("ShopIDs").Get<IEnumerable<string>>();
+if (trackerConfig is null || shopIDs is null)
 {
     log.LogError("Couldn't define config for the tracker: wrong format of the configuration file");
     return;
@@ -61,11 +65,29 @@ catch (Exception ex)
 }
 
 //------------------fetching data with configured tracker
-try
-{
-    await tracker.FetchItems();
-}
-catch (Exception)
-{
+log.LogInformation("Starting scraping items.");
+await tracker.FetchItems();
 
+//------------------record fetch data
+log.LogInformation("Saving fetched items in csv files...");
+foreach (var i in shopIDs)
+{
+    var items = tracker.GetShopItems(i);
+    if (items is null)
+    {
+        log.LogWarning("No items from '{0}' shop to save...", i);
+        continue;
+    }
+    using (var write = new StreamWriter($"./{i}.csv"))
+    {
+        using (var csvWriter = new CsvWriter(write, CultureInfo.CurrentCulture))
+        {
+            csvWriter.WriteHeader<Item>();
+            await csvWriter.NextRecordAsync();
+            await csvWriter.WriteRecordsAsync(items);
+        }
+    }
+    log.LogInformation(
+        "Have written '{0}' items from '{1}' shop.", items.Count().ToString(), i);
 }
+log.LogInformation("Tracker has ended its work.");
