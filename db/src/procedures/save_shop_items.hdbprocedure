@@ -1,0 +1,16 @@
+PROCEDURE "SAVE_SHOP_ITEMS" (
+    IN shop_id INT, 
+    IN items tt_items
+) LANGUAGE SQLSCRIPT 
+AS BEGIN
+-- does provided vendor exist
+    IF NOT (exists (SELECT *
+        FROM vendor
+        WHERE id = :shop_id)) THEN
+        signal input_error SET message_text = 'invalid vendor';
+    END IF;
+
+    UPDATE :items SET "VENDORID" = :shop_id, "ID" = itemseqid.nextval, "STREAMID" = streamseqid.currval;
+-- save items
+    INSERT INTO item SELECT * FROM :items;
+END

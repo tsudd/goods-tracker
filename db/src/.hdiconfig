@@ -1,11 +1,13 @@
 {
-    "file_suffixes" : {
-        "hdbtable" : { 
-            "plugin_name" : "com.sap.hana.di.table"},
-        "hdbview" : { 
-            "plugin_name" : "com.sap.hana.di.view"},
-        "hdbprocedure" : { 
-            "plugin_name" : "com.sap.hana.di.procedure"
+    "file_suffixes": {
+        "hdbtable": {
+            "plugin_name": "com.sap.hana.di.table"
+        },
+        "hdbview": {
+            "plugin_name": "com.sap.hana.di.view"
+        },
+        "hdbprocedure": {
+            "plugin_name": "com.sap.hana.di.procedure"
         },
         "hdbtabledata": {
             "plugin_name": "com.sap.hana.di.tabledata"
@@ -21,6 +23,12 @@
         },
         "hdbsequence": {
             "plugin_name": "com.sap.hana.di.sequence"
+        },
+        "hdbtabletype": {
+            "plugin_name": "com.sap.hana.di.tabletype"
+        },
+        "hdbtrigger": {
+            "plugin_name": "com.sap.hana.di.trigger"
         }
     }
 }
