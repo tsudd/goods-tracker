@@ -1,0 +1,5 @@
+COLUMN TABLE "STREAM" (
+    "ID" INTEGER NOT NULL COMMENT 'ID of item stream',
+    "FETCHDATE" TIMESTAMP COMMENT 'Moment when stream was wetched',
+    PRIMARY KEY ("ID")
+) COMMENT 'Stream'

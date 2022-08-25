@@ -1,3 +1,8 @@
 [
-    "src/data/Scooter.hdbtable"
+    "src/data/Scooter.hdbtable",
+    "src/Link.hdbtable",
+    "src/Good.hdbtable",
+    "src/Item.hdbtable",
+    "src/Vendor.hdbtable",
+    "src/sequences/threadSeqId.hdbsequence"
 ]
