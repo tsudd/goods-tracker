@@ -1,5 +1,0 @@
-PROCEDURE "OPEN_ITEM_STREAM" () LANGUAGE SQLSCRIPT AS 
-BEGIN 
-    INSERT INTO stream
-    VALUES(streamseqid.nextval, current_timestamp(0));
-END;
