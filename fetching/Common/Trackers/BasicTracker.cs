@@ -77,7 +77,7 @@ public class BasicTracker : ITracker
 
     private void NotifyScraperError(ScraperConfig conf, Exception ex)
     {
-        _logger.LogWarning(string.Format("'{0}' has ended its work: {1}", conf.Name, ex.Message));
+        _logger.LogWarning($"'{conf.Name}' has ended its work: {ex.Message}");
     }
 
     public IEnumerable<Item>? GetShopItems(string shopId)

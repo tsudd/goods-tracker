@@ -24,7 +24,7 @@ public class BasicRequester : IRequester
         if (!response.IsSuccessStatusCode)
         {
             throw new HtmlWebException(
-                string.Format("couldn't get HTML page from {0}: {1}", url, response.RequestMessage));
+                $"couldn't get HTML page from {url}: {response.RequestMessage}");
         }
         result.LoadHtml(await response.Content.ReadAsStringAsync());
         return result;
@@ -47,7 +47,7 @@ public class BasicRequester : IRequester
             if (!response.IsSuccessStatusCode)
             {
                 throw new HtmlWebException(
-                    string.Format("couldn't perform POST to {0}: {1}", url, response.RequestMessage));
+                    $"couldn't perform POST to {url}: {response.RequestMessage}");
             }
             using (var reader = new StreamReader(await response.Content.ReadAsStreamAsync()))
             {
@@ -65,7 +65,7 @@ public class BasicRequester : IRequester
             if (!response.IsSuccessStatusCode)
             {
                 throw new HtmlWebException(
-                    string.Format("couldn't perform GET to {0}: {1}", url, response.RequestMessage));
+                    $"couldn't perform GET to {url}: {response.RequestMessage}");
             }
             using (var str = new StreamReader(await response.Content.ReadAsStreamAsync()))
             {
