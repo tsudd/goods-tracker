@@ -2,7 +2,6 @@ using Sap.Data.Hana;
 using Common.Trackers;
 using Microsoft.Extensions.Logging;
 using Models;
-using System.Reflection;
 using Common.Configs;
 
 namespace Common.Adapters
@@ -47,11 +46,11 @@ namespace Common.Adapters
                             try
                             {
                                 var rowsAffected = cmd.ExecuteNonQuery();
-                                _logger.LogInformation($"Saved {rowsAffected} items from {shop} shop");
+                                _logger.LogInformation($"Saved {rowsAffected} items from shop '{shop}'");
                             }
                             catch (Exception ex)
                             {
-                                _logger.LogWarning($"Couldn't save items to the data: {ex.Message}");
+                                _logger.LogWarning($"Couldn't save items to the database: {ex.Message}");
                                 throw new AdapterException(ex.Message, shop);
                             }
                         }
@@ -82,6 +81,8 @@ namespace Common.Adapters
                 {
                     paramsCollection.Add(CreateParameter("p" + paramInd, props.GetValue(item)));
                     paramInd++;
+                    if (paramInd == 5)
+                        paramInd = 0;
                 }
             }
         }

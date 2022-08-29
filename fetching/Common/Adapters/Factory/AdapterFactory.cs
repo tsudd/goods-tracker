@@ -28,6 +28,10 @@ namespace Common.Adapters
                     return new HanaAdapter(
                         adapterConfig,
                         loggerFactory.CreateLogger<HanaAdapter>());
+                case nameof(CsvAdapter):
+                    return new CsvAdapter(
+                        adapterConfig,
+                        loggerFactory.CreateLogger<CsvAdapter>());
                 default:
                     throw new ArgumentException(
                         $"couldn't create {adapterConfig.AdapterName}: no such data adapter in the app"
