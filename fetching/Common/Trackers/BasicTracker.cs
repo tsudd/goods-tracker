@@ -11,7 +11,7 @@ namespace Common.Trackers;
 public class BasicTracker : ITracker
 {
     public List<IScraper> Scrapers { get; private set; }
-    private List<Tuple<string, List<Item>>> _shopItems;
+    public List<Tuple<string, List<Item>>> _shopItems;
     private ILogger<BasicTracker> _logger;
     private TrackerConfig _config;
     public BasicTracker(

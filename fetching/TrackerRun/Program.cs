@@ -2,13 +2,10 @@
 using Common.Trackers;
 using Common.Scrapers;
 using Common.Parsers;
-using Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Configuration;
-using CsvHelper;
-using System.Globalization;
-
+using Common.Adapters;
 
 var config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
@@ -28,7 +25,8 @@ log.LogInformation("Configuration was loaded. Tracker is starting now.");
 //------------------handling tracker configuration
 var trackerConfig = config.GetSection("TrackerConfig").Get<TrackerConfig>();
 var shopIDs = config.GetSection("ShopIDs").Get<IEnumerable<string>>();
-if (trackerConfig is null || shopIDs is null)
+var adapterConfig = config.GetSection("AdapterConfig").Get<AdapterConfig>();
+if (trackerConfig is null || shopIDs is null || adapterConfig is null)
 {
     log.LogError("Couldn't define config for the tracker: wrong format of the configuration file");
     return;
@@ -36,12 +34,16 @@ if (trackerConfig is null || shopIDs is null)
 trackerConfig.ScrapersConfigurations = config
                                             .GetSection("TrackerConfig:ScrapersConfigurations")
                                             .Get<List<ScraperConfig>>();
+// var factories = config.GetSection("Factories");
+// TrackerFactory? trackerFactory = typeof(TrackerFactory);
+// ScraperFactory? scraperFactory;
+// AdapterFactory? adapterFactory;
 log.LogInformation("Tracker to be launched: '{0}'. Number of configs for scrapers: '{1}'",
     trackerConfig.TrackerName,
     trackerConfig.ScrapersConfigurations.Count());
 
 //------------------initialization of the tracker with provided config
-log.LogInformation("Tracker instance creation...");
+// log.LogInformation("Tracker instance creation...");
 ITracker? tracker;
 try
 {
@@ -69,25 +71,22 @@ log.LogInformation("Starting scraping items.");
 await tracker.FetchItems();
 
 //------------------record fetch data
-log.LogInformation("Saving fetched items in csv files...");
-foreach (var i in shopIDs)
+
+log.LogInformation("Sending fetched data to HANA db");
+
+try
 {
-    var items = tracker.GetShopItems(i);
-    if (items is null)
-    {
-        log.LogWarning("No items from '{0}' shop to save...", i);
-        continue;
-    }
-    using (var write = new StreamWriter($"./{i}.csv"))
-    {
-        using (var csvWriter = new CsvWriter(write, CultureInfo.CurrentCulture))
-        {
-            csvWriter.WriteHeader<Item>();
-            await csvWriter.NextRecordAsync();
-            await csvWriter.WriteRecordsAsync(items);
-        }
-    }
-    log.LogInformation(
-        "Have written '{0}' items from '{1}' shop.", items.Count().ToString(), i);
+    var adapter = AdapterFactory.GetInstance().CreateAdapter(adapterConfig, loggerFactory);
+    adapter.SaveItems(tracker, shopIDs);
 }
+catch (ApplicationException ex)
+{
+    log.LogWarning($"Error occured during saving of items: {ex.Message}. Saving items locally for future restore");
+    //local saving code...
+}
+
+//------------------clearing & disposing
+log.LogInformation("Clearing fetched data...");
+tracker.ClearData();
+
 log.LogInformation("Tracker has ended its work.");
