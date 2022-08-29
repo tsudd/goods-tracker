@@ -48,13 +48,13 @@ public class NeighborsScraper : IScraper
             }
             catch (JsonException ex)
             {
-                var message = string.Format("wrong JSON structure: {0}", ex.Message);
+                var message = $"wrong JSON structure: {ex.Message}";
                 _logger.LogError(message);
                 throw new FormatException(message);
             }
             catch (HtmlWebException ex)
             {
-                var message = string.Format("error while scraping data: {0}", ex.Message);
+                var message = $"error while scraping data: {ex.Message}";
                 _logger.LogError(message);
                 throw new HtmlWebException(message);
             }
@@ -66,9 +66,8 @@ public class NeighborsScraper : IScraper
 
     private string BuildRequestDataForPage(int pageNumber)
     {
-        return string.Format(
-            "{{\"selected\": \"all\", " +
-            "\"selectedCategory\": \"all\", \"paginationItem\": {0}}}", pageNumber.ToString());
+        return "{{\"selected\": \"all\", " +
+            $"\"selectedCategory\": \"all\", \"paginationItem\": {pageNumber.ToString()}}}";
     }
 
     private async Task<JsonDocument> RequestJSONDataWithBody(string requestBody)

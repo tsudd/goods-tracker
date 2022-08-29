@@ -37,7 +37,20 @@ public class ScraperFactory
                     requester);
             default:
                 throw new ArgumentException(
-                    string.Format("couldn't create {0}: no such scraper in the app", scraperConfig.Name));
+                    $"couldn't create {scraperConfig.Name}: no such scraper in the app");
+        }
+    }
+
+    public static ScraperFactory GetSpecifiedFactory(string typeName)
+    {
+        try
+        {
+            return (ScraperFactory)(Type.GetType(typeName)?.GetMethod("GetInstance")?.Invoke(null, null)
+            ?? throw new ArgumentException("No such scraper factory in the app"));
+        }
+        catch (ArgumentException ex)
+        {
+            throw ex;
         }
     }
 }

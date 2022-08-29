@@ -34,5 +34,18 @@ namespace Common.Adapters
                     );
             }
         }
+
+        public static AdapterFactory GetSpecifiedFactory(string typeName)
+        {
+            try
+            {
+                return (AdapterFactory)(Type.GetType(typeName)?.GetMethod("GetInstance")?.Invoke(null, null)
+                ?? throw new ArgumentException("No such adapter factory in the app"));
+            }
+            catch (ArgumentException ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

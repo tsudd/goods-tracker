@@ -34,26 +34,43 @@ if (trackerConfig is null || shopIDs is null || adapterConfig is null)
 trackerConfig.ScrapersConfigurations = config
                                             .GetSection("TrackerConfig:ScrapersConfigurations")
                                             .Get<List<ScraperConfig>>();
-// var factories = config.GetSection("Factories");
-// TrackerFactory? trackerFactory = typeof(TrackerFactory);
-// ScraperFactory? scraperFactory;
-// AdapterFactory? adapterFactory;
+var factories = config.GetSection("Factories");
+TrackerFactory? trackerFactory;
+ScraperFactory? scraperFactory;
+AdapterFactory? adapterFactory;
+ParserFactory? parserFactory;
+try
+{
+    trackerFactory = TrackerFactory.GetSpecifiedFactory(
+        factories.GetSection(typeof(TrackerFactory).Name).Get<string>());
+    scraperFactory = ScraperFactory.GetSpecifiedFactory(
+        factories.GetSection(typeof(ScraperFactory).Name).Get<string>());
+    adapterFactory = AdapterFactory.GetSpecifiedFactory(
+        factories.GetSection(typeof(AdapterFactory).Name).Get<string>());
+    parserFactory = ParserFactory.GetSpecifiedFactory(
+        factories.GetSection(typeof(ParserFactory).Name).Get<string>());
+}
+catch (ArgumentException ex)
+{
+    log.LogError($"Invalid configuration for factories: {ex.Message}");
+    return;
+}
 log.LogInformation("Tracker to be launched: '{0}'. Number of configs for scrapers: '{1}'",
     trackerConfig.TrackerName,
     trackerConfig.ScrapersConfigurations.Count());
 
 //------------------initialization of the tracker with provided config
-// log.LogInformation("Tracker instance creation...");
+log.LogInformation("Tracker instance creation...");
 ITracker? tracker;
 try
 {
-    tracker = TrackerFactory
-        .GetInstance()
+    tracker = trackerFactory
         .CreateTracker(
             trackerConfig,
             loggerFactory,
-            ScraperFactory.GetInstance(),
-            ParserFactory.GetInstance());
+            scraperFactory,
+            parserFactory
+            );
 }
 catch (ArgumentException ex)
 {
@@ -68,7 +85,7 @@ catch (Exception ex)
 
 //------------------fetching data with configured tracker
 log.LogInformation("Starting scraping items.");
-await tracker.FetchItems();
+// await tracker.FetchItems();
 
 //------------------record fetch data
 
@@ -76,7 +93,7 @@ log.LogInformation("Sending fetched data to HANA db");
 
 try
 {
-    var adapter = AdapterFactory.GetInstance().CreateAdapter(adapterConfig, loggerFactory);
+    var adapter = adapterFactory.CreateAdapter(adapterConfig, loggerFactory);
     adapter.SaveItems(tracker, shopIDs);
 }
 catch (ApplicationException ex)
@@ -87,6 +104,6 @@ catch (ApplicationException ex)
 
 //------------------clearing & disposing
 log.LogInformation("Clearing fetched data...");
-tracker.ClearData();
+// tracker.ClearData();
 
 log.LogInformation("Tracker has ended its work.");

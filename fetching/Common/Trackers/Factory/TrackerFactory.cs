@@ -40,7 +40,20 @@ public class TrackerFactory
                 );
             default:
                 throw new ArgumentException(
-                    string.Format("couldn't create {0}: no such tracker in the app", config.TrackerName));
+                    $"couldn't create {config.TrackerName}: no such tracker in the app");
+        }
+    }
+
+    public static TrackerFactory GetSpecifiedFactory(string typeName)
+    {
+        try
+        {
+            return (TrackerFactory)(Type.GetType(typeName)?.GetMethod("GetInstance")?.Invoke(null, null)
+            ?? throw new ArgumentException("No such tracker factory in the app"));
+        }
+        catch (ArgumentException ex)
+        {
+            throw ex;
         }
     }
 }
