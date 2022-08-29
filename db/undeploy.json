@@ -4,5 +4,8 @@
     "src/Good.hdbtable",
     "src/Item.hdbtable",
     "src/Vendor.hdbtable",
-    "src/sequences/threadSeqId.hdbsequence"
+    "src/sequences/threadSeqId.hdbsequence",
+    "src/types/item.hdbtabletype",
+    "src/procedures/open_item_stream.hdbprocedure",
+    "src/procedures/save_shop_items.hdbprocedure"
 ]
