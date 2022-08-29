@@ -26,10 +26,15 @@ log.LogInformation("Configuration was loaded. Tracker is starting now.");
 var trackerConfig = config.GetSection("TrackerConfig").Get<TrackerConfig>();
 var shopIDs = config.GetSection("ShopIDs").Get<IEnumerable<string>>();
 var adapterConfig = config.GetSection("AdapterConfig").Get<AdapterConfig>();
+var alternativeAdapterConfig = config.GetSection("AlternativeAdapterConfig").Get<AdapterConfig>();
 if (trackerConfig is null || shopIDs is null || adapterConfig is null)
 {
     log.LogError("Couldn't define config for the tracker: wrong format of the configuration file");
     return;
+}
+if (alternativeAdapterConfig is null)
+{
+    log.LogWarning("Couldn't get config for alternative data adapter. Data might be lost by proceeding without it.");
 }
 trackerConfig.ScrapersConfigurations = config
                                             .GetSection("TrackerConfig:ScrapersConfigurations")
@@ -85,7 +90,7 @@ catch (Exception ex)
 
 //------------------fetching data with configured tracker
 log.LogInformation("Starting scraping items.");
-// await tracker.FetchItems();
+await tracker.FetchItems();
 
 //------------------record fetch data
 
@@ -98,12 +103,22 @@ try
 }
 catch (ApplicationException ex)
 {
-    log.LogWarning($"Error occured during saving of items: {ex.Message}. Saving items locally for future restore");
-    //local saving code...
+    if (alternativeAdapterConfig is not null)
+    {
+        log.LogWarning(
+        $"Error occured during saving of items into the DB: {ex.Message}. Saving items using alternative data adapter for future restore");
+        var alternativeAdapter = adapterFactory.CreateAdapter(alternativeAdapterConfig, loggerFactory);
+        alternativeAdapter.SaveItems(tracker, shopIDs);
+    }
+    else
+    {
+        log.LogError($"Error occured during data save: {ex.Message}");
+    }
+
 }
 
 //------------------clearing & disposing
 log.LogInformation("Clearing fetched data...");
-// tracker.ClearData();
+tracker.ClearData();
 
 log.LogInformation("Tracker has ended its work.");

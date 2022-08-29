@@ -33,7 +33,7 @@ public class NeighborsScraper : IScraper
     public async Task<IEnumerable<Item>> GetItems()
     {
         var page = 1;
-        var pagesAmount = 0;
+        var pagesAmount = 1;
         var items = new List<Item>();
         do
         {
@@ -66,13 +66,13 @@ public class NeighborsScraper : IScraper
 
     private string BuildRequestDataForPage(int pageNumber)
     {
-        return "{{\"selected\": \"all\", " +
-            $"\"selectedCategory\": \"all\", \"paginationItem\": {pageNumber.ToString()}}}";
+        return "{\"selected\": \"all\", " +
+            $"\"selectedCategory\": \"all\", \"paginationItem\": {pageNumber}}}";
     }
 
     private async Task<JsonDocument> RequestJSONDataWithBody(string requestBody)
     {
-        return JsonDocument.Parse(await Requester.PostAsync(_config.ShopApi, null, requestBody));
+        return JsonDocument.Parse(await Requester.PostAsync(_config.ShopApi, _config.Headers, requestBody));
     }
 
     private IEnumerable<Item> ParseItemsFromJSON(JsonElement root)
