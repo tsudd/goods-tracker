@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Calculation:scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Calculation="http://www.sap.com/ndb/BiModelCalculation.ecore" id="ITEM_VIEW" applyPrivilegeType="NONE" dataCategory="DIMENSION" dimensionType="STANDARD" schemaVersion="3.0" hierarchyGeneration="SQL" outputViewType="Projection" cacheInvalidationPeriod="NONE" enforceSqlExecution="true">
+<descriptions defaultDescription="ITEM_VIEW"/>
+<localVariables/>
+<variableMappings/>
+<dataSources>
+  <DataSource id="ITEM">
+    <resourceUri>ITEM</resourceUri>
+  </DataSource>
+  <DataSource id="VENDOR">
+    <resourceUri>VENDOR</resourceUri>
+  </DataSource>
+  <DataSource id="STREAM">
+    <resourceUri>STREAM</resourceUri>
+  </DataSource>
+</dataSources>
+<snapshotProcedures/>
+<calculationViews>
+  <calculationView xsi:type="Calculation:JoinView" id="Join_1_1" cardinality="CN_1" joinType="inner" multiJoinNode="Join_1" multiJoinCentralTable="ITEM" multiJoinOrder="Outside In">
+    <viewAttributes>
+      <viewAttribute id="ID"/>
+      <viewAttribute id="NAME1"/>
+      <viewAttribute id="NAME2"/>
+      <viewAttribute id="NAME3"/>
+      <viewAttribute id="PRICE"/>
+      <viewAttribute id="CUTPRICE"/>
+      <viewAttribute id="LINK"/>
+      <viewAttribute id="VENDORNAME"/>
+      <viewAttribute id="STREAMID"/>
+      <viewAttribute hidden="true" id="JOIN$VENDORID$ID"/>
+    </viewAttributes>
+    <calculatedViewAttributes/>
+    <input node="ITEM">
+      <mapping xsi:type="Calculation:AttributeMapping" target="ID" source="ID"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="NAME1" source="NAME1"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="NAME2" source="NAME2"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="NAME3" source="NAME3"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="PRICE" source="PRICE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="CUTPRICE" source="CUTPRICE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="LINK" source="LINK"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="STREAMID" source="STREAMID"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$VENDORID$ID" source="VENDORID"/>
+    </input>
+    <input node="VENDOR">
+      <mapping xsi:type="Calculation:AttributeMapping" target="VENDORNAME" source="NAME1"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$VENDORID$ID" source="ID"/>
+    </input>
+    <joinAttribute name="JOIN$VENDORID$ID"/>
+  </calculationView>
+  <calculationView xsi:type="Calculation:JoinView" id="Join_1_2" cardinality="CN_1" joinType="inner" multiJoinNode="Join_1" multiJoinCentralTable="ITEM" multiJoinOrder="Outside In">
+    <viewAttributes>
+      <viewAttribute id="ID"/>
+      <viewAttribute id="NAME1"/>
+      <viewAttribute id="NAME2"/>
+      <viewAttribute id="NAME3"/>
+      <viewAttribute id="PRICE"/>
+      <viewAttribute id="CUTPRICE"/>
+      <viewAttribute id="LINK"/>
+      <viewAttribute id="VENDORNAME"/>
+      <viewAttribute id="STREAMID"/>
+      <viewAttribute id="FETCHDATE"/>
+    </viewAttributes>
+    <calculatedViewAttributes>
+      <calculatedViewAttribute id="DISCOUNT" datatype="INTEGER" expressionLanguage="SQL">
+        <formula>100 - TO_INTEGER(ROUND( (&quot;CUTPRICE&quot; / &quot;PRICE&quot;) * 100, 0))</formula>
+      </calculatedViewAttribute>
+    </calculatedViewAttributes>
+    <input node="Join_1_1">
+      <mapping xsi:type="Calculation:AttributeMapping" target="ID" source="ID"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="NAME1" source="NAME1"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="NAME2" source="NAME2"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="NAME3" source="NAME3"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="PRICE" source="PRICE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="CUTPRICE" source="CUTPRICE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="LINK" source="LINK"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="VENDORNAME" source="VENDORNAME"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="STREAMID" source="STREAMID"/>
+    </input>
+    <input node="STREAM">
+      <mapping xsi:type="Calculation:AttributeMapping" target="FETCHDATE" source="FETCHDATE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="STREAMID" source="ID"/>
+    </input>
+    <joinAttribute name="STREAMID"/>
+  </calculationView>
+</calculationViews>
+
+<logicalModel id="Join_1_2">
+  <attributes>
+    <attribute id="ID" order="1" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="Item ID"/>
+      <keyMapping columnObjectName="Join_1_2" columnName="ID"/>
+    </attribute>
+    <attribute id="NAME1" order="2" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="Item name 1"/>
+      <keyMapping columnObjectName="Join_1_2" columnName="NAME1"/>
+    </attribute>
+    <attribute id="NAME2" order="3" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="Item name 2"/>
+      <keyMapping columnObjectName="Join_1_2" columnName="NAME2"/>
+    </attribute>
+    <attribute id="NAME3" order="4" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="Item name 3"/>
+      <keyMapping columnObjectName="Join_1_2" columnName="NAME3"/>
+    </attribute>
+    <attribute id="PRICE" order="5" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="Price"/>
+      <keyMapping columnObjectName="Join_1_2" columnName="PRICE"/>
+    </attribute>
+    <attribute id="CUTPRICE" order="6" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="Price with discount"/>
+      <keyMapping columnObjectName="Join_1_2" columnName="CUTPRICE"/>
+    </attribute>
+    <attribute id="DISCOUNT" order="7" displayAttribute="false" attributeHierarchyActive="false" semanticType="empty">
+      <descriptions defaultDescription="DISCOUNT"/>
+      <keyMapping columnObjectName="Join_1_2" columnName="DISCOUNT"/>
+    </attribute>
+    <attribute id="LINK" order="8" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="Link to the item"/>
+      <keyMapping columnObjectName="Join_1_2" columnName="LINK"/>
+    </attribute>
+    <attribute id="FETCHDATE" order="9" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="Moment when stream was wetched"/>
+      <keyMapping columnObjectName="Join_1_2" columnName="FETCHDATE"/>
+    </attribute>
+    <attribute id="VENDORNAME" order="10" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="Name 1"/>
+      <keyMapping columnObjectName="Join_1_2" columnName="VENDORNAME"/>
+    </attribute>
+  </attributes>
+  <calculatedAttributes/>
+  <baseMeasures/>
+  <calculatedMeasures/>
+  <restrictedMeasures/></logicalModel>
+<layout>
+  <shapes>
+    <shape expanded="true" modelObjectName="Output" modelObjectNameSpace="MeasureGroup">
+      <upperLeftCorner x="40" y="85"/>
+    </shape>
+    
+  
+    <shape expanded="true" modelObjectName="Join_1" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="70" y="215"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
+    <shape modelObjectName="STREAM" modelObjectNameSpace="Join_1" modelObjectType="JoinNodeInput" multiJoinViewNodeName="Join_1">
+      <upperLeftCorner x="351" y="202"/>
+      <rectangleSize width="151"/>
+    </shape>
+    <shape modelObjectName="ITEM" modelObjectNameSpace="Join_1" modelObjectType="JoinNodeInput" multiJoinViewNodeName="Join_1">
+      <upperLeftCorner x="20" y="30"/>
+      <rectangleSize width="144"/>
+    </shape>
+    <shape modelObjectName="VENDOR" modelObjectNameSpace="Join_1" modelObjectType="JoinNodeInput" multiJoinViewNodeName="Join_1">
+      <upperLeftCorner x="620" y="30"/>
+      <rectangleSize width="123"/>
+    </shape>
+  </shapes>
+</layout>
+</Calculation:scenario>

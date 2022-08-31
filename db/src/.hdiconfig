@@ -29,6 +29,9 @@
         },
         "hdbtrigger": {
             "plugin_name": "com.sap.hana.di.trigger"
-        }
+        },
+        "hdbcalculationview": {
+			"plugin_name": "com.sap.hana.di.calculationview"
+		}
     }
 }

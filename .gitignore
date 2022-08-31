@@ -570,3 +570,4 @@ $RECYCLE.BIN/
 Test
 /.vscode/
 appsettings.json
+.env
