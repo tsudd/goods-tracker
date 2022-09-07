@@ -16,7 +16,7 @@ public class HanaSetup : IDbSetup
         _dbContext = context;
     }
 
-    public async Task<IEnumerable<Item>> GetItemsAsync(DateTime date)
+    public async Task<IEnumerable<Item>> GetPaginatedItemsAsync(DateTime date, int page = 1, int amount = 30)
     {
         try
         {
@@ -24,7 +24,8 @@ public class HanaSetup : IDbSetup
             using (var cmd = new HanaCommand(
                 "SELECT NAME1 as \"Name\", PRICE as \"Price\", CUTPRICE as \"DiscountPrice\"," +
                 " DISCOUNT as \"Discount\", LINK as \"Link\", FETCHDATE as \"FetchDate\", VENDORNAME as \"VendorName\"" +
-                $" FROM ITEM_VIEW('PLACEHOLDER' = ('$$IP_date$$', {date.ToString("YYYY-mm-dd")}))",
+                $" FROM ITEM_VIEW('PLACEHOLDER' = ('$$IP_date$$', '{date.ToString("yyyy-MM-dd")}'))" +
+                $"LIMIT {amount} OFFSET {amount * (page - 1)}",
                 _conn))
             {
                 items = await ExecuteAndReadQuery(cmd);
@@ -135,7 +136,15 @@ public class HanaSetup : IDbSetup
                 "SELECT COUNT(*) FROM ITEM_VIEW",
                 _conn))
             {
-                return await cmd.ExecuteNonQueryAsync();
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    await reader.ReadAsync();
+                    if (int.TryParse(reader[0].ToString(), out int value))
+                    {
+                        return value;
+                    }
+                    return 0;
+                }
             }
         }
         catch (HanaException ex)

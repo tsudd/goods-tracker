@@ -26,12 +26,12 @@ else
         </thead>
         <tbody>
             @{
-                var i = 1;
+                var ind = (currentPage - 1) * PageSize + 1;
             }
             @foreach (var item in items)
             {
                 <tr>
-                    <th scope="row">@i</th>
+                    <th scope="row">@ind</th>
                     <th scope="row">@item.Name</th>
                     @if (item.Price is null)
                     {
@@ -53,21 +53,80 @@ else
                     <th scope="row">@item.FetchDate?.ToString("dd-MM-yyyy")</th>
                     <th scope="row">@item.VendorName</th>
                 </tr>
-                i++;
+                ind++;
             }
         </tbody>
     </table>
 }
+<div class="row justify-content-center">
+    <ul class="pagination">
+        <li class="page-item @(currentPage == 1 ? "disabled" : "")" @onclick="PrevPage">
+            <a class="page-link" aria-disabled="true">Previous</a>
+        </li>
+        @for (var i = currentPage - 2; i <= currentPage + 2; i++)
+        {
+            if (i <= 0 || i > TotalPages)
+                continue;
+            int j = i;
+            if (i == currentPage)
+            {
+                <li class='page-item active' @onclick='() => ShowInfo(j)'>
+                    <a class="page-link">@i</a>
+                </li>
+            }
+            else
+            {
+                <li class='page-item' @onclick='() => ShowInfo(j)'>
+                    <a class="page-link">@i</a>
+                </li>
+            }
+        }
+        <li class="page-item" @onclick="NextPage">
+            <a class="page-link">Next</a>
+        </li>
+    </ul>
+</div>
 
 @code {
     private Item[]? items;
-    public int CurrentPage { get; set; } = 1;
+    private int currentPage = 1;
     public int Count { get; set; }
     public int PageSize { get; set; } = 30;
-    public int? TotalPages { get; set; }
+    public int TotalPages { get; set; } = 0;
 
     protected override async Task OnInitializedAsync()
     {
-        items = await Http.GetFromJsonAsync<Item[]>("ShopItem");
+        Count = await Http.GetFromJsonAsync<int>("/ShopItem/count");
+        TotalPages = (int)Math.Ceiling(decimal.Divide(Count, PageSize));
+        await ShowInfo();
+    }
+
+    protected async Task NextPage()
+    {
+        if (currentPage < TotalPages)
+        {
+            currentPage++;
+            await ShowInfo();
+        }
+    }
+
+    protected async Task PrevPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+            await ShowInfo();
+        }
+    }
+
+    protected async Task ShowInfo()
+    {
+        items = await Http.GetFromJsonAsync<Item[]>($"/ShopItem?page={currentPage}");
+    }
+
+    protected async Task ShowInfo(int page)
+    {
+        currentPage = page;
+        await ShowInfo();
     }
 }

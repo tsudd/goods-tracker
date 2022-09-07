@@ -18,16 +18,30 @@ public class ShopItemController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IEnumerable<Item>> GetItems()
+    public async Task<IEnumerable<Item>> GetItems(int page, int months = 1, int amount = 30)
     {
         try
         {
-            return (await _dbSetup.GetItemsAsync()).ToArray();
+            return (await _dbSetup.GetPaginatedItemsAsync(DateTime.Today.AddMonths(-months), page, amount)).ToArray();
         }
         catch (OperationCanceledException)
         {
             _logger.LogWarning("couldn't send items to the client.");
             return Enumerable.Empty<Item>().ToArray();
+        }
+    }
+
+    [HttpGet("count")]
+    public async Task<int> GetCount()
+    {
+        try
+        {
+            return await _dbSetup.GetItemsCountAsync();
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogWarning("couldn't get the amount of items.");
+            return 0;
         }
     }
 }
