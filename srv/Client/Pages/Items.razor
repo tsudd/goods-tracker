@@ -1,23 +1,73 @@
 @page "/items"
-@using GoodsTracker.Shared
+@using GoodsTracker.Shared.Model
+@inject HttpClient Http
 
 <PageTitle>Shop items</PageTitle>
 
 <h1>Items</h1>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Item</th>
-            <th scope="col">Price</th>
-        </tr>
-    </thead>
-    <tbody>
-
-    </tbody>
-</table>
+@if (items == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Price</th>
+                <th scope="col">Price with discount</th>
+                <th scope="col">Discount %</th>
+                <th scope="col">Fetch date</th>
+                <th scope="col">Shop</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                var i = 1;
+            }
+            @foreach (var item in items)
+            {
+                <tr>
+                    <th scope="row">@i</th>
+                    <th scope="row">@item.Name</th>
+                    @if (item.Price is null)
+                    {
+                        <th scope="row"></th>
+                    }
+                    else
+                    {
+                        <th scope="row">@item.Price</th>
+                    }
+                    @if (item.DiscountPrice is null)
+                    {
+                        <th scope="row"></th>
+                    }
+                    else
+                    {
+                        <th scope="row">@item.DiscountPrice</th>
+                    }
+                    <th scope="row">@item.Discount</th>
+                    <th scope="row">@item.FetchDate?.ToString("dd-MM-yyyy")</th>
+                    <th scope="row">@item.VendorName</th>
+                </tr>
+                i++;
+            }
+        </tbody>
+    </table>
+}
 
 @code {
+    private Item[]? items;
+    public int CurrentPage { get; set; } = 1;
+    public int Count { get; set; }
+    public int PageSize { get; set; } = 30;
+    public int? TotalPages { get; set; }
 
+    protected override async Task OnInitializedAsync()
+    {
+        items = await Http.GetFromJsonAsync<Item[]>("ShopItem");
+    }
 }

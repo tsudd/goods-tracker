@@ -1,10 +1,11 @@
-using Shared.Model;
+using GoodsTracker.Shared.Model;
 namespace Server.Services;
 
 public interface IDbSetup
 {
     Task<IEnumerable<Item>> GetItemsAsync();
-    Task<IEnumerable<Item>> GetIemsAsync(DateTime date);
+    Task<IEnumerable<Item>> GetItemsAsync(DateTime date);
+    Task<int> GetItemsCountAsync();
     Task SetupDbAsync();
     string TestMethod();
 }

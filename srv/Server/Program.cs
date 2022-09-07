@@ -13,6 +13,18 @@ builder.Services.AddHanaDbSetup();
 
 var app = builder.Build();
 
+try
+{
+    var dbSetup = app.Services.GetRequiredService<IDbSetup>();
+    await dbSetup.SetupDbAsync();
+}
+catch (InvalidOperationException ex)
+{
+    app.Logger.LogError($"Couldn't connect to DB: {ex.Message}");
+    await app.StopAsync();
+    return;
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
