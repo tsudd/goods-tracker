@@ -571,3 +571,4 @@ Test
 /.vscode/
 appsettings.json
 .env
+srv/Server/HdbClient/*
