@@ -1,11 +1,15 @@
 using Microsoft.AspNetCore.ResponseCompression;
+using Server.DbOptions;
+using Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddSingleton<DbContext>(new DbContext(builder.Configuration.GetConnectionString("HANA")));
 builder.Services.AddRazorPages();
+builder.Services.AddHanaDbSetup();
 
 var app = builder.Build();
 
@@ -32,5 +36,10 @@ app.UseRouting();
 app.MapRazorPages();
 app.MapControllers();
 app.MapFallbackToFile("index.html");
+app.Map("/data", async context =>
+{
+    var dbService = app.Services.GetService<IDbSetup>();
+    await context.Response.WriteAsync($"Time: {dbService?.TestMethod()}");
+});
 
 app.Run();
