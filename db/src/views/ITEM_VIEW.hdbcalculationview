@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Calculation:scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Calculation="http://www.sap.com/ndb/BiModelCalculation.ecore" id="ITEM_VIEW" applyPrivilegeType="NONE" dataCategory="DIMENSION" dimensionType="STANDARD" schemaVersion="3.0" hierarchyGeneration="SQL" outputViewType="Projection" cacheInvalidationPeriod="NONE" enforceSqlExecution="true">
 <descriptions defaultDescription="ITEM_VIEW"/>
-<localVariables/>
+<localVariables>
+  <variable id="IP_date" parameter="true">
+    <descriptions defaultDescription="Date of items"/>
+    <variableProperties datatype="DATE" mandatory="false" defaultExpressionLanguage="SQL">
+      <valueDomain type="Date"/>
+      <selection multiLine="false" type="SingleValue"/>
+      <defaultExpression>ADD_DAYS(CURRENT_TIMESTAMP, -30)</defaultExpression>
+    </variableProperties>
+  </variable>
+</localVariables>
 <variableMappings/>
 <dataSources>
   <DataSource id="ITEM">
@@ -47,7 +56,7 @@
     </input>
     <joinAttribute name="JOIN$VENDORID$ID"/>
   </calculationView>
-  <calculationView xsi:type="Calculation:JoinView" id="Join_1_2" cardinality="CN_1" joinType="inner" multiJoinNode="Join_1" multiJoinCentralTable="ITEM" multiJoinOrder="Outside In">
+  <calculationView xsi:type="Calculation:JoinView" id="Join_1_2" cardinality="CN_1" joinType="inner" filterExpressionLanguage="SQL" multiJoinNode="Join_1" multiJoinCentralTable="ITEM" multiJoinOrder="Outside In">
     <viewAttributes>
       <viewAttribute id="ID"/>
       <viewAttribute id="NAME1"/>
@@ -80,6 +89,7 @@
       <mapping xsi:type="Calculation:AttributeMapping" target="FETCHDATE" source="FETCHDATE"/>
       <mapping xsi:type="Calculation:AttributeMapping" target="STREAMID" source="ID"/>
     </input>
+    <filter>&quot;FETCHDATE&quot; &gt;= '$$IP_date$$'</filter>
     <joinAttribute name="STREAMID"/>
   </calculationView>
 </calculationViews>
