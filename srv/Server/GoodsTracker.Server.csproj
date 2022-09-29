@@ -16,10 +16,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Sap.Data.Hana.v2.1.dll">
+    <Reference Include="Sap.Data.Hana.Core.v2.1">
       <!-- PLACE HDB CLIENT DLLs FOR DOTNETCORE AND PLACE THEM TO THE HDBCLIENT -->
-      <HintPath>HdbClient\v2.1\Sap.Data.Hana.Core.v2.1.dll</HintPath>
-      <!-- <HintPath>/home/tsudd/Documents/goods-tracker/srv/Server/HdbClient/v2.1/Sap.Data.Hana.Core.v2.1.dll</HintPath> -->
+      <!-- <HintPath>HdbClient\v2.1\Sap.Data.Hana.Core.v2.1.dll</HintPath> -->
+      <HintPath>/home/tsudd/sap/hdbclient/dotnetcore/v2.1/Sap.Data.Hana.Core.v2.1.dll</HintPath>
     </Reference>
   </ItemGroup>
 
