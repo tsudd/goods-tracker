@@ -32,6 +32,9 @@
         },
         "hdbcalculationview": {
 			"plugin_name": "com.sap.hana.di.calculationview"
+		},
+        "hdbindex": {
+			"plugin_name": "com.sap.hana.di.index"
 		}
     }
 }
