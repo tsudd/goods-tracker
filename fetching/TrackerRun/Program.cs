@@ -3,12 +3,15 @@ using Common.Trackers;
 using Common.Scrapers;
 using Common.Parsers;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.EnvironmentVariables;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Configuration;
 using Common.Adapters;
 
+var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
 var config = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.json")
+    .AddJsonFile($"appsettings.{environment}.json")
     .AddEnvironmentVariables()
     .Build();
 
@@ -20,7 +23,7 @@ var loggerFactory = LoggerFactory.Create(builder =>
         .AddConfiguration(config.GetSection("Logging"));
 });
 var log = loggerFactory.CreateLogger<Program>();
-log.LogInformation("Configuration was loaded. Tracker is starting now.");
+log.LogInformation($"Configuration was loaded. Tracker is starting now in {environment} mode.");
 
 //------------------handling tracker configuration
 var trackerConfig = config.GetSection("TrackerConfig").Get<TrackerConfig>();

@@ -26,6 +26,7 @@ namespace Common.Adapters
                 using (var conn = new HanaConnection(_config.Arguments))
                 {
                     conn.Open();
+                    return;
 
                     using (var cmd = new HanaCommand(CREATE_STREAM_COMMAND, conn))
                     {
