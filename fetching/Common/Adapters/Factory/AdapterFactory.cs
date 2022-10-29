@@ -1,55 +1,54 @@
+using Common.Adapters.Implementations;
 using Common.Configs;
 using Microsoft.Extensions.Logging;
 
-namespace Common.Adapters
+namespace Common.Adapters.Factories;
+public class AdapterFactory
 {
-    public class AdapterFactory
+    private static AdapterFactory? _instance;
+    private AdapterFactory() { }
+
+    public static AdapterFactory GetInstance()
     {
-        private static AdapterFactory? _instance;
-        private AdapterFactory() { }
-
-        public static AdapterFactory GetInstance()
+        if (_instance is null)
         {
-            if (_instance is null)
-            {
-                _instance = new AdapterFactory();
-            }
-            return _instance;
+            _instance = new AdapterFactory();
         }
+        return _instance;
+    }
 
-        public IDataAdapter CreateAdapter(
-            AdapterConfig adapterConfig,
-            ILoggerFactory loggerFactory
-        )
+    public IDataAdapter CreateAdapter(
+        AdapterConfig adapterConfig,
+        ILoggerFactory loggerFactory
+    )
+    {
+        switch (adapterConfig.AdapterName)
         {
-            switch (adapterConfig.AdapterName)
-            {
-                case nameof(HanaAdapter):
-                    return new HanaAdapter(
-                        adapterConfig,
-                        loggerFactory.CreateLogger<HanaAdapter>());
-                case nameof(CsvAdapter):
-                    return new CsvAdapter(
-                        adapterConfig,
-                        loggerFactory.CreateLogger<CsvAdapter>());
-                default:
-                    throw new ArgumentException(
-                        $"couldn't create {adapterConfig.AdapterName}: no such data adapter in the app"
-                    );
-            }
+            case nameof(HanaAdapter):
+                return new HanaAdapter(
+                    adapterConfig,
+                    loggerFactory.CreateLogger<HanaAdapter>());
+            case nameof(CsvAdapter):
+                return new CsvAdapter(
+                    adapterConfig,
+                    loggerFactory.CreateLogger<CsvAdapter>());
+            default:
+                throw new ArgumentException(
+                    $"couldn't create {adapterConfig.AdapterName}: no such data adapter in the app"
+                );
         }
+    }
 
-        public static AdapterFactory GetSpecifiedFactory(string typeName)
+    public static AdapterFactory GetSpecifiedFactory(string typeName)
+    {
+        try
         {
-            try
-            {
-                return (AdapterFactory)(Type.GetType(typeName)?.GetMethod("GetInstance")?.Invoke(null, null)
-                ?? throw new ArgumentException("No such adapter factory in the app"));
-            }
-            catch (ArgumentException ex)
-            {
-                throw ex;
-            }
+            return (AdapterFactory)(Type.GetType(typeName)?.GetMethod("GetInstance")?.Invoke(null, null)
+            ?? throw new ArgumentException("No such adapter factory in the app"));
+        }
+        catch (ArgumentException ex)
+        {
+            throw ex;
         }
     }
 }

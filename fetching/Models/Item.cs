@@ -17,7 +17,7 @@ public class Item
     public float Fat { get; set; } = 0;
     public float Carbo { get; set; } = 0;
     public float Portion { get; set; } = 0;
-    public List<string> Categories { get; private set; } = new List<string>();
+    public List<string> Categories { get; set; } = new List<string>();
     public string Link { get; set; } = String.Empty;
 
     public override bool Equals(object? obj)

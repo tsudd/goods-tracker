@@ -1,12 +1,12 @@
 ﻿using Common.Configs;
-using Common.Trackers;
-using Common.Scrapers;
-using Common.Parsers;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.EnvironmentVariables;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Configuration;
-using Common.Adapters;
+using Common.Trackers.Factories;
+using Common.Scrapers.Factories;
+using Common.Parsers.Factories;
+using Common.Trackers.Interfaces;
+using Common.Adapters.Factories;
 
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
@@ -69,7 +69,7 @@ log.LogInformation("Tracker to be launched: '{0}'. Number of configs for scraper
 
 //------------------initialization of the tracker with provided config
 log.LogInformation("Tracker instance creation...");
-ITracker? tracker;
+IItemTracker? tracker;
 try
 {
     tracker = trackerFactory

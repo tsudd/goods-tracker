@@ -1,10 +1,11 @@
+using Common.Parsers.Interfaces;
 using Microsoft.Extensions.Logging;
 
-namespace Common.Parsers;
+namespace Common.Parsers.Factories;
 
-public class ParserFactory
+public partial class ParserFactory
 {
-    private static ParserFactory? _instance;
+    protected static ParserFactory? _instance;
 
     private ParserFactory()
     {
@@ -20,12 +21,12 @@ public class ParserFactory
         return _instance;
     }
 
-    public IParser CreateParser(string parser, ILoggerFactory loggerFactory)
+    public IItemParser CreateParser(string parser, ILoggerFactory loggerFactory)
     {
         switch (parser)
         {
-            case nameof(NeighborsParser):
-                return new NeighborsParser(loggerFactory.CreateLogger<NeighborsParser>());
+            case nameof(YaNeighborsParser):
+                return new YaNeighborsParser(loggerFactory.CreateLogger<YaNeighborsParser>());
             default:
                 throw new ArgumentException($"couldn't create {parser}: no such parser in the app.");
         }

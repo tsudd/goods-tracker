@@ -1,9 +1,10 @@
 using Common.Configs;
+using Common.Parsers.Factories;
+using Common.Scrapers.Factories;
+using Common.Trackers.Interfaces;
 using Microsoft.Extensions.Logging;
-using Common.Scrapers;
-using Common.Parsers;
 
-namespace Common.Trackers;
+namespace Common.Trackers.Factories;
 
 public class TrackerFactory
 {
@@ -23,7 +24,7 @@ public class TrackerFactory
         return _instance;
     }
 
-    public ITracker CreateTracker(
+    public IItemTracker CreateTracker(
         TrackerConfig config,
         ILoggerFactory loggerFactory,
         ScraperFactory scraperFactory,

@@ -9,5 +9,6 @@ namespace Common.Configs
     {
         public string AdapterName { get; set; } = String.Empty;
         public string Arguments { get; set; } = String.Empty;
+        public string LocalPath { get; set; } = String.Empty;
     }
 }

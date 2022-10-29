@@ -1,14 +1,16 @@
 using System.Text.Json;
 using Common.Configs;
-using Common.Parsers;
-using Common.Scrapers;
+using Common.Parsers.Factories;
+using Common.Scrapers.Factories;
+using Common.Scrapers.Interfaces;
+using Common.Trackers.Interfaces;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using Models;
 
 namespace Common.Trackers;
 
-public class BasicTracker : ITracker
+public class BasicTracker : IItemTracker
 {
     public List<IScraper> Scrapers { get; private set; }
     public List<Tuple<string, List<Item>>> _shopItems;

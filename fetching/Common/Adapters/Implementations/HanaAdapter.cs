@@ -1,10 +1,11 @@
 using Sap.Data.Hana;
-using Common.Trackers;
 using Microsoft.Extensions.Logging;
 using Models;
 using Common.Configs;
+using Common.Trackers.Interfaces;
+using Common.Adapters.Exceptions;
 
-namespace Common.Adapters
+namespace Common.Adapters.Implementations
 {
     public class HanaAdapter : IDataAdapter
     {
@@ -19,7 +20,7 @@ namespace Common.Adapters
             _config = config;
         }
 
-        public void SaveItems(ITracker tracker, IEnumerable<string> shopIds)
+        public void SaveItems(IItemTracker tracker, IEnumerable<string> shopIds)
         {
             try
             {

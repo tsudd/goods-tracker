@@ -1,11 +1,11 @@
 using Common.Configs;
-using Common.Trackers;
+using Common.Trackers.Interfaces;
 using CsvHelper;
 using Microsoft.Extensions.Logging;
 using Models;
 using System.Globalization;
 
-namespace Common.Adapters
+namespace Common.Adapters.Implementations
 {
     public class CsvAdapter : IDataAdapter
     {
@@ -16,10 +16,9 @@ namespace Common.Adapters
             _config = config;
             _logger = logger;
         }
-        public void SaveItems(ITracker tracker, IEnumerable<string> shopIds)
+        public void SaveItems(IItemTracker tracker, IEnumerable<string> shopIds)
         {
             _logger.LogInformation("Writing items into CSV files...");
-            var time = DateTime.Now.ToString("dd.MM.yyyy_HH-mm-ss");
             foreach (var shop in shopIds)
             {
                 var items = tracker.GetShopItems(shop);
@@ -28,16 +27,17 @@ namespace Common.Adapters
                     _logger.LogWarning($"No items to save for {shop}");
                     continue;
                 }
+                var fileName = BuildCSVFileName(shop);
                 try
                 {
-                    using (var fs = new StreamWriter($"shop_{shop}_{time}.csv"))
+                    using (var fs = new StreamWriter(fileName))
                     using (var csvWriter = new CsvWriter(fs, CultureInfo.CurrentCulture))
                     {
                         csvWriter.WriteHeader<Item>();
                         csvWriter.NextRecord();
                         csvWriter.WriteRecords(items);
                         _logger.LogInformation(
-                            $"{items.Count()} items from shop '1' were writed to the shop_{shop}_{time}.csv");
+                            $"{items.Count()} items from shop '{shop}' were writed to the {fileName}");
                     }
                 }
                 catch (Exception ex)
@@ -45,6 +45,14 @@ namespace Common.Adapters
                     _logger.LogWarning($"Couldn't write shop '{shop}' items to a CSV: {ex.Message}");
                 }
             }
+        }
+
+        private string BuildCSVFileName(string shop, string timeLabel = "")
+        {
+            var timestamp = timeLabel;
+            if (timestamp.Length == 0)
+                timestamp = DateTime.Now.ToString("dd.MM.yyyy_HH-mm-ss");
+            return $"shop_{shop}_{timestamp}.csv";
         }
     }
 }

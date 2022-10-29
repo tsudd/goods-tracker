@@ -1,9 +1,10 @@
 using Common.Configs;
-using Common.Parsers;
+using Common.Parsers.Interfaces;
 using Common.Requesters;
+using Common.Scrapers.Interfaces;
 using Microsoft.Extensions.Logging;
 
-namespace Common.Scrapers;
+namespace Common.Scrapers.Factories;
 
 public class ScraperFactory
 {
@@ -24,15 +25,15 @@ public class ScraperFactory
     public IScraper CreateScraper(
         ScraperConfig scraperConfig,
         ILoggerFactory loggerFactory,
-        IParser parser,
+        IItemParser parser,
         IRequester? requester = null)
     {
         switch (scraperConfig.Name)
         {
-            case nameof(NeighborsScraper):
-                return new NeighborsScraper(
+            case nameof(YaNeighborsScraper):
+                return new YaNeighborsScraper(
                     scraperConfig,
-                    loggerFactory.CreateLogger<NeighborsScraper>(),
+                    loggerFactory.CreateLogger<YaNeighborsScraper>(),
                     parser,
                     requester);
             default:

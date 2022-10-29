@@ -1,7 +1,7 @@
 using Models;
 using Common.Configs;
 
-namespace Common.Scrapers;
+namespace Common.Scrapers.Interfaces;
 
 public interface IScraper
 {

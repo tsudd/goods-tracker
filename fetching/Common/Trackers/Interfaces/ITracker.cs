@@ -1,9 +1,9 @@
 using Models;
 using Common.Configs;
 
-namespace Common.Trackers;
+namespace Common.Trackers.Interfaces;
 
-public interface ITracker
+public interface IItemTracker
 {
     Task FetchItems();
     IEnumerable<Item>? GetShopItems(string shopId);

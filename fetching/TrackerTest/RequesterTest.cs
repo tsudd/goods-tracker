@@ -7,14 +7,15 @@ public class Requestertest
     public IRequester CUT { get; private set; } = new BasicRequester();
 
     [TestMethod]
-    public async Task TestGet()
+    public Task TestGet()
     {
+        throw new NotImplementedException();
         // var answer = await CUT.GetAsync("https://google.com");
     }
 
     [TestMethod]
-    public async Task TestPostAsync()
+    public Task TestPostAsync()
     {
-
+        throw new NotImplementedException();
     }
 }
