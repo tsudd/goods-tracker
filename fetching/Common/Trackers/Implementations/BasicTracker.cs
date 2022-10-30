@@ -1,14 +1,14 @@
 using System.Text.Json;
-using Common.Configs;
-using Common.Parsers.Factories;
-using Common.Scrapers.Factories;
-using Common.Scrapers.Interfaces;
-using Common.Trackers.Interfaces;
+using GoodsTracker.DataCollector.Common.Configs;
+using GoodsTracker.DataCollector.Common.Parsers.Factories;
+using GoodsTracker.DataCollector.Common.Scrapers.Factories;
+using GoodsTracker.DataCollector.Common.Scrapers.Interfaces;
+using GoodsTracker.DataCollector.Common.Trackers.Interfaces;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
-using Models;
+using GoodsTracker.DataCollector.Models;
 
-namespace Common.Trackers;
+namespace GoodsTracker.DataCollector.Common.Trackers;
 
 public class BasicTracker : IItemTracker
 {

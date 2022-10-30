@@ -1,7 +1,7 @@
 using HtmlAgilityPack;
-using Models.Constants;
+using GoodsTracker.DataCollector.Models.Constants;
 
-namespace Common.Parsers.Interfaces;
+namespace GoodsTracker.DataCollector.Common.Parsers.Interfaces;
 
 public interface IItemParser
 {

@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Common.Adapters.Exceptions;
+namespace GoodsTracker.DataCollector.Common.Adapters.Exceptions;
 [System.Serializable]
 public class AdapterException : System.Exception
 {

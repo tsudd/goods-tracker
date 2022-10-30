@@ -1,13 +1,13 @@
-﻿using Common.Configs;
+﻿using GoodsTracker.DataCollector.Common.Configs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Configuration;
-using Common.Trackers.Factories;
-using Common.Scrapers.Factories;
-using Common.Parsers.Factories;
-using Common.Trackers.Interfaces;
-using Common.Adapters.Factories;
-using Common.Mapers.Factories;
+using GoodsTracker.DataCollector.Common.Trackers.Factories;
+using GoodsTracker.DataCollector.Common.Scrapers.Factories;
+using GoodsTracker.DataCollector.Common.Parsers.Factories;
+using GoodsTracker.DataCollector.Common.Trackers.Interfaces;
+using GoodsTracker.DataCollector.Common.Adapters.Factories;
+using GoodsTracker.DataCollector.Common.Mappers.Factories;
 
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 

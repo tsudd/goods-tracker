@@ -1,10 +1,10 @@
-using Common.Configs;
-using Common.Parsers.Factories;
-using Common.Scrapers.Factories;
-using Common.Trackers.Interfaces;
+using GoodsTracker.DataCollector.Common.Configs;
+using GoodsTracker.DataCollector.Common.Parsers.Factories;
+using GoodsTracker.DataCollector.Common.Scrapers.Factories;
+using GoodsTracker.DataCollector.Common.Trackers.Interfaces;
 using Microsoft.Extensions.Logging;
 
-namespace Common.Trackers.Factories;
+namespace GoodsTracker.DataCollector.Common.Trackers.Factories;
 
 public class TrackerFactory
 {

@@ -1,7 +1,7 @@
-using Models;
-using Common.Configs;
+using GoodsTracker.DataCollector.Models;
+using GoodsTracker.DataCollector.Common.Configs;
 
-namespace Common.Trackers.Interfaces;
+namespace GoodsTracker.DataCollector.Common.Trackers.Interfaces;
 
 public interface IItemTracker
 {

@@ -1,9 +1,9 @@
-using Common.Configs;
-using Common.Parsers;
-using Common.Requesters;
+using GoodsTracker.DataCollector.Common.Configs;
+using GoodsTracker.DataCollector.Common.Parsers;
+using GoodsTracker.DataCollector.Common.Requesters;
 using Microsoft.Extensions.Logging;
 using HtmlAgilityPack;
-using Common.Scrapers.Factories;
+using GoodsTracker.DataCollector.Common.Scrapers.Factories;
 
 namespace TrackerTest;
 
@@ -70,6 +70,7 @@ public class YaNeighborsScraperTest
                         Config,
                         _loggerFactory,
                         new YaNeighborsParser(_loggerFactory.CreateLogger<YaNeighborsParser>()),
+                        null,
                         new YaNeighborsRequesterMock()
                     );
         //when

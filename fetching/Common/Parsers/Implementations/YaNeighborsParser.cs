@@ -1,12 +1,12 @@
 using System.Text;
 using System.Text.RegularExpressions;
-using Common.Mapers.Interfaces;
-using Common.Parsers.Interfaces;
+using GoodsTracker.DataCollector.Common.Mappers.Interfaces;
+using GoodsTracker.DataCollector.Common.Parsers.Interfaces;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
-using Models.Constants;
+using GoodsTracker.DataCollector.Models.Constants;
 
-namespace Common.Parsers;
+namespace GoodsTracker.DataCollector.Common.Parsers;
 public sealed class YaNeighborsParser : IItemParser
 {
     // TODO: better names for regular expressions (check .NET guide)

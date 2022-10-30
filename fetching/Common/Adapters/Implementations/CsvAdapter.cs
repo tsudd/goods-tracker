@@ -1,11 +1,11 @@
-using Common.Configs;
-using Common.Trackers.Interfaces;
+using GoodsTracker.DataCollector.Common.Configs;
+using GoodsTracker.DataCollector.Common.Trackers.Interfaces;
 using CsvHelper;
 using Microsoft.Extensions.Logging;
-using Models;
+using GoodsTracker.DataCollector.Models;
 using System.Globalization;
 
-namespace Common.Adapters.Implementations
+namespace GoodsTracker.DataCollector.Common.Adapters.Implementations
 {
     public class CsvAdapter : IDataAdapter
     {

@@ -1,4 +1,4 @@
-namespace Models.Constants;
+namespace GoodsTracker.DataCollector.Models.Constants;
 public enum ItemFields
 {
     Name1 = 0,

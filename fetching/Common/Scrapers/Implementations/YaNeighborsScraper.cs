@@ -1,14 +1,14 @@
-using Common.Configs;
+using GoodsTracker.DataCollector.Common.Configs;
 using Microsoft.Extensions.Logging;
-using Models;
-using Common.Requesters;
+using GoodsTracker.DataCollector.Models;
+using GoodsTracker.DataCollector.Common.Requesters;
 using HtmlAgilityPack;
-using Common.Parsers.Interfaces;
-using Common.Scrapers.Interfaces;
-using Common.Mapers.Interfaces;
-using Common.Mapers.Implementations;
+using GoodsTracker.DataCollector.Common.Parsers.Interfaces;
+using GoodsTracker.DataCollector.Common.Scrapers.Interfaces;
+using GoodsTracker.DataCollector.Common.Mappers.Interfaces;
+using GoodsTracker.DataCollector.Common.Mappers.Implementations;
 
-namespace Common.Scrapers;
+namespace GoodsTracker.DataCollector.Common.Scrapers;
 public sealed class YaNeighborsScraper : IScraper
 {
     public IRequester Requester { get; private set; }

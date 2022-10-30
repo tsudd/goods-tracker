@@ -1,7 +1,7 @@
-using Common.Trackers;
-using Common.Trackers.Interfaces;
+using GoodsTracker.DataCollector.Common.Trackers;
+using GoodsTracker.DataCollector.Common.Trackers.Interfaces;
 
-namespace Common.Adapters;
+namespace GoodsTracker.DataCollector.Common.Adapters;
 public interface IDataAdapter
 {
     void SaveItems(IItemTracker tracker, IEnumerable<string> shopIds);

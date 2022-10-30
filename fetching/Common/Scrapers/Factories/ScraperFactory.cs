@@ -1,11 +1,11 @@
-using Common.Configs;
-using Common.Mapers.Interfaces;
-using Common.Parsers.Interfaces;
-using Common.Requesters;
-using Common.Scrapers.Interfaces;
+using GoodsTracker.DataCollector.Common.Configs;
+using GoodsTracker.DataCollector.Common.Mappers.Interfaces;
+using GoodsTracker.DataCollector.Common.Parsers.Interfaces;
+using GoodsTracker.DataCollector.Common.Requesters;
+using GoodsTracker.DataCollector.Common.Scrapers.Interfaces;
 using Microsoft.Extensions.Logging;
 
-namespace Common.Scrapers.Factories;
+namespace GoodsTracker.DataCollector.Common.Scrapers.Factories;
 
 public partial class ScraperFactory
 {

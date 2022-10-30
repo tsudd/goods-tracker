@@ -1,8 +1,8 @@
-using Common.Mapers.Interfaces;
-using Models;
-using Models.Constants;
+using GoodsTracker.DataCollector.Common.Mappers.Interfaces;
+using GoodsTracker.DataCollector.Models;
+using GoodsTracker.DataCollector.Models.Constants;
 
-namespace Common.Mapers.Implementations;
+namespace GoodsTracker.DataCollector.Common.Mappers.Implementations;
 public class BasicMapper : IItemMapper
 {
     public Item MapItemFields(Dictionary<ItemFields, string> fields)

@@ -1,7 +1,7 @@
-using Models;
-using Common.Configs;
+using GoodsTracker.DataCollector.Models;
+using GoodsTracker.DataCollector.Common.Configs;
 
-namespace Common.Scrapers.Interfaces;
+namespace GoodsTracker.DataCollector.Common.Scrapers.Interfaces;
 
 public interface IScraper
 {

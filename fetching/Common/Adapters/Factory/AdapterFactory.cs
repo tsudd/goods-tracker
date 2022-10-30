@@ -1,8 +1,8 @@
-using Common.Adapters.Implementations;
-using Common.Configs;
+using GoodsTracker.DataCollector.Common.Adapters.Implementations;
+using GoodsTracker.DataCollector.Common.Configs;
 using Microsoft.Extensions.Logging;
 
-namespace Common.Adapters.Factories;
+namespace GoodsTracker.DataCollector.Common.Adapters.Factories;
 public class AdapterFactory
 {
     private static AdapterFactory? _instance;

@@ -1,4 +1,4 @@
-﻿namespace Models;
+﻿namespace GoodsTracker.DataCollector.Models;
 public class Item
 {
     public const string DEFAULT_ITEM_NAME = "UNNAMED ITEM";

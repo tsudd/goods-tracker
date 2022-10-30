@@ -1,7 +1,7 @@
-using Common.Mapers.Implementations;
-using Common.Mapers.Interfaces;
+using GoodsTracker.DataCollector.Common.Mappers.Implementations;
+using GoodsTracker.DataCollector.Common.Mappers.Interfaces;
 
-namespace Common.Mapers.Factories;
+namespace GoodsTracker.DataCollector.Common.Mappers.Factories;
 public partial class MapperFactory
 {
     protected static MapperFactory? _instance;

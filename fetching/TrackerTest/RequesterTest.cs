@@ -1,4 +1,4 @@
-using Common.Requesters;
+using GoodsTracker.DataCollector.Common.Requesters;
 namespace TrackerTest;
 
 [TestClass]

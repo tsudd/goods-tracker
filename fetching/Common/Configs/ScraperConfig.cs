@@ -1,4 +1,4 @@
-namespace Common.Configs;
+namespace GoodsTracker.DataCollector.Common.Configs;
 
 public class ScraperConfig
 {

@@ -17,8 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Common\Common.csproj" />
-    <ProjectReference Include="..\Models\Models.csproj" />
+    <ProjectReference Include="..\Common\GoodsTracker.DataCollector.Common.csproj" />
+    <ProjectReference Include="..\Models\GoodsTracker.DataCollector.Models.csproj" />
   </ItemGroup>
 
 </Project>

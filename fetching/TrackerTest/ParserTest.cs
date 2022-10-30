@@ -1,4 +1,4 @@
-using Common.Parsers.Factories;
+using GoodsTracker.DataCollector.Common.Parsers.Factories;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 

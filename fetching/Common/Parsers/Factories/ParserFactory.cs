@@ -1,7 +1,7 @@
-using Common.Parsers.Interfaces;
+using GoodsTracker.DataCollector.Common.Parsers.Interfaces;
 using Microsoft.Extensions.Logging;
 
-namespace Common.Parsers.Factories;
+namespace GoodsTracker.DataCollector.Common.Parsers.Factories;
 
 public partial class ParserFactory
 {

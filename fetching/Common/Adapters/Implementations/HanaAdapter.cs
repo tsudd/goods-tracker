@@ -1,11 +1,11 @@
 using Sap.Data.Hana;
 using Microsoft.Extensions.Logging;
-using Models;
-using Common.Configs;
-using Common.Trackers.Interfaces;
-using Common.Adapters.Exceptions;
+using GoodsTracker.DataCollector.Models;
+using GoodsTracker.DataCollector.Common.Configs;
+using GoodsTracker.DataCollector.Common.Trackers.Interfaces;
+using GoodsTracker.DataCollector.Common.Adapters.Exceptions;
 
-namespace Common.Adapters.Implementations
+namespace GoodsTracker.DataCollector.Common.Adapters.Implementations
 {
     public class HanaAdapter : IDataAdapter
     {
