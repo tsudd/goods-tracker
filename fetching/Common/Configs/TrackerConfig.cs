@@ -2,6 +2,6 @@ namespace Common.Configs;
 
 public class TrackerConfig
 {
-    public string TrackerName { get; set; } = String.Empty;
-    public IEnumerable<ScraperConfig> ScrapersConfigurations { get; set; } = new List<ScraperConfig>();
+    public string TrackerName { get; init; } = String.Empty;
+    public IEnumerable<ScraperConfig> ScrapersConfigurations { get; init; } = new List<ScraperConfig>();
 }

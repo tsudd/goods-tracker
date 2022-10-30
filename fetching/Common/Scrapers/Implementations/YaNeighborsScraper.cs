@@ -5,12 +5,15 @@ using Common.Requesters;
 using HtmlAgilityPack;
 using Common.Parsers.Interfaces;
 using Common.Scrapers.Interfaces;
+using Common.Mapers.Interfaces;
+using Common.Mapers.Implementations;
 
 namespace Common.Scrapers;
 public sealed class YaNeighborsScraper : IScraper
 {
     public IRequester Requester { get; private set; }
     private IItemParser _parser;
+    private IItemMapper _mapper;
     private ScraperConfig _config;
     private ILogger<YaNeighborsScraper> _logger;
 
@@ -18,6 +21,7 @@ public sealed class YaNeighborsScraper : IScraper
         ScraperConfig config,
         ILogger<YaNeighborsScraper> logger,
         IItemParser parser,
+        IItemMapper? mapper = null,
         IRequester? requester = null)
     {
         if (requester is null)
@@ -28,6 +32,14 @@ public sealed class YaNeighborsScraper : IScraper
         {
             Requester = requester;
         }
+        if (mapper is null)
+        {
+            _mapper = new BasicMapper();
+        }
+        else
+        {
+            _mapper = mapper;
+        }
         _logger = logger;
         _config = config;
         _parser = parser;
@@ -36,7 +48,7 @@ public sealed class YaNeighborsScraper : IScraper
 
     public ScraperConfig GetConfig()
     {
-        throw new NotImplementedException();
+        return _config;
     }
 
     public async Task<IEnumerable<Item>> GetItems()
@@ -100,8 +112,23 @@ public sealed class YaNeighborsScraper : IScraper
         foreach (var itemRecourse in itemRecourses)
         {
             var itemPage = await GetHtmlDocumentAsync(_config.ShopUrl + itemRecourse);
-            var itemFields = _parser.ParseItem(itemPage);
-            parsedItems.Add(_parser.)
+            try
+            {
+                var itemFields = _parser.ParseItem(itemPage);
+                parsedItems.Add(_mapper.MapItemFields(itemFields));
+            }
+            catch (InvalidDataException dataException)
+            {
+                _logger.LogWarning($"Couldn't parse item page: {dataException.Message}");
+            }
+            catch (IndexOutOfRangeException indexException)
+            {
+                _logger.LogWarning($"Regex error: {indexException.Message}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex.Message);
+            }
         }
 
         return parsedItems;

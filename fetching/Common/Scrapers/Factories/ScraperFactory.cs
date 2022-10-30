@@ -1,4 +1,5 @@
 using Common.Configs;
+using Common.Mapers.Interfaces;
 using Common.Parsers.Interfaces;
 using Common.Requesters;
 using Common.Scrapers.Interfaces;
@@ -6,9 +7,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Common.Scrapers.Factories;
 
-public class ScraperFactory
+public partial class ScraperFactory
 {
-    private static ScraperFactory? _instance;
+    protected static ScraperFactory? _instance;
     private ScraperFactory()
     {
     }
@@ -26,6 +27,7 @@ public class ScraperFactory
         ScraperConfig scraperConfig,
         ILoggerFactory loggerFactory,
         IItemParser parser,
+        IItemMapper? mapper = null,
         IRequester? requester = null)
     {
         switch (scraperConfig.Name)
@@ -35,6 +37,7 @@ public class ScraperFactory
                     scraperConfig,
                     loggerFactory.CreateLogger<YaNeighborsScraper>(),
                     parser,
+                    mapper,
                     requester);
             default:
                 throw new ArgumentException(

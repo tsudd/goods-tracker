@@ -7,8 +7,8 @@ namespace Common.Configs
 {
     public class AdapterConfig
     {
-        public string AdapterName { get; set; } = String.Empty;
-        public string Arguments { get; set; } = String.Empty;
-        public string LocalPath { get; set; } = String.Empty;
+        public string AdapterName { get; init; } = String.Empty;
+        public string Arguments { get; init; } = String.Empty;
+        public string LocalPath { get; init; } = String.Empty;
     }
 }

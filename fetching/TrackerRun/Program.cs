@@ -7,6 +7,7 @@ using Common.Scrapers.Factories;
 using Common.Parsers.Factories;
 using Common.Trackers.Interfaces;
 using Common.Adapters.Factories;
+using Common.Mapers.Factories;
 
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
@@ -26,7 +27,12 @@ var log = loggerFactory.CreateLogger<Program>();
 log.LogInformation($"Configuration was loaded. Tracker is starting now in {environment} mode.");
 
 //------------------handling tracker configuration
-var trackerConfig = config.GetSection("TrackerConfig").Get<TrackerConfig>();
+// TODO: get tracker configuraiton deeply 
+var trackerConfig = new TrackerConfig()
+{
+    TrackerName = config.GetSection("TrackerConfig").GetValue<string>("TrackerName"),
+    ScrapersConfigurations = config.GetSection("TrackerConfig:ScrapersConfigurations").Get<List<ScraperConfig>>()
+};
 var shopIDs = config.GetSection("ShopIDs").Get<IEnumerable<string>>();
 var adapterConfig = config.GetSection("AdapterConfig").Get<AdapterConfig>();
 var alternativeAdapterConfig = config.GetSection("AlternativeAdapterConfig").Get<AdapterConfig>();
@@ -39,14 +45,12 @@ if (alternativeAdapterConfig is null)
 {
     log.LogWarning("Couldn't get config for alternative data adapter. Data might be lost by proceeding without it.");
 }
-trackerConfig.ScrapersConfigurations = config
-                                            .GetSection("TrackerConfig:ScrapersConfigurations")
-                                            .Get<List<ScraperConfig>>();
 var factories = config.GetSection("Factories");
 TrackerFactory? trackerFactory;
 ScraperFactory? scraperFactory;
 AdapterFactory? adapterFactory;
 ParserFactory? parserFactory;
+MapperFactory? mapperFactory;
 try
 {
     trackerFactory = TrackerFactory.GetSpecifiedFactory(
@@ -57,6 +61,8 @@ try
         factories.GetSection(typeof(AdapterFactory).Name).Get<string>());
     parserFactory = ParserFactory.GetSpecifiedFactory(
         factories.GetSection(typeof(ParserFactory).Name).Get<string>());
+    mapperFactory = MapperFactory.GetSpecifiedFactory(
+        factories.GetSection(typeof(MapperFactory).Name).Get<string>());
 }
 catch (ArgumentException ex)
 {
@@ -97,7 +103,7 @@ await tracker.FetchItems();
 
 //------------------record fetch data
 
-log.LogInformation("Sending fetched data to HANA db");
+log.LogInformation("Sending fetched data to the DB adapter");
 
 try
 {

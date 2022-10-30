@@ -44,24 +44,30 @@ public sealed class YaNeighborsParser : IItemParser
                 itemPage,
                 "//h2[@class='UiKitText_root UiKitText_Title4Loose UiKitText_Bold UiKitText_Text']",
                 _itemNameRegex
-            ));
+            )
+            ??
+            throw new InvalidDataException("Parser couldn't recognize page structure"));
 
         var fullWeight =
             SelectFieldWithNodePath(
                 itemPage,
                 "//div[@class='UiKitProductFullCard_weight']"
             );
-        var fullWeightMatch = _itemWeightRegex.Match(fullWeight);
-        if (fullWeightMatch.Length != fullWeight.Length)
-            throw new ArgumentException("Regex pattern doesn't allocate weight data");
-        fields.Add(
-            ItemFields.Weight,
-            fullWeightMatch.Groups[1].Value
-        );
-        fields.Add(
-            ItemFields.WeightUnit,
-            fullWeightMatch.Groups[2].Value
-        );
+        if (fullWeight is not null)
+        {
+            var fullWeightMatch = _itemWeightRegex.Match(fullWeight);
+            if (fullWeightMatch.Length == fullWeight.Length)
+            {
+                fields.Add(
+                ItemFields.Weight,
+                fullWeightMatch.Groups[1].Value
+                );
+                fields.Add(
+                    ItemFields.WeightUnit,
+                    fullWeightMatch.Groups[2].Value
+                );
+            }
+        }
 
         var itemNode =
             itemPage
@@ -75,7 +81,9 @@ public sealed class YaNeighborsParser : IItemParser
                     itemPage,
                     "//span[@class='UiKitCorePrice_price UiKitCorePrice_xl UiKitCorePrice_bold']",
                     _itemPriceRegex
-                    ));
+                    )
+                    ??
+                    throw new InvalidDataException("Parser couldn't recognize page structure"));
         }
         else
         {
@@ -90,6 +98,8 @@ public sealed class YaNeighborsParser : IItemParser
                     "//span[@class='UiKitCorePrice_price UiKitCorePrice_m UiKitCorePrice_medium UiKitCorePrice_oldPrice']",
                     _itemPriceRegex
                 )
+                ??
+                throw new InvalidDataException("Parser couldn't recognize page structure")
             );
         }
 
@@ -132,23 +142,23 @@ public sealed class YaNeighborsParser : IItemParser
         return fields;
     }
 
-    private string SelectFieldWithPattern(HtmlDocument page, string nodePath, Regex pattern)
+    private string? SelectFieldWithPattern(HtmlDocument page, string nodePath, Regex pattern)
     {
         var innerText = SelectFieldWithNodePath(page, nodePath);
-        if (!pattern.IsMatch(innerText))
+        if (innerText is null || !pattern.IsMatch(innerText))
         {
-            throw new ArgumentException("Regex pattern doesn't allocate any matches");
+            return null;
         }
         var textMatch = pattern.Match(innerText);
         return textMatch.Groups[1].Value;
     }
 
-    private string SelectFieldWithNodePath(HtmlDocument page, string nodePath)
+    private string? SelectFieldWithNodePath(HtmlDocument page, string nodePath)
     {
         return page
                 .DocumentNode
                 .SelectSingleNode(nodePath)
-                ?.InnerText ?? throw new InvalidDataException("Wrong item page structure");
+                ?.InnerText;
     }
 
     public List<Dictionary<string, string>> ParseItems(string rawItems)
