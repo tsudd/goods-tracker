@@ -2,12 +2,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Configuration;
-using GoodsTracker.DataCollector.Common.Trackers.Factories;
-using GoodsTracker.DataCollector.Common.Scrapers.Factories;
-using GoodsTracker.DataCollector.Common.Parsers.Factories;
 using GoodsTracker.DataCollector.Common.Trackers.Interfaces;
-using GoodsTracker.DataCollector.Common.Adapters.Factories;
-using GoodsTracker.DataCollector.Common.Mappers.Factories;
+using GoodsTracker.DataCollector.Common.Factories.Interfaces;
+using GoodsTracker.DataCollector.Common.Factories.Implementations;
 
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
@@ -45,24 +42,11 @@ if (alternativeAdapterConfig is null)
 {
     log.LogWarning("Couldn't get config for alternative data adapter. Data might be lost by proceeding without it.");
 }
-var factories = config.GetSection("Factories");
-TrackerFactory? trackerFactory;
-ScraperFactory? scraperFactory;
-AdapterFactory? adapterFactory;
-ParserFactory? parserFactory;
-MapperFactory? mapperFactory;
+IDataCollectorFactory? collectorFactory;
 try
 {
-    trackerFactory = TrackerFactory.GetSpecifiedFactory(
-        factories.GetSection(typeof(TrackerFactory).Name).Get<string>());
-    scraperFactory = ScraperFactory.GetSpecifiedFactory(
-        factories.GetSection(typeof(ScraperFactory).Name).Get<string>());
-    adapterFactory = AdapterFactory.GetSpecifiedFactory(
-        factories.GetSection(typeof(AdapterFactory).Name).Get<string>());
-    parserFactory = ParserFactory.GetSpecifiedFactory(
-        factories.GetSection(typeof(ParserFactory).Name).Get<string>());
-    mapperFactory = MapperFactory.GetSpecifiedFactory(
-        factories.GetSection(typeof(MapperFactory).Name).Get<string>());
+    // TODO: replace explicit call with reflection statement
+    collectorFactory = DataCollectorFactory.GetInstance();
 }
 catch (ArgumentException ex)
 {
@@ -78,13 +62,7 @@ log.LogInformation("Tracker instance creation...");
 IItemTracker? tracker;
 try
 {
-    tracker = trackerFactory
-        .CreateTracker(
-            trackerConfig,
-            loggerFactory,
-            scraperFactory,
-            parserFactory
-            );
+    tracker = collectorFactory.CreateTracker(trackerConfig, loggerFactory);
 }
 catch (ArgumentException ex)
 {
@@ -107,7 +85,7 @@ log.LogInformation("Sending fetched data to the DB adapter");
 
 try
 {
-    var adapter = adapterFactory.CreateAdapter(adapterConfig, loggerFactory);
+    var adapter = collectorFactory.CreateDataAdapter(adapterConfig, loggerFactory);
     adapter.SaveItems(tracker, shopIDs);
 }
 catch (ApplicationException ex)
@@ -116,7 +94,7 @@ catch (ApplicationException ex)
     {
         log.LogWarning(
         $"Error occured during saving of items into the DB: {ex.Message}. Saving items using alternative data adapter for future restore");
-        var alternativeAdapter = adapterFactory.CreateAdapter(alternativeAdapterConfig, loggerFactory);
+        var alternativeAdapter = collectorFactory.CreateDataAdapter(alternativeAdapterConfig, loggerFactory);
         alternativeAdapter.SaveItems(tracker, shopIDs);
     }
     else

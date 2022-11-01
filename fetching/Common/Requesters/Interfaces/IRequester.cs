@@ -1,5 +1,5 @@
 using HtmlAgilityPack;
-namespace GoodsTracker.DataCollector.Common.Requesters;
+namespace GoodsTracker.DataCollector.Common.Requesters.Interfaces;
 
 public interface IRequester
 {

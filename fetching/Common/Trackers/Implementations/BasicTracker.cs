@@ -1,14 +1,13 @@
 using System.Text.Json;
 using GoodsTracker.DataCollector.Common.Configs;
-using GoodsTracker.DataCollector.Common.Parsers.Factories;
-using GoodsTracker.DataCollector.Common.Scrapers.Factories;
 using GoodsTracker.DataCollector.Common.Scrapers.Interfaces;
 using GoodsTracker.DataCollector.Common.Trackers.Interfaces;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using GoodsTracker.DataCollector.Models;
+using GoodsTracker.DataCollector.Common.Factories.Interfaces;
 
-namespace GoodsTracker.DataCollector.Common.Trackers;
+namespace GoodsTracker.DataCollector.Common.Trackers.Implementations;
 
 public class BasicTracker : IItemTracker
 {
@@ -19,8 +18,7 @@ public class BasicTracker : IItemTracker
     public BasicTracker(
         TrackerConfig config,
         ILoggerFactory loggerFactory,
-        ScraperFactory scraperFactory,
-        ParserFactory parserFactory)
+        IDataCollectorFactory factory)
     {
         _config = config;
         _logger = loggerFactory.CreateLogger<BasicTracker>();
@@ -30,10 +28,10 @@ public class BasicTracker : IItemTracker
         foreach (var conf in _config.ScrapersConfigurations)
         {
             Scrapers.Add(
-                scraperFactory.CreateScraper(
+                factory.CreateScraper(
                 conf,
                 loggerFactory,
-                parserFactory.CreateParser(conf.ParserName, loggerFactory)));
+                factory.CreateParser(conf.ParserName, loggerFactory)));
             _shopItems.Add(
                 new Tuple<string, List<Item>>(conf.ShopID, new List<Item>()));
             _logger.LogInformation("'{0}' was created", conf.Name);

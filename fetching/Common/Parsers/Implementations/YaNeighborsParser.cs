@@ -6,7 +6,7 @@ using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using GoodsTracker.DataCollector.Models.Constants;
 
-namespace GoodsTracker.DataCollector.Common.Parsers;
+namespace GoodsTracker.DataCollector.Common.Parsers.Implementations;
 public sealed class YaNeighborsParser : IItemParser
 {
     // TODO: better names for regular expressions (check .NET guide)
@@ -43,6 +43,12 @@ public sealed class YaNeighborsParser : IItemParser
             SelectFieldWithPattern(
                 itemPage,
                 "//h2[@class='UiKitText_root UiKitText_Title4Loose UiKitText_Bold UiKitText_Text']",
+                _itemNameRegex
+            )
+            ??
+            SelectFieldWithPattern(
+                itemPage,
+                "//h2[@class='UiKitText_root UiKitText_Title2Loose UiKitText_Bold UiKitText_Text']",
                 _itemNameRegex
             )
             ??
@@ -107,17 +113,16 @@ public sealed class YaNeighborsParser : IItemParser
             itemPage
                 .DocumentNode
                 .SelectNodes("//h3[@class='UiKitProductCardDescriptions_descriptionTitle']");
-        var descriptionNodesAmount = descriptionNodes.Count;
-        if (descriptionNodesAmount > 0)
+        if (descriptionNodes is not null && descriptionNodes.Count > 0)
         {
-            if (descriptionNodesAmount == 2)
+            if (descriptionNodes.Count == 2)
             {
                 fields.Add(ItemFields.Compound, descriptionNodes[0].NextSibling?.InnerText ?? "");
             }
-            else if (descriptionNodesAmount == 3)
+            else if (descriptionNodes.Count == 3)
             {
                 fields.Add(ItemFields.Producer, descriptionNodes[0].NextSibling?.InnerText ?? "");
-                fields.Add(ItemFields.Producer, descriptionNodes[1].NextSibling?.InnerText ?? "");
+                fields.Add(ItemFields.Country, descriptionNodes[1].NextSibling?.InnerText ?? "");
                 fields.Add(ItemFields.Compound, descriptionNodes[2].NextSibling?.InnerText ?? "");
             }
         }

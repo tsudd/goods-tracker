@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoodsTracker.DataCollector.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoodsTracker.DataCollector.Common", "Common\GoodsTracker.DataCollector.Common.csproj", "{0D36E9E8-BC2C-41B5-9B84-0980DE92AB7E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoodsTracker.DataCollector.Test", "TrackerTest\GoodsTracker.DataCollector.Test.csproj", "{CB1FACA3-D194-42B1-B39C-0B86297CF55E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

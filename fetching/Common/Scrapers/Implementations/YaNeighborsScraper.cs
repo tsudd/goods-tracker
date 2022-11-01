@@ -1,14 +1,15 @@
 using GoodsTracker.DataCollector.Common.Configs;
 using Microsoft.Extensions.Logging;
 using GoodsTracker.DataCollector.Models;
-using GoodsTracker.DataCollector.Common.Requesters;
 using HtmlAgilityPack;
 using GoodsTracker.DataCollector.Common.Parsers.Interfaces;
 using GoodsTracker.DataCollector.Common.Scrapers.Interfaces;
 using GoodsTracker.DataCollector.Common.Mappers.Interfaces;
 using GoodsTracker.DataCollector.Common.Mappers.Implementations;
+using GoodsTracker.DataCollector.Common.Requesters.Interfaces;
+using GoodsTracker.DataCollector.Common.Requesters.Implementaions;
 
-namespace GoodsTracker.DataCollector.Common.Scrapers;
+namespace GoodsTracker.DataCollector.Common.Scrapers.Implementaions;
 public sealed class YaNeighborsScraper : IScraper
 {
     public IRequester Requester { get; private set; }
@@ -119,7 +120,7 @@ public sealed class YaNeighborsScraper : IScraper
             }
             catch (InvalidDataException dataException)
             {
-                _logger.LogWarning($"Couldn't parse item page: {dataException.Message}");
+                _logger.LogWarning($"Couldn't parse item page from {itemRecourse}: {dataException.Message}");
             }
             catch (IndexOutOfRangeException indexException)
             {

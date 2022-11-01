@@ -1,5 +1,6 @@
+using GoodsTracker.DataCollector.Common.Requesters.Interfaces;
 using HtmlAgilityPack;
-namespace GoodsTracker.DataCollector.Common.Requesters;
+namespace GoodsTracker.DataCollector.Common.Requesters.Implementaions;
 
 public class BasicRequester : IRequester
 {
