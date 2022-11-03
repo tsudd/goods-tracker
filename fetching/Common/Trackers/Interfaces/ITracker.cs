@@ -5,7 +5,7 @@ namespace GoodsTracker.DataCollector.Common.Trackers.Interfaces;
 
 public interface IItemTracker
 {
-    Task FetchItems();
+    Task FetchItemsAsync();
     IEnumerable<Item>? GetShopItems(string shopId);
     void ClearData();
 }

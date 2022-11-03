@@ -47,7 +47,7 @@ public class BasicTracker : IItemTracker
         }
     }
 
-    public async Task FetchItems()
+    public async Task FetchItemsAsync()
     {
         foreach (var scraper in Scrapers)
         {

@@ -77,7 +77,7 @@ catch (Exception ex)
 
 //------------------fetching data with configured tracker
 log.LogInformation("Starting scraping items.");
-await tracker.FetchItems();
+await tracker.FetchItemsAsync();
 
 //------------------record fetch data
 

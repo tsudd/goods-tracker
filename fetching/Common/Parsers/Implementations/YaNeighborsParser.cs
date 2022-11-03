@@ -10,14 +10,14 @@ namespace GoodsTracker.DataCollector.Common.Parsers.Implementations;
 public sealed class YaNeighborsParser : IItemParser
 {
     // TODO: better names for regular expressions (check .NET guide)
-    public readonly static Regex _itemNameRegex = new Regex(
-        @"^([^,]*)(,?\s\d*\w?)?$", RegexOptions.Compiled
+    public readonly static Regex _itemTitleRegex = new Regex(
+        @"^([^,]*)(\s(\d+\.?\d*\s?)(\w*)?)$", RegexOptions.Compiled
     );
     public readonly static Regex _itemWeightRegex = new Regex(
         @"^(\d*).+(г)$", RegexOptions.Compiled
     );
     public readonly static Regex _itemPriceRegex = new Regex(
-        @"^([0-9]*,[0-9]*).*$"
+        @"^([0-9]*[,0-9]*).*$"
     );
     private ILogger<YaNeighborsParser> _logger;
 
@@ -38,40 +38,59 @@ public sealed class YaNeighborsParser : IItemParser
         var fields = new Dictionary<ItemFields, string>();
 
         // TODO: exception handling
-        fields.Add(
-            ItemFields.Name1,
-            SelectFieldWithPattern(
+        var rawTitle = SelectFieldWithNodePath(
                 itemPage,
-                "//h2[@class='UiKitText_root UiKitText_Title4Loose UiKitText_Bold UiKitText_Text']",
-                _itemNameRegex
+                "//h2[@class='UiKitText_root UiKitText_Title4Loose UiKitText_Bold UiKitText_Text']"
             )
             ??
-            SelectFieldWithPattern(
-                itemPage,
-                "//h2[@class='UiKitText_root UiKitText_Title2Loose UiKitText_Bold UiKitText_Text']",
-                _itemNameRegex
-            )
-            ??
-            throw new InvalidDataException("Parser couldn't recognize page structure"));
-
-        var fullWeight =
             SelectFieldWithNodePath(
                 itemPage,
-                "//div[@class='UiKitProductFullCard_weight']"
-            );
-        if (fullWeight is not null)
+                "//h2[@class='UiKitText_root UiKitText_Title2Loose UiKitText_Bold UiKitText_Text']"
+            )
+            ??
+            throw new InvalidDataException("Parser couldn't recognize page structure (title)");
+        var itemTitleMatch = _itemTitleRegex.Match(rawTitle);
+        if (itemTitleMatch.Success)
         {
-            var fullWeightMatch = _itemWeightRegex.Match(fullWeight);
-            if (fullWeightMatch.Length == fullWeight.Length)
-            {
-                fields.Add(
+            fields.Add(
+                ItemFields.Name1,
+                itemTitleMatch.Groups[1].Value.Trim()
+            );
+            fields.Add(
                 ItemFields.Weight,
-                fullWeightMatch.Groups[1].Value
+                itemTitleMatch.Groups[3].Value.Trim()
+            );
+            fields.Add(
+                ItemFields.WeightUnit,
+                itemTitleMatch.Groups[4].Value.Trim()
+            );
+        }
+        else
+        {
+            fields.Add(
+                ItemFields.Name1,
+                rawTitle.Trim()
+            );
+
+            var fullWeight =
+                SelectFieldWithNodePath(
+                    itemPage,
+                    "//div[@class='UiKitProductFullCard_weight']"
                 );
-                fields.Add(
-                    ItemFields.WeightUnit,
-                    fullWeightMatch.Groups[2].Value
-                );
+            if (fullWeight is not null)
+            {
+                var fullWeightMatch = _itemWeightRegex.Match(fullWeight);
+                if (fullWeightMatch.Length == fullWeight.Length)
+                {
+                    fields.Add(
+                    ItemFields.Weight,
+                    fullWeightMatch.Groups[1].Value.Trim()
+                    );
+                    fields.Add(
+                        ItemFields.WeightUnit,
+                        fullWeightMatch.Groups[2].Value.Trim()
+                    );
+                }
             }
         }
 
@@ -89,7 +108,7 @@ public sealed class YaNeighborsParser : IItemParser
                     _itemPriceRegex
                     )
                     ??
-                    throw new InvalidDataException("Parser couldn't recognize page structure"));
+                    throw new InvalidDataException("Parser couldn't recognize page structure (price)"));
         }
         else
         {
@@ -113,7 +132,7 @@ public sealed class YaNeighborsParser : IItemParser
             itemPage
                 .DocumentNode
                 .SelectNodes("//h3[@class='UiKitProductCardDescriptions_descriptionTitle']");
-        if (descriptionNodes is not null && descriptionNodes.Count > 0)
+        if (descriptionNodes is not null && descriptionNodes.Count > 1)
         {
             if (descriptionNodes.Count == 2)
             {
