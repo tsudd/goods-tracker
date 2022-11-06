@@ -75,6 +75,8 @@ public sealed class YaNeighborsScraper : IScraper
                 .DocumentNode
                 .SelectNodes("//div[@class='UiKitShopMenu_root']/ul/li/a");
 
+        // TODO: handle null raw links
+        // NOTE: Captcha might accure!!!
         foreach (var raw in rawLinks)
         {
             links.Add((

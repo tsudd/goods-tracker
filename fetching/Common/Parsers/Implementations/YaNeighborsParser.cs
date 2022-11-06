@@ -11,7 +11,7 @@ public sealed class YaNeighborsParser : IItemParser
 {
     // TODO: better names for regular expressions (check .NET guide)
     public readonly static Regex _itemTitleRegex = new Regex(
-        @"^([^,]*)(\s(\d+\.?\d*\s?)(\w*)?)$", RegexOptions.Compiled
+        @"^(.*)(\s(\d+\.?\d*\s?)(\w*)?)$", RegexOptions.Compiled
     );
     public readonly static Regex _itemWeightRegex = new Regex(
         @"^(\d*)\s?(\w+)$", RegexOptions.Compiled
