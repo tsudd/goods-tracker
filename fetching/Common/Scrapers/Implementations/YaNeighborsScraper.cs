@@ -112,9 +112,9 @@ public sealed class YaNeighborsScraper : IScraper
         var parsedItems = new List<Item>();
         foreach (var itemRecourse in itemRecourses)
         {
-            var itemPage = await GetHtmlDocumentAsync(_config.ShopUrl + itemRecourse);
             try
             {
+                var itemPage = await GetHtmlDocumentAsync(_config.ShopUrl + itemRecourse);
                 var itemFields = _parser.ParseItem(itemPage);
                 parsedItems.Add(_mapper.MapItemFields(itemFields));
             }

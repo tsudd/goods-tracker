@@ -7,37 +7,38 @@ public class BasicMapper : IItemMapper
 {
     public Item MapItemFields(Dictionary<ItemFields, string> fields)
     {
+        Func<string, string?> noAffect = static _ => _;
         return new Item()
         {
             Name1 = fields.GetValueOrDefault(ItemFields.Name1, Item.DEFAULT_ITEM_NAME),
-            Name2 = fields.GetValueOrDefault(ItemFields.Name2, string.Empty),
-            Name3 = fields.GetValueOrDefault(ItemFields.Name3, string.Empty),
-            Price = fields.GetValueOrDefault(ItemFields.Price, string.Empty),
-            Discount = fields.GetValueOrDefault(ItemFields.Discount, string.Empty),
-            Country = fields.GetValueOrDefault(ItemFields.Country, string.Empty),
-            Producer = fields.GetValueOrDefault(ItemFields.Producer, string.Empty),
-            VendorCode = ParseIntOrDefault(fields.GetValueOrDefault(ItemFields.VendorCode, "0")),
-            Wieght = ParseIntOrDefault(fields.GetValueOrDefault(ItemFields.Weight, "0")),
-            WieghtUnit = fields.GetValueOrDefault(ItemFields.WeightUnit, string.Empty),
-            Compound = fields.GetValueOrDefault(ItemFields.Compound, string.Empty),
-            Carbo = ParseFloatOrDefault(fields.GetValueOrDefault(ItemFields.Name1, "0")),
-            Fat = ParseFloatOrDefault(fields.GetValueOrDefault(ItemFields.Name1, "0")),
-            Protein = ParseFloatOrDefault(fields.GetValueOrDefault(ItemFields.Protein, "0")),
-            Portion = ParseFloatOrDefault(fields.GetValueOrDefault(ItemFields.Portion, "0")),
-            Categories = ParseCategoriesOrEmpty(fields.GetValueOrDefault(ItemFields.Categories, string.Empty)),
+            Name2 = TryGetValueOrDefault(fields, ItemFields.Name2, noAffect),
+            Name3 = TryGetValueOrDefault(fields, ItemFields.Name3, noAffect),
+            Price = TryGetValueOrDefault(fields, ItemFields.Price, AdjustPriceIfRequired),
+            Discount = TryGetValueOrDefault(fields, ItemFields.Discount, AdjustPriceIfRequired),
+            Country = TryGetValueOrDefault(fields, ItemFields.Country, noAffect),
+            Producer = TryGetValueOrDefault(fields, ItemFields.Producer, noAffect),
+            VendorCode = TryGetValueOrDefault(fields, ItemFields.VendorCode, ParseIntOrDefault),
+            Wieght = TryGetValueOrDefault(fields, ItemFields.Weight, ParseFloatOrDefault),
+            WieghtUnit = TryGetValueOrDefault(fields, ItemFields.WeightUnit, noAffect),
+            Compound = TryGetValueOrDefault(fields, ItemFields.Compound, noAffect),
+            Carbo = TryGetValueOrDefault(fields, ItemFields.Carbo, ParseFloatOrDefault),
+            Fat = TryGetValueOrDefault(fields, ItemFields.Fat, ParseFloatOrDefault),
+            Protein = TryGetValueOrDefault(fields, ItemFields.Protein, ParseFloatOrDefault),
+            Portion = TryGetValueOrDefault(fields, ItemFields.Portion, ParseFloatOrDefault),
+            Categories = TryGetValueOrDefault(fields, ItemFields.Categories, ParseCategoriesOrEmpty),
         };
     }
 
-    protected int ParseIntOrDefault(string numberValue)
+    protected int? ParseIntOrDefault(string numberValue)
     {
         if (Int32.TryParse(numberValue, out int result))
         {
             return result;
         }
-        return 0;
+        return null;
     }
 
-    protected float ParseFloatOrDefault(string numberValue)
+    protected float? ParseFloatOrDefault(string numberValue)
     {
         if (float.TryParse(
             numberValue,
@@ -47,7 +48,7 @@ public class BasicMapper : IItemMapper
         {
             return result;
         }
-        return 0;
+        return null;
     }
 
     protected List<string> ParseCategoriesOrEmpty(string categoriesValue)
@@ -59,4 +60,10 @@ public class BasicMapper : IItemMapper
     {
         return rawPrice.Replace(',', '.');
     }
+
+    protected TValue? TryGetValueOrDefault<TValue>(
+        Dictionary<ItemFields, string> dict,
+        ItemFields field,
+        Func<string, TValue?> affect)
+    => dict.ContainsKey(field) ? affect(dict[field]) : default(TValue);
 }

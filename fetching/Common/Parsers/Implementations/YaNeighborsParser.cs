@@ -14,7 +14,7 @@ public sealed class YaNeighborsParser : IItemParser
         @"^([^,]*)(\s(\d+\.?\d*\s?)(\w*)?)$", RegexOptions.Compiled
     );
     public readonly static Regex _itemWeightRegex = new Regex(
-        @"^(\d*).+(г)$", RegexOptions.Compiled
+        @"^(\d*)\s?(\w+)$", RegexOptions.Compiled
     );
     public readonly static Regex _itemPriceRegex = new Regex(
         @"^([0-9]*[,0-9]*).*$"
