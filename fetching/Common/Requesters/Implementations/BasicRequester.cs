@@ -18,15 +18,16 @@ public class BasicRequester : IRequester
 
     public HttpClient Client { get; private set; }
 
-    public async Task<HtmlDocument> GetPageHtmlAsync(string url)
+    public async Task<HtmlDocument> GetPageHtmlAsync(string url, Dictionary<string, string>? headers = null)
     {
-        var result = new HtmlDocument();
-        var response = await Client.GetAsync(url);
+        var request = CreateRequest(url, headers);
+        var response = await Client.SendAsync(request);
         if (!response.IsSuccessStatusCode)
         {
             throw new HtmlWebException(
                 $"couldn't get HTML page from {url}: {response.RequestMessage}");
         }
+        var result = new HtmlDocument();
         result.LoadHtml(await response.Content.ReadAsStringAsync());
         return result;
     }
@@ -58,21 +59,30 @@ public class BasicRequester : IRequester
         return result;
     }
 
-    public async Task<string> GetAsync(string url)
+    public async Task<string> GetAsync(string url, Dictionary<string, string>? headers = null)
     {
-        var result = "";
-        using (var response = await Client.GetAsync(url))
+        var request = CreateRequest(url, headers);
+        using (var response = await Client.SendAsync(request))
         {
             if (!response.IsSuccessStatusCode)
             {
                 throw new HtmlWebException(
                     $"couldn't perform GET to {url}: {response.RequestMessage}");
             }
-            using (var str = new StreamReader(await response.Content.ReadAsStreamAsync()))
+            return await response.Content.ReadAsStringAsync();
+        }
+    }
+
+    private HttpRequestMessage CreateRequest(string url, Dictionary<string, string>? headers = null)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get, url);
+        if (headers != null)
+        {
+            foreach (var header in headers)
             {
-                result = await str.ReadToEndAsync();
+                request.Headers.Add(header.Key, header.Value);
             }
         }
-        return result;
+        return request;
     }
 }

@@ -12,7 +12,7 @@ namespace GoodsTracker.DataCollector.Common.Trackers.Implementations;
 public class BasicTracker : IItemTracker
 {
     public List<IScraper> Scrapers { get; private set; }
-    public List<Tuple<string, List<Item>>> _shopItems;
+    public Dictionary<string, List<Item>> _shopItems;
     private ILogger<BasicTracker> _logger;
     private TrackerConfig _config;
     public BasicTracker(
@@ -22,7 +22,8 @@ public class BasicTracker : IItemTracker
     {
         _config = config;
         _logger = loggerFactory.CreateLogger<BasicTracker>();
-        _shopItems = new List<Tuple<string, List<Item>>>();
+        // _shopItems = new List<Tuple<string, List<Item>>>();
+        _shopItems = new Dictionary<string, List<Item>>();
         Scrapers = new List<IScraper>();
         _logger.LogInformation("Scrapers creation from provided configs...");
         foreach (var conf in _config.ScrapersConfigurations)
@@ -32,8 +33,7 @@ public class BasicTracker : IItemTracker
                 conf,
                 loggerFactory,
                 factory.CreateParser(conf.ParserName, loggerFactory)));
-            _shopItems.Add(
-                new Tuple<string, List<Item>>(conf.ShopID, new List<Item>()));
+            _shopItems.Add(conf.ShopID, new List<Item>());
             _logger.LogInformation("'{0}' was created", conf.Name);
         }
         _logger.LogInformation("Tracker was created.");
@@ -43,7 +43,7 @@ public class BasicTracker : IItemTracker
     {
         foreach (var shopItems in _shopItems)
         {
-            shopItems.Item2.Clear();
+            shopItems.Value.Clear();
         }
     }
 
@@ -55,10 +55,8 @@ public class BasicTracker : IItemTracker
             _logger.LogInformation("Scraping from '{0}'...", conf.ShopName);
             try
             {
-                _shopItems
-                .Where(entry => entry.Item1 == conf.ShopID)
-                .Single()
-                .Item2.AddRange(await scraper.GetItems());
+                _shopItems[conf.ShopID].AddRange(await scraper.GetItems());
+                _logger.LogInformation($"{_shopItems[conf.ShopID].Count} items were scraped from {conf.ShopName}");
             }
             catch (JsonException ex)
             {
@@ -84,10 +82,7 @@ public class BasicTracker : IItemTracker
     {
         try
         {
-            return _shopItems
-                .Where(entry => entry.Item1 == shopId)
-                .Single()
-                .Item2;
+            return _shopItems[shopId];
         }
         catch (Exception ex)
         {

@@ -5,6 +5,8 @@ using GoodsTracker.DataCollector.Models.Constants;
 namespace GoodsTracker.DataCollector.Common.Mappers.Implementations;
 public class BasicMapper : IItemMapper
 {
+    public const int MAX_COMPOUND_LENGTH = 700;
+    public const int MAX_PRODUCER_LENGTH = 70;
     public Item MapItemFields(Dictionary<ItemFields, string> fields)
     {
         Func<string, string?> noAffect = static _ => _;
@@ -16,11 +18,11 @@ public class BasicMapper : IItemMapper
             Price = TryGetValueOrDefault(fields, ItemFields.Price, AdjustPriceIfRequired),
             Discount = TryGetValueOrDefault(fields, ItemFields.Discount, AdjustPriceIfRequired),
             Country = TryGetValueOrDefault(fields, ItemFields.Country, noAffect),
-            Producer = TryGetValueOrDefault(fields, ItemFields.Producer, noAffect),
+            Producer = TryGetValueOrDefault(fields, ItemFields.Producer, AdjustProducerLength),
             VendorCode = TryGetValueOrDefault(fields, ItemFields.VendorCode, ParseIntOrDefault),
             Wieght = TryGetValueOrDefault(fields, ItemFields.Weight, ParseFloatOrDefault),
             WieghtUnit = TryGetValueOrDefault(fields, ItemFields.WeightUnit, noAffect),
-            Compound = TryGetValueOrDefault(fields, ItemFields.Compound, noAffect),
+            Compound = TryGetValueOrDefault(fields, ItemFields.Compound, AdjustProducerLength),
             Carbo = TryGetValueOrDefault(fields, ItemFields.Carbo, ParseFloatOrDefault),
             Fat = TryGetValueOrDefault(fields, ItemFields.Fat, ParseFloatOrDefault),
             Protein = TryGetValueOrDefault(fields, ItemFields.Protein, ParseFloatOrDefault),
@@ -66,4 +68,14 @@ public class BasicMapper : IItemMapper
         ItemFields field,
         Func<string, TValue?> affect)
     => dict.ContainsKey(field) ? affect(dict[field]) : default(TValue);
+
+    protected string AdjustCompoundLength(string str)
+    {
+        return str.Length > MAX_COMPOUND_LENGTH ? str.Substring(0, MAX_COMPOUND_LENGTH - 1) : str;
+    }
+
+    protected string AdjustProducerLength(string str)
+    {
+        return str.Length > MAX_PRODUCER_LENGTH ? str.Substring(0, MAX_PRODUCER_LENGTH - 1) : str;
+    }
 }

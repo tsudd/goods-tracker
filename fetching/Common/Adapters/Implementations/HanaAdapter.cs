@@ -31,9 +31,11 @@ public class HanaAdapter : IDataAdapter
                 using (var cmd = new HanaCommand(CREATE_STREAM_COMMAND, conn))
                 {
                     cmd.ExecuteNonQuery();
+                    _logger.LogInformation("New stream was created. Starting saving items from shops into the DB");
 
                     foreach (var shop in shopIds)
                     {
+                        _logger.LogInformation($"Saving items for {shop}");
                         cmd.Parameters.Clear();
                         var items = tracker.GetShopItems(shop);
                         if (items is null || items.Count() == 0)
@@ -41,111 +43,131 @@ public class HanaAdapter : IDataAdapter
                             _logger.LogWarning($"No items to save for {shop}");
                             continue;
                         }
-                        cmd.CommandText =
-                            $"SELECT ID, NAME1 FROM ITEM WHERE NAME1 in ({string.Join(",", items.Select(item => "'" + item.Name1 + "'"))})";
-                        var existingItems = new List<string>();
-                        using (var reader = cmd.ExecuteReader())
+                        try
                         {
-                            cmd.CommandText = GenerateItemRecordSaveCommand();
-                            while (reader.Read())
+                            cmd.CommandText =
+                                $"SELECT ID, NAME1 FROM ITEM WHERE NAME1 in ({string.Join(",", items.Select(item => "'" + item.Name1 + "'"))})";
+                            var existingItems = new List<string>();
+                            using (var reader = cmd.ExecuteReader())
                             {
-                                var itemToUpdate = (from item in items
-                                                    where item.Name1 == reader[1].ToString()
-                                                    select item).Single();
-                                cmd.Parameters.Add(CreateParameter("p0", reader[0]));
-                                cmd.Parameters.Add(CreateParameter("p1", itemToUpdate.Price));
-                                cmd.Parameters.Add(CreateParameter("p2", itemToUpdate.Discount));
-                                cmd.Parameters.Add(CreateParameter("p3", IsOnDiscount(itemToUpdate)));
-                                existingItems.Add(itemToUpdate.Name1!);
-                            }
-                        }
-                        if (existingItems.Count > 0)
-                        {
-                            cmd.ExecuteNonQuery();
-                        }
-
-                        var newItems = from item in items
-                                       where !existingItems.Any(existing => existing == item.Name1)
-                                       select item;
-                        cmd.CommandText = GenerateItemSaveCommand(shop);
-                        using (var subCmd = new HanaCommand(GenerateItemRecordSaveCommand("ITEMSEQID.CURRVAL"), conn))
-                        {
-                            foreach (var item in newItems)
-                            {
-                                cmd.Parameters.Clear();
-                                subCmd.Parameters.Clear();
-                                cmd.Parameters.Add(CreateParameter("p0", item.Name1));
-                                cmd.Parameters.Add(CreateParameter("p1", item.Name2));
-                                cmd.Parameters.Add(CreateParameter("p2", item.Name3));
-                                cmd.Parameters.Add(CreateParameter("p3", item.Link));
-                                cmd.Parameters.Add(CreateParameter("p4", item.Country));
-                                cmd.Parameters.Add(CreateParameter("p5", item.Producer));
-                                cmd.Parameters.Add(CreateParameter("p6", item.VendorCode));
-                                cmd.Parameters.Add(CreateParameter("p7", item.Wieght));
-                                cmd.Parameters.Add(CreateParameter("p8", item.WieghtUnit));
-                                cmd.Parameters.Add(CreateParameter("p9", item.Compound));
-                                cmd.Parameters.Add(CreateParameter("p10", item.Protein));
-                                cmd.Parameters.Add(CreateParameter("p11", item.Fat));
-                                cmd.Parameters.Add(CreateParameter("p12", item.Carbo));
-                                cmd.Parameters.Add(CreateParameter("p13", item.Portion));
-                                subCmd.Parameters.Add(CreateParameter("p0", item.Price));
-                                subCmd.Parameters.Add(CreateParameter("p1", item.Discount));
-                                subCmd.Parameters.Add(CreateParameter("p2", IsOnDiscount(item)));
-                                cmd.ExecuteNonQuery();
-                                subCmd.ExecuteNonQuery();
-
-                                if (item.Categories is not null)
+                                cmd.CommandText = GenerateItemRecordSaveCommand();
+                                while (reader.Read())
                                 {
-                                    subCmd.Parameters.Clear();
-                                    subCmd.CommandText = $"SELECT ID, NAME FROM CATEGORY WHERE NAME in ({string.Join(",", item.Categories.Select(cat => "'" + cat + "'"))})";
-                                    var existingCategoryHashes = new List<int>();
-                                    var newCategoryNames = new List<string>();
-                                    using (var reader = subCmd.ExecuteReader())
-                                    {
-                                        while (reader.Read())
-                                        {
-                                            existingCategoryHashes.Add(reader.GetInt32(0));
-                                            newCategoryNames.Add(reader.GetString(1));
-                                        }
-                                    }
-                                    var categoriesToCreate = from cat in item.Categories
-                                                             where !newCategoryNames.Contains(cat)
-                                                             select cat;
-                                    if (categoriesToCreate.Count() > 0)
-                                    {
-                                        subCmd.CommandText = $"INSERT INTO CATEGORY VALUES(?, ?)";
-                                        foreach (var newCat in categoriesToCreate)
-                                        {
-                                            subCmd.Parameters.Add(CreateParameter("p0", newCat.GetHashCode()));
-                                            subCmd.Parameters.Add(CreateParameter("p1", newCat));
-                                            existingCategoryHashes.Add(newCat.GetHashCode());
-                                        }
-                                        subCmd.ExecuteNonQuery();
-
-                                        subCmd.Parameters.Clear();
-                                    }
-
-                                    if (existingCategoryHashes.Count > 0)
-                                    {
-                                        subCmd.CommandText = $"INSERT INTO CATLINK VALUES(ITEMSEQID.CURRVAL, ?)";
-                                        foreach (var catHash in existingCategoryHashes)
-                                        {
-                                            subCmd.Parameters.Add(CreateParameter("p0", catHash));
-                                        }
-                                        subCmd.ExecuteNonQuery();
-                                    }
-                                    subCmd.CommandText = GenerateItemRecordSaveCommand("ITEMSEQID.CURRVAL");
+                                    var itemToUpdate = (from item in items
+                                                        where item.Name1 == reader[1].ToString()
+                                                        select item).First();
+                                    cmd.Parameters.Add(CreateParameter("p0", reader[0]));
+                                    cmd.Parameters.Add(CreateParameter("p1", itemToUpdate.Price));
+                                    cmd.Parameters.Add(CreateParameter("p2", itemToUpdate.Discount));
+                                    cmd.Parameters.Add(CreateParameter("p3", IsOnDiscount(itemToUpdate)));
+                                    existingItems.Add(itemToUpdate.Name1!);
                                 }
                             }
+                            if (existingItems.Count > 0)
+                            {
+                                cmd.ExecuteNonQuery();
+                            }
+
+                            var newItems = from item in items
+                                           where !existingItems.Any(existing => existing == item.Name1)
+                                           select item;
+                            cmd.CommandText = GenerateItemSaveCommand(shop);
+                            using (var subCmd = new HanaCommand(GenerateItemRecordSaveCommand("ITEMSEQID.CURRVAL"), conn))
+                            {
+                                foreach (var item in newItems)
+                                {
+                                    cmd.Parameters.Clear();
+                                    subCmd.Parameters.Clear();
+                                    cmd.Parameters.Add(CreateParameter("p0", item.Name1));
+                                    cmd.Parameters.Add(CreateParameter("p1", item.Name2));
+                                    cmd.Parameters.Add(CreateParameter("p2", item.Name3));
+                                    cmd.Parameters.Add(CreateParameter("p3", item.Link));
+                                    cmd.Parameters.Add(CreateParameter("p4", item.Country));
+                                    cmd.Parameters.Add(CreateParameter("p5", item.Producer));
+                                    cmd.Parameters.Add(CreateParameter("p6", item.VendorCode));
+                                    cmd.Parameters.Add(CreateParameter("p7", item.Wieght));
+                                    cmd.Parameters.Add(CreateParameter("p8", item.WieghtUnit));
+                                    cmd.Parameters.Add(CreateParameter("p9", item.Compound));
+                                    cmd.Parameters.Add(CreateParameter("p10", item.Protein));
+                                    cmd.Parameters.Add(CreateParameter("p11", item.Fat));
+                                    cmd.Parameters.Add(CreateParameter("p12", item.Carbo));
+                                    cmd.Parameters.Add(CreateParameter("p13", item.Portion));
+                                    subCmd.Parameters.Add(CreateParameter("p0", item.Price));
+                                    subCmd.Parameters.Add(CreateParameter("p1", item.Discount));
+                                    subCmd.Parameters.Add(CreateParameter("p2", IsOnDiscount(item)));
+                                    try
+                                    {
+                                        cmd.ExecuteNonQuery();
+                                        subCmd.ExecuteNonQuery();
+                                    }
+                                    catch (HanaException ex)
+                                    {
+                                        _logger.LogWarning($"coudln't save new item: {ex.Message}");
+                                        continue;
+                                    }
+
+
+                                    if (item.Categories is not null)
+                                    {
+                                        subCmd.Parameters.Clear();
+                                        subCmd.CommandText = $"SELECT ID, NAME FROM CATEGORY WHERE NAME in ({string.Join(",", item.Categories.Select(cat => "'" + cat + "'"))})";
+                                        var existingCategoryHashes = new List<int>();
+                                        var existingCategoryNames = new List<string>();
+                                        using (var reader = subCmd.ExecuteReader())
+                                        {
+                                            while (reader.Read())
+                                            {
+                                                existingCategoryHashes.Add(reader.GetInt32(0));
+                                                existingCategoryNames.Add(reader.GetString(1));
+                                            }
+                                        }
+                                        var categoriesToCreate = from cat in item.Categories
+                                                                 where !existingCategoryNames.Any(existing => cat == existing)
+                                                                 select cat;
+                                        if (categoriesToCreate.Count() > 0)
+                                        {
+                                            subCmd.CommandText = $"INSERT INTO CATEGORY VALUES(?, ?)";
+                                            foreach (var newCat in categoriesToCreate)
+                                            {
+                                                subCmd.Parameters.Add(CreateParameter("p0", newCat.GetHashCode()));
+                                                subCmd.Parameters.Add(CreateParameter("p1", newCat));
+                                                existingCategoryHashes.Add(newCat.GetHashCode());
+                                            }
+                                            try
+                                            {
+                                                subCmd.ExecuteNonQuery();
+                                            }
+                                            catch (HanaException ex)
+                                            {
+                                                _logger.LogWarning($"coudln't create new category: {ex.Message}");
+                                            }
+
+                                            subCmd.Parameters.Clear();
+                                        }
+
+                                        if (existingCategoryHashes.Count > 0)
+                                        {
+                                            subCmd.CommandText = $"INSERT INTO CATLINK VALUES(ITEMSEQID.CURRVAL, ?)";
+                                            foreach (var catHash in existingCategoryHashes)
+                                            {
+                                                subCmd.Parameters.Add(CreateParameter("p0", catHash));
+                                            }
+                                            subCmd.ExecuteNonQuery();
+                                        }
+                                        subCmd.CommandText = GenerateItemRecordSaveCommand("ITEMSEQID.CURRVAL");
+                                    }
+                                }
+                            }
+                            _logger.LogInformation(
+                                $"Saving for {shop} completed. {existingItems.Count} items were updated, {newItems.Count()} new were created.");
+                        }
+                        catch (HanaException ex)
+                        {
+                            _logger.LogError($"Error within communication with HANA: {ex.Message}");
                         }
                     }
                 }
             }
-        }
-        catch (HanaException ex)
-        {
-            _logger.LogError($"Error within communication with HANA: {ex.Message}");
-            throw new ApplicationException(ex.Message);
         }
         catch (AdapterException ex)
         {
@@ -157,6 +179,7 @@ public class HanaAdapter : IDataAdapter
             _logger.LogCritical($"Error within communication with HANA: {ex.Message}");
             throw new ApplicationException(ex.Message);
         }
+        _logger.LogInformation("Saving to HANA has been completed. Check the logs for detailed info.");
     }
 
     private int IsOnDiscount(Item item)

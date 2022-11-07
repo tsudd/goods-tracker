@@ -54,22 +54,22 @@ public sealed class YaNeighborsParser : IItemParser
         {
             fields.Add(
                 ItemFields.Name1,
-                itemTitleMatch.Groups[1].Value.Trim()
+                itemTitleMatch.Groups[1].Value
             );
             fields.Add(
                 ItemFields.Weight,
-                itemTitleMatch.Groups[3].Value.Trim()
+                itemTitleMatch.Groups[3].Value
             );
             fields.Add(
                 ItemFields.WeightUnit,
-                itemTitleMatch.Groups[4].Value.Trim()
+                itemTitleMatch.Groups[4].Value
             );
         }
         else
         {
             fields.Add(
                 ItemFields.Name1,
-                rawTitle.Trim()
+                rawTitle
             );
 
             var fullWeight =
@@ -84,11 +84,11 @@ public sealed class YaNeighborsParser : IItemParser
                 {
                     fields.Add(
                     ItemFields.Weight,
-                    fullWeightMatch.Groups[1].Value.Trim()
+                    fullWeightMatch.Groups[1].Value
                     );
                     fields.Add(
                         ItemFields.WeightUnit,
-                        fullWeightMatch.Groups[2].Value.Trim()
+                        fullWeightMatch.Groups[2].Value
                     );
                 }
             }

@@ -76,7 +76,11 @@ public sealed class YaNeighborsScraper : IScraper
                 .SelectNodes("//div[@class='UiKitShopMenu_root']/ul/li/a");
 
         // TODO: handle null raw links
-        // NOTE: Captcha might accure!!!
+        if (rawLinks is null)
+        {
+            _logger.LogError("failed to get category links");
+            throw new ApplicationException("coudln't get category links (CAPTCHA accured!!!)");
+        }
         foreach (var raw in rawLinks)
         {
             links.Add((
@@ -90,7 +94,7 @@ public sealed class YaNeighborsScraper : IScraper
     private async Task<HtmlDocument> GetHtmlDocumentAsync(string url)
     {
         var doc = new HtmlDocument();
-        doc.LoadHtml(await Requester.GetAsync(url));
+        doc.LoadHtml(await Requester.GetAsync(url, _config.Headers));
         return doc;
     }
 
@@ -102,7 +106,7 @@ public sealed class YaNeighborsScraper : IScraper
         var rawLinks =
             page
                 .DocumentNode
-                .SelectNodes("//div[@class='DesktopGoodsList_root']/ul/li/a");
+                .SelectNodes("//li[@class='DesktopGoodsList_item']/a");
         if (rawLinks is not null)
         {
             foreach (var raw in rawLinks)
