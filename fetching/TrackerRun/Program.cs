@@ -31,7 +31,13 @@ var trackerConfig = new TrackerConfig()
     ScrapersConfigurations = config.GetSection("TrackerConfig:ScrapersConfigurations").Get<List<ScraperConfig>>()
 };
 var shopIDs = config.GetSection("ShopIDs").Get<IEnumerable<string>>();
-var adapterConfig = config.GetSection("AdapterConfig").Get<AdapterConfig>();
+var adapterConfig = new AdapterConfig
+{
+    AdapterName = config.GetSection("AdapterConfig:AdapterName").Get<string>(),
+    Arguments = Environment.GetEnvironmentVariable("HANA_ConnectionString")
+    ?? throw new ApplicationException("couldn't get connection string from env"),
+    LocalPath = config.GetSection("AdapterConfig:LocalPath").Get<string>()
+};
 var alternativeAdapterConfig = config.GetSection("AlternativeAdapterConfig").Get<AdapterConfig>();
 if (trackerConfig is null || shopIDs is null || adapterConfig is null)
 {
