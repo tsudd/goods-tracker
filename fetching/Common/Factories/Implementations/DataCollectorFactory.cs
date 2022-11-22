@@ -13,11 +13,14 @@ using GoodsTracker.DataCollector.Common.Scrapers.Interfaces;
 using GoodsTracker.DataCollector.Common.Trackers.Implementations;
 using GoodsTracker.DataCollector.Common.Trackers.Interfaces;
 using Microsoft.Extensions.Logging;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 
 namespace GoodsTracker.DataCollector.Common.Factories.Implementations;
 public class DataCollectorFactory : IDataCollectorFactory
 {
     protected static IDataCollectorFactory? _instance;
+    protected static IWebDriver? _driverInstanse;
     protected DataCollectorFactory() { }
 
     public IDataAdapter CreateDataAdapter(AdapterConfig config, ILoggerFactory loggerFactory)
@@ -53,6 +56,7 @@ public class DataCollectorFactory : IDataCollectorFactory
         return parserName switch
         {
             nameof(YaNeighborsParser) => new YaNeighborsParser(loggerFactory.CreateLogger<YaNeighborsParser>()),
+            nameof(EmallParser) => new EmallParser(loggerFactory.CreateLogger<EmallParser>()),
             var _ => throw new ArgumentException($"couldn't create {parserName}: no such parser in the app."),
         };
     }
@@ -81,6 +85,13 @@ public class DataCollectorFactory : IDataCollectorFactory
                     parser ?? CreateParser(config.ParserName, loggerFactory),
                     mapper,
                     requester),
+            nameof(EmallScraper) => new EmallScraper(
+                config,
+                loggerFactory.CreateLogger<EmallScraper>(),
+                parser ?? CreateParser(config.ParserName, loggerFactory),
+                mapper ?? CreateMapper(config.ItemMapper),
+                GetWebDriverInstance()
+            ),
             var _ =>
                     throw new ArgumentException(
                         $"couldn't create {config.Name}: no such scraper in the app"),
@@ -112,5 +123,14 @@ public class DataCollectorFactory : IDataCollectorFactory
             _instance = new DataCollectorFactory();
         }
         return _instance;
+    }
+
+    protected static IWebDriver GetWebDriverInstance()
+    {
+        if (_driverInstanse is null)
+        {
+            _driverInstanse = new ChromeDriver();
+        }
+        return _driverInstanse;
     }
 }

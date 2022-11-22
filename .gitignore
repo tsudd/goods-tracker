@@ -569,7 +569,6 @@ $RECYCLE.BIN/
 
 Test
 /.vscode/
-appsettings.json
 .env
 srv/Server/HdbClient/*
 fetching/Common/DbClient/*
