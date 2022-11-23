@@ -43,7 +43,7 @@ public class EmallScraper : IScraper
         return _config;
     }
 
-    public async Task<IEnumerable<Item>> GetItems()
+    public Task<IEnumerable<Item>> GetItems()
     {
         var categories = GetCategoryLinksAsync();
         var items = new List<Item>();
@@ -53,7 +53,7 @@ public class EmallScraper : IScraper
             items.AddRange(ProcessCategoryPage(category.CategoryLink, category.CategoryName));
         }
 
-        return items;
+        return Task.FromResult<IEnumerable<Item>>(items);
     }
 
     private IEnumerable<(string CategoryLink, string CategoryName)> GetCategoryLinksAsync()
