@@ -8,7 +8,7 @@ using GoodsTracker.DataCollector.Common.Trackers.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace GoodsTracker.DataCollector.Common.Factories.Interfaces;
-public interface IDataCollectorFactory
+public interface IDataCollectorFactory : IDisposable
 {
     IItemMapper CreateMapper(string mapperName);
     IItemParser CreateParser(string parserName, ILoggerFactory loggerFactory);

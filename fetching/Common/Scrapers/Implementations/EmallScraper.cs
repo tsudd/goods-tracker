@@ -6,7 +6,6 @@ using GoodsTracker.DataCollector.Models;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.WaitHelpers;
 
@@ -48,12 +47,9 @@ public class EmallScraper : IScraper
         var categories = GetCategoryLinksAsync();
         var items = new List<Item>();
 
-        var i = 0;
         foreach (var category in categories)
         {
-            i++;
             items.AddRange(ProcessCategoryPage(category.CategoryLink, category.CategoryName));
-            if (i > 0) break;
         }
 
         return Task.FromResult<IEnumerable<Item>>(items);

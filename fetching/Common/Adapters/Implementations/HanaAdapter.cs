@@ -50,6 +50,7 @@ public class HanaAdapter : IDataAdapter
                         {
                             var savedItems = 0;
                             var updatedItems = 0;
+                            var rejectedItems = 0;
                             using (var insertRecordsCmd = new HanaCommand(GenerateItemRecordSaveCommand(), conn))
                             using (var insertItemCmd = new HanaCommand(GenerateItemSaveCommand(shop), conn))
                             {
@@ -58,6 +59,7 @@ public class HanaAdapter : IDataAdapter
                                     if (item.Name1 == null)
                                     {
                                         _logger.LogWarning("skiping item with empty name");
+                                        rejectedItems++;
                                         continue;
                                     }
                                     cmd.CommandText = GenerateSelectItemCommand(item.Name1);
@@ -83,6 +85,7 @@ public class HanaAdapter : IDataAdapter
                                     if (!insertItemCmd.TryExecuteCommand())
                                     {
                                         _logger.LogError($"coudln't save new item {item.Name1}");
+                                        rejectedItems++;
                                         continue;
                                     }
                                     if (!cmd.TryExecuteCommand())
@@ -120,7 +123,7 @@ public class HanaAdapter : IDataAdapter
                                                 existingCategoryHashes.Add(newCat.GetHashCode());
                                             }
                                             if (!cmd.TryExecuteCommand())
-                                                _logger.LogError($"coudln't create new categories.");
+                                                _logger.LogError($"couldn't create new categories for {item.Categories}");
                                             cmd.Parameters.Clear();
                                         }
 
@@ -132,14 +135,14 @@ public class HanaAdapter : IDataAdapter
                                                 cmd.AddCatLinkToInsert(catHash);
                                             }
                                             if (!cmd.TryExecuteCommand())
-                                                _logger.LogError("coudln't link item to categories");
+                                                _logger.LogError($"couldn't link item to categories for {item.CategoriesEnum}");
                                             cmd.Parameters.Clear();
                                         }
                                     }
                                 }
                                 if (!insertRecordsCmd.TryExecuteCommand())
                                 {
-                                    _logger.LogError("coudln't update item to categories");
+                                    _logger.LogError($"couldn't update items");
                                     throw new ApplicationException();
                                 }
 

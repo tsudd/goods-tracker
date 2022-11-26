@@ -133,4 +133,9 @@ public class DataCollectorFactory : IDataCollectorFactory
         }
         return _driverInstanse;
     }
+
+    public void Dispose()
+    {
+        _driverInstanse?.Dispose();
+    }
 }

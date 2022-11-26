@@ -113,5 +113,6 @@ catch (ApplicationException ex)
 //------------------clearing & disposing
 log.LogInformation("Clearing fetched data...");
 tracker.ClearData();
+collectorFactory.Dispose();
 
 log.LogInformation("Tracker has ended its work.");
