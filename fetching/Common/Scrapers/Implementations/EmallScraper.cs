@@ -48,9 +48,12 @@ public class EmallScraper : IScraper
         var categories = GetCategoryLinksAsync();
         var items = new List<Item>();
 
+        var i = 0;
         foreach (var category in categories)
         {
+            i++;
             items.AddRange(ProcessCategoryPage(category.CategoryLink, category.CategoryName));
+            if (i > 0) break;
         }
 
         return Task.FromResult<IEnumerable<Item>>(items);
@@ -121,7 +124,6 @@ public class EmallScraper : IScraper
                 {
                     var itemFields = _parser.ParseItem(localDom);
                     parsedItems.Add(_mapper.MapItemFields(itemFields));
-                    _logger.LogInformation(itemFields[Models.Constants.ItemFields.Name1]);
                 }
                 catch (InvalidDataException dataException)
                 {

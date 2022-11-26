@@ -170,8 +170,7 @@ public sealed class EmallParser : IItemParser
                 .SelectNodes("//div[@class='breadcrumbs']/ol/li/a/span");
         if (categoriesNodes != null)
         {
-            var categories = new StringBuilder("");
-            categories.Append(categoriesNodes[^1].InnerText + IItemMapper.CATEGORIES_SEPARATOR);
+            var categories = new StringBuilder(categoriesNodes[^1].InnerText + IItemMapper.CATEGORIES_SEPARATOR);
             categories.Append(categoriesNodes[^2].InnerText + IItemMapper.CATEGORIES_SEPARATOR);
             categories.Append(categoriesNodes[^3].InnerText + IItemMapper.CATEGORIES_SEPARATOR);
             fields.Add(

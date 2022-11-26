@@ -12,7 +12,7 @@ public class BasicMapper : IItemMapper
         Func<string, string?> noAffect = static _ => _;
         return new Item()
         {
-            Name1 = fields.GetValueOrDefault(ItemFields.Name1, Item.DEFAULT_ITEM_NAME),
+            Name1 = TryGetValueOrDefault(fields, ItemFields.Name1, AdjustNameIfRequired),
             Name2 = TryGetValueOrDefault(fields, ItemFields.Name2, noAffect),
             Name3 = TryGetValueOrDefault(fields, ItemFields.Name3, noAffect),
             Price = TryGetValueOrDefault(fields, ItemFields.Price, AdjustPriceIfRequired),
@@ -61,6 +61,11 @@ public class BasicMapper : IItemMapper
     protected string AdjustPriceIfRequired(string rawPrice)
     {
         return rawPrice.Replace(',', '.');
+    }
+
+    protected string AdjustNameIfRequired(string itemName)
+    {
+        return itemName.Replace("'", " ");
     }
 
     protected TValue? TryGetValueOrDefault<TValue>(

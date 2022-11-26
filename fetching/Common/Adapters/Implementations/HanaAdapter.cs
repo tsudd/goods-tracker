@@ -5,12 +5,15 @@ using GoodsTracker.DataCollector.Common.Configs;
 using GoodsTracker.DataCollector.Common.Trackers.Interfaces;
 using GoodsTracker.DataCollector.Common.Adapters.Exceptions;
 using GoodsTracker.DataCollector.Common.Adapters.Interfaces;
+using Common.Adapters.Extensions;
 
 namespace GoodsTracker.DataCollector.Common.Adapters.Implementations;
 public class HanaAdapter : IDataAdapter
 {
     public const string CREATE_STREAM_COMMAND =
         "INSERT INTO STREAM VALUES (STREAMSEQID.nextval, CURRENT_TIMESTAMP(0))";
+    private const string ITEM_SEQUENCE_CUR = "ITEMSEQID.CURRVAL";
+    private const string ITEM_SEQUENCE_NEXT = "ITEMSEQID.NEXTVAL";
     private ILogger _logger;
     private AdapterConfig _config;
 
@@ -45,75 +48,57 @@ public class HanaAdapter : IDataAdapter
                         }
                         try
                         {
-                            cmd.CommandText =
-                                $"SELECT ID, NAME1 FROM ITEM WHERE NAME1 in ({string.Join(",", items.Select(item => "'" + item.Name1 + "'"))})";
-                            var existingItems = new List<string>();
-                            using (var reader = cmd.ExecuteReader())
+                            var savedItems = 0;
+                            var updatedItems = 0;
+                            using (var insertRecordsCmd = new HanaCommand(GenerateItemRecordSaveCommand(), conn))
+                            using (var insertItemCmd = new HanaCommand(GenerateItemSaveCommand(shop), conn))
                             {
-                                cmd.CommandText = GenerateItemRecordSaveCommand();
-                                while (reader.Read())
+                                foreach (var item in items)
                                 {
-                                    var itemToUpdate = (from item in items
-                                                        where item.Name1 == reader[1].ToString()
-                                                        select item).First();
-                                    cmd.Parameters.Add(CreateParameter("p0", reader[0]));
-                                    cmd.Parameters.Add(CreateParameter("p1", itemToUpdate.Price));
-                                    cmd.Parameters.Add(CreateParameter("p2", itemToUpdate.Discount));
-                                    cmd.Parameters.Add(CreateParameter("p3", IsOnDiscount(itemToUpdate)));
-                                    existingItems.Add(itemToUpdate.Name1!);
-                                }
-                            }
-                            if (existingItems.Count > 0)
-                            {
-                                cmd.ExecuteNonQuery();
-                            }
-
-                            var newItems = from item in items
-                                           where !existingItems.Any(existing => existing == item.Name1)
-                                           select item;
-                            cmd.CommandText = GenerateItemSaveCommand(shop);
-                            using (var subCmd = new HanaCommand(GenerateItemRecordSaveCommand("ITEMSEQID.CURRVAL"), conn))
-                            {
-                                foreach (var item in newItems)
-                                {
-                                    cmd.Parameters.Clear();
-                                    subCmd.Parameters.Clear();
-                                    cmd.Parameters.Add(CreateParameter("p0", item.Name1));
-                                    cmd.Parameters.Add(CreateParameter("p1", item.Name2));
-                                    cmd.Parameters.Add(CreateParameter("p2", item.Name3));
-                                    cmd.Parameters.Add(CreateParameter("p3", item.Link));
-                                    cmd.Parameters.Add(CreateParameter("p4", item.Country));
-                                    cmd.Parameters.Add(CreateParameter("p5", item.Producer));
-                                    cmd.Parameters.Add(CreateParameter("p6", item.VendorCode));
-                                    cmd.Parameters.Add(CreateParameter("p7", item.Wieght));
-                                    cmd.Parameters.Add(CreateParameter("p8", item.WieghtUnit));
-                                    cmd.Parameters.Add(CreateParameter("p9", item.Compound));
-                                    cmd.Parameters.Add(CreateParameter("p10", item.Protein));
-                                    cmd.Parameters.Add(CreateParameter("p11", item.Fat));
-                                    cmd.Parameters.Add(CreateParameter("p12", item.Carbo));
-                                    cmd.Parameters.Add(CreateParameter("p13", item.Portion));
-                                    subCmd.Parameters.Add(CreateParameter("p0", item.Price));
-                                    subCmd.Parameters.Add(CreateParameter("p1", item.Discount));
-                                    subCmd.Parameters.Add(CreateParameter("p2", IsOnDiscount(item)));
-                                    try
+                                    if (item.Name1 == null)
                                     {
-                                        cmd.ExecuteNonQuery();
-                                        subCmd.ExecuteNonQuery();
-                                    }
-                                    catch (HanaException ex)
-                                    {
-                                        _logger.LogWarning($"coudln't save new item: {ex.Message}");
+                                        _logger.LogWarning("skiping item with empty name");
                                         continue;
                                     }
-
-
-                                    if (item.Categories is not null)
+                                    cmd.CommandText = GenerateSelectItemCommand(item.Name1);
+                                    using (var itemReader = cmd.ExecuteReader())
                                     {
-                                        subCmd.Parameters.Clear();
-                                        subCmd.CommandText = $"SELECT ID, NAME FROM CATEGORY WHERE NAME in ({string.Join(",", item.Categories.Select(cat => "'" + cat + "'"))})";
+                                        if (itemReader.HasRows)
+                                        {
+                                            while (itemReader.Read())
+                                            {
+                                                insertRecordsCmd.AddItemRecordToInsert(item, itemReader[0]);
+                                                updatedItems++;
+                                            }
+                                            continue;
+                                        }
+                                    }
+                                    insertItemCmd.Parameters.Clear();
+                                    cmd.Parameters.Clear();
+
+                                    insertItemCmd.AddItemToInsert(item);
+                                    cmd.CommandText = GenerateItemRecordSaveCommand(ITEM_SEQUENCE_CUR);
+                                    cmd.AddItemRecordToInsert(item);
+
+                                    if (!insertItemCmd.TryExecuteCommand())
+                                    {
+                                        _logger.LogError($"coudln't save new item {item.Name1}");
+                                        continue;
+                                    }
+                                    if (!cmd.TryExecuteCommand())
+                                    {
+                                        _logger.LogError($"coudln't save record for new item {item.Name1}");
+                                    }
+                                    savedItems++;
+
+                                    if (item.Categories != null)
+                                    {
+                                        cmd.Parameters.Clear();
+
+                                        cmd.CommandText = GenerateSelectExistingCategoriesCommand(item.Categories);
                                         var existingCategoryHashes = new List<int>();
                                         var existingCategoryNames = new List<string>();
-                                        using (var reader = subCmd.ExecuteReader())
+                                        using (var reader = cmd.ExecuteReader())
                                         {
                                             while (reader.Read())
                                             {
@@ -121,49 +106,51 @@ public class HanaAdapter : IDataAdapter
                                                 existingCategoryNames.Add(reader.GetString(1));
                                             }
                                         }
+
                                         var categoriesToCreate = from cat in item.Categories
                                                                  where !existingCategoryNames.Any(existing => cat == existing)
                                                                  select cat;
+
                                         if (categoriesToCreate.Count() > 0)
                                         {
-                                            subCmd.CommandText = $"INSERT INTO CATEGORY VALUES(?, ?)";
+                                            cmd.CommandText = GenerateCategorySaveCommand();
                                             foreach (var newCat in categoriesToCreate)
                                             {
-                                                subCmd.Parameters.Add(CreateParameter("p0", newCat.GetHashCode()));
-                                                subCmd.Parameters.Add(CreateParameter("p1", newCat));
+                                                cmd.AddCategoryToInsert(newCat);
                                                 existingCategoryHashes.Add(newCat.GetHashCode());
                                             }
-                                            try
-                                            {
-                                                subCmd.ExecuteNonQuery();
-                                            }
-                                            catch (HanaException ex)
-                                            {
-                                                _logger.LogWarning($"coudln't create new category: {ex.Message}");
-                                            }
-
-                                            subCmd.Parameters.Clear();
+                                            if (!cmd.TryExecuteCommand())
+                                                _logger.LogError($"coudln't create new categories.");
+                                            cmd.Parameters.Clear();
                                         }
 
                                         if (existingCategoryHashes.Count > 0)
                                         {
-                                            subCmd.CommandText = $"INSERT INTO CATLINK VALUES(ITEMSEQID.CURRVAL, ?)";
+                                            cmd.CommandText = GenerateCatLinkSaveCommand(ITEM_SEQUENCE_CUR);
                                             foreach (var catHash in existingCategoryHashes)
                                             {
-                                                subCmd.Parameters.Add(CreateParameter("p0", catHash));
+                                                cmd.AddCatLinkToInsert(catHash);
                                             }
-                                            subCmd.ExecuteNonQuery();
+                                            if (!cmd.TryExecuteCommand())
+                                                _logger.LogError("coudln't link item to categories");
+                                            cmd.Parameters.Clear();
                                         }
-                                        subCmd.CommandText = GenerateItemRecordSaveCommand("ITEMSEQID.CURRVAL");
                                     }
                                 }
+                                if (!insertRecordsCmd.TryExecuteCommand())
+                                {
+                                    _logger.LogError("coudln't update item to categories");
+                                    throw new ApplicationException();
+                                }
+
                             }
                             _logger.LogInformation(
-                                $"Saving for {shop} completed. {existingItems.Count} items were updated, {newItems.Count()} new were created.");
+                                $"Saving for {shop} completed. {updatedItems} items were updated, {savedItems} new were created.");
                         }
                         catch (HanaException ex)
                         {
                             _logger.LogError($"Error within communication with HANA: {ex.Message}");
+                            throw new ApplicationException(ex.Message, ex);
                         }
                     }
                 }
@@ -182,34 +169,17 @@ public class HanaAdapter : IDataAdapter
         _logger.LogInformation("Saving to HANA has been completed. Check the logs for detailed info.");
     }
 
-    private int IsOnDiscount(Item item)
-    => item.Discount is not null ? 1 : 0;
-
     private string GenerateItemSaveCommand(string shopId)
-    => $"INSERT INTO ITEM VALUES(ITEMSEQID.NEXTVAL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'{shopId}')";
+    => $"INSERT INTO ITEM VALUES({ITEM_SEQUENCE_NEXT},?,?,?,?,?,?,?,?,?,?,?,?,?,?,'{shopId}')";
 
     private string GenerateItemRecordSaveCommand(string itemId = "?")
     => $"INSERT INTO ITEMRECORD VALUES(STREAMSEQID.CURRVAL, {itemId}, ?, ?, ?)";
-
-    private void FillBatchArguments(HanaParameterCollection paramsCollection, IEnumerable<Item> fetchedItems)
-    {
-        foreach (var item in fetchedItems)
-        {
-            var paramInd = 0;
-            foreach (var props in typeof(Item).GetProperties())
-            {
-                paramsCollection.Add(CreateParameter("p" + paramInd, props.GetValue(item)));
-                paramInd++;
-                if (paramInd == 5)
-                    paramInd = 0;
-            }
-        }
-    }
-
-    private HanaParameter CreateParameter(string pName, object? paramValue)
-    {
-        var param = new HanaParameter(pName, HanaDbType.VarChar);
-        param.Value = paramValue;
-        return param;
-    }
+    private string GenerateSelectItemCommand(string itemName)
+    => $"SELECT ID FROM ITEM WHERE NAME1 = '{itemName}'";
+    private string GenerateCatLinkSaveCommand(string itemId = "?")
+    => $"INSERT INTO CATLINK VALUES({itemId}, ?)";
+    private string GenerateSelectExistingCategoriesCommand(List<string> categories)
+    => $"SELECT ID, NAME FROM CATEGORY WHERE NAME in ({string.Join(",", categories.Select(cat => "'" + cat + "'"))})";
+    private string GenerateCategorySaveCommand()
+    => "INSERT INTO CATEGORY VALUES(?, ?)";
 }

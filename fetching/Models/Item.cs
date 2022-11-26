@@ -19,6 +19,7 @@ public class Item
     public float? Portion { get; set; }
     public List<string>? Categories { get; set; }
     public string? Link { get; set; } = String.Empty;
+    public string CetegoriesList => Categories != null ? string.Join('|', Categories) : "";
 
     public override bool Equals(object? obj)
     {
