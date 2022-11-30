@@ -1,8 +1,8 @@
 @page "/items"
-@using GoodsTracker.Shared.Model
+@using GoodsTracker.Platform.Shared.Models
 @inject HttpClient Http
 
-<PageTitle>Shop items</PageTitle>
+<PageTitle>Items</PageTitle>
 
 <h1>Items</h1>
 
@@ -13,19 +13,19 @@
 else
 {
     <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Name</th>
-                <th scope="col">Price</th>
-                <th scope="col">Price with discount</th>
-                <th scope="col">Discount %</th>
-                <th scope="col">Fetch date</th>
-                <th scope="col">Shop</th>
-            </tr>
-        </thead>
-        <tbody>
-            @{
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Price</th>
+            <th scope="col">Price with discount</th>
+            <th scope="col">Discount %</th>
+            <th scope="col">Fetch date</th>
+            <th scope="col">Shop</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
                 var ind = (currentPage - 1) * PageSize + 1;
             }
             @foreach (var item in items)
@@ -88,7 +88,7 @@ else
 </div>
 
 @code {
-    private Item[]? items;
+    private BaseItemModel[]? items;
     private int currentPage = 1;
     public int Count { get; set; }
     public int PageSize { get; set; } = 30;
@@ -96,23 +96,19 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        Count = await Http.GetFromJsonAsync<int>("/ShopItem/count");
+        Count = await Http.GetFromJsonAsync<int>("/ItemList/count");
         TotalPages = (int)Math.Ceiling(decimal.Divide(Count, PageSize));
         await ShowInfo();
     }
 
     protected async Task NextPage()
     {
-        if (currentPage < TotalPages)
-        {
-            currentPage++;
-            await ShowInfo();
-        }
+        if (currentPage < TotalPages) { currentPage++; await ShowInfo(); }
     }
-
     protected async Task PrevPage()
     {
-        if (currentPage > 1)
+        if
+        (currentPage > 1)
         {
             currentPage--;
             await ShowInfo();
@@ -121,7 +117,7 @@ else
 
     protected async Task ShowInfo()
     {
-        items = await Http.GetFromJsonAsync<Item[]>($"/ShopItem?page={currentPage}");
+        items = await Http.GetFromJsonAsync<BaseItemModel[]>($"/ItemList?page={currentPage}");
     }
 
     protected async Task ShowInfo(int page)
