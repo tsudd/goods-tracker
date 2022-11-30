@@ -15,6 +15,6 @@ public static class PlatformServicesExtension
         services.AddSingleton<IItemRepository, ItemRepository>();
         services.AddSingleton<IItemManager, ItemManager>();
 
-        services.AddLocalization();
+        // services.AddLocalization();
     }
 }

@@ -572,3 +572,4 @@ Test
 .env
 srv/Server/HdbClient/*
 fetching/Common/DbClient/*
+srv/Server/DbClient/*

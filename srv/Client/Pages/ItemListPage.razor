@@ -1,8 +1,10 @@
 @page "/items"
 @using GoodsTracker.Platform.Shared.Models
+@using GoodsTracker.Platform.Shared.Localization
 @inject HttpClient Http
+@inject IStringLocalizer<SharedResource> Loc
 
-<PageTitle>Items</PageTitle>
+<PageTitle>@Loc["ItemListPageTitle"]</PageTitle>
 
 <h1>Items</h1>
 

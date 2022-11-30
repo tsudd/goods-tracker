@@ -1,0 +1,43 @@
+@using System.Globalization
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager Navigation
+
+<p>
+    <label>
+        Select your locale:
+        <select @bind="Culture">
+            @foreach (var culture in supportedCultures)
+            {
+                <option value="@culture">@culture.DisplayName</option>
+            }
+        </select>
+    </label>
+</p>
+
+@code
+{
+    private CultureInfo[] supportedCultures = new[]
+        {
+new CultureInfo("ru"),
+new CultureInfo("en-US"),
+};
+
+    protected override void OnInitialized()
+    {
+        Culture = CultureInfo.CurrentCulture;
+    }
+
+    private CultureInfo Culture
+    {
+        get => CultureInfo.CurrentCulture;
+        set
+        {
+            if (CultureInfo.CurrentCulture != value)
+            {
+                LocalStorage.SetItemAsStringAsync("BlazorCulture", value.Name);
+
+                Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+            }
+        }
+    }
+}
