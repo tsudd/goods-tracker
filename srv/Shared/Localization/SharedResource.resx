@@ -144,4 +144,8 @@
         <value>Home</value>
         <comment/>
     </data>
+    <data name="FetchDateLabel" xml:space="preserve">
+        <value>Last update</value>
+        <comment/>
+    </data>
 </root>

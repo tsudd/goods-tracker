@@ -144,4 +144,8 @@
         <value>Начало</value>
         <comment/>
     </data>
+    <data name="FetchDateLabel" xml:space="preserve">
+        <value>Обновлено</value>
+        <comment/>
+    </data>
 </root>

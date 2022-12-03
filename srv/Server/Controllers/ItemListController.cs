@@ -18,14 +18,23 @@ public class ItemListController : ControllerBase
     }
 
     [HttpGet]
-    public Task<IEnumerable<BaseItemModel>> GetItems(int page, int months = 1, int amount = 30)
+    public async Task<IEnumerable<BaseItemModel>?> GetItems(int page)
     {
-        return Task.FromResult<IEnumerable<BaseItemModel>>(Enumerable.Empty<BaseItemModel>().ToArray());
+        // return Task.FromResult<IEnumerable<BaseItemModel>>(Enumerable.Empty<BaseItemModel>().ToArray());
+        try
+        {
+            return await _itemManager.GetBaseItemsPage(page);
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning($"couldn't return items page: {ex.Message}");
+            return null;
+        }
     }
 
     [HttpGet("count")]
-    public Task<int> GetCount()
+    public async Task<int> GetCount()
     {
-        return _itemManager.GetAmountOfItemsAsync();
+        return await _itemManager.GetAmountOfItemsAsync();
     }
 }
