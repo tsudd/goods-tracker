@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace GoodsTracker.Platform.Shared.Models;
 
 public class BaseItemModel
@@ -12,7 +7,8 @@ public class BaseItemModel
     public decimal? Price { get; init; }
     public decimal? DiscountPrice { get; init; }
     public int Discount { get; init; }
-    public string ImgLink { get; init; } = String.Empty;
-    public DateTime? FetchDate { get; init; }
+    public bool OnDiscount { get; init; }
+    public string? ImgLink { get; init; }
+    public DateTime FetchDate { get; init; }
     public string VendorName { get; init; } = String.Empty;
 }

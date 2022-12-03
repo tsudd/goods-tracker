@@ -124,4 +124,24 @@
         <value>Items</value>
         <comment>Title for items page</comment>
     </data>
+    <data name="LoadingLabel" xml:space="preserve">
+        <value>Loading</value>
+        <comment>when page loading</comment>
+    </data>
+    <data name="SelectLocaleLabel" xml:space="preserve">
+        <value>Language</value>
+        <comment>Label for location selector</comment>
+    </data>
+    <data name="PreviusPageLabel" xml:space="preserve">
+        <value>Previous</value>
+        <comment/>
+    </data>
+    <data name="NextPageLabel" xml:space="preserve">
+        <value>Next</value>
+        <comment/>
+    </data>
+    <data name="HomePageTitle" xml:space="preserve">
+        <value>Home</value>
+        <comment/>
+    </data>
 </root>

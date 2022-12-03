@@ -1,69 +1,38 @@
 @page "/items"
 @using GoodsTracker.Platform.Shared.Models
-@using GoodsTracker.Platform.Shared.Localization
 @inject HttpClient Http
 @inject IStringLocalizer<SharedResource> Loc
 
 <PageTitle>@Loc["ItemListPageTitle"]</PageTitle>
 
-<h1>Items</h1>
+<h1>@Loc["ItemListPageTitle"]</h1>
 
 @if (items == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@Loc["LoadingLabel"]...</em></p>
 }
 else
 {
-    <table class="table">
-    <thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Name</th>
-            <th scope="col">Price</th>
-            <th scope="col">Price with discount</th>
-            <th scope="col">Discount %</th>
-            <th scope="col">Fetch date</th>
-            <th scope="col">Shop</th>
-        </tr>
-    </thead>
-    <tbody>
-        @{
-                var ind = (currentPage - 1) * PageSize + 1;
-            }
-            @foreach (var item in items)
-            {
-                <tr>
-                    <th scope="row">@ind</th>
-                    <th scope="row">@item.Name</th>
-                    @if (item.Price is null)
-                    {
-                        <th scope="row"></th>
-                    }
-                    else
-                    {
-                        <th scope="row">@item.Price</th>
-                    }
-                    @if (item.DiscountPrice is null)
-                    {
-                        <th scope="row"></th>
-                    }
-                    else
-                    {
-                        <th scope="row">@item.DiscountPrice</th>
-                    }
-                    <th scope="row">@item.Discount</th>
-                    <th scope="row">@item.FetchDate?.ToString("dd-MM-yyyy")</th>
-                    <th scope="row">@item.VendorName</th>
-                </tr>
-                ind++;
-            }
-        </tbody>
-    </table>
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+    @foreach (var item in items)
+        {
+            <div class="col">
+                <div class="card">
+                    <img src="img/no_image.png" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Name</h5>
+                        <p class="card-text"><small class="text-muted"> @Loc["FetchDateLabel"]
+                                @item.FetchDate.ToString("dd/MM/yyyy")</small></p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 }
 <div class="row justify-content-center">
     <ul class="pagination">
         <li class="page-item @(currentPage == 1 ? "disabled" : "")" @onclick="PrevPage">
-            <a class="page-link" aria-disabled="true">Previous</a>
+            <a class="page-link" aria-disabled="true">@Loc["PreviusPageLabel"]</a>
         </li>
         @for (var i = currentPage - 2; i <= currentPage + 2; i++)
         {
@@ -84,7 +53,7 @@ else
             }
         }
         <li class="page-item" @onclick="NextPage">
-            <a class="page-link">Next</a>
+            <a class="page-link">@Loc["NextPageLabel"]</a>
         </li>
     </ul>
 </div>

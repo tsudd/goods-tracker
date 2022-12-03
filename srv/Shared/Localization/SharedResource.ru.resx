@@ -124,4 +124,24 @@
         <value>Единичные товары</value>
         <comment/>
     </data>
+    <data name="LoadingLabel" xml:space="preserve">
+        <value>Загрузка</value>
+        <comment/>
+    </data>
+    <data name="SelectLocaleLabel" xml:space="preserve">
+        <value>Язык</value>
+        <comment/>
+    </data>
+    <data name="PreviusPageLabel" xml:space="preserve">
+        <value>Назад</value>
+        <comment/>
+    </data>
+    <data name="NextPageLabel" xml:space="preserve">
+        <value>Далее</value>
+        <comment/>
+    </data>
+    <data name="HomePageTitle" xml:space="preserve">
+        <value>Начало</value>
+        <comment/>
+    </data>
 </root>
