@@ -1,6 +1,6 @@
 COLUMN TABLE "ITEM" (
     "ID" INTEGER NOT NULL COMMENT 'Item ID',
-    "NAME1" VARCHAR(100) NOT NULL COMMENT 'Item name 1',
+    "NAME1" VARCHAR(100) NOT NULL FUZZY SEARCH INDEX ON COMMENT 'Item name 1',
     "NAME2" VARCHAR(100) COMMENT 'Item name 2',
     "NAME3" VARCHAR(100) COMMENT 'Item name 3',
     "LINK" VARCHAR(60) COMMENT 'Link to the item',
@@ -8,7 +8,7 @@ COLUMN TABLE "ITEM" (
     "PRODUCER" VARCHAR(70) COMMENT 'Producer name',
     "VENDORCODE" INT COMMENT 'Vendor code',
     "WEIGHT" REAL COMMENT 'Weight',
-    "WEIGHTUNIT" VARCHAR(5) COMMENT 'Weight unit',
+    "WEIGHTUNIT" VARCHAR(20) COMMENT 'Weight unit',
     "COMPOUND" VARCHAR(700) COMMENT 'Compound',
     "PROTEIN" REAL COMMENT 'Protein amount',
     "FAT" REAL COMMENT 'Fat amount',
