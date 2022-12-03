@@ -11,4 +11,9 @@ internal class ItemManager : IItemManager
     {
         _itemRepository = itemRepository;
     }
+
+    public Task<int> GetAmountOfItemsAsync()
+    {
+        return _itemRepository.GetItemCountAsync();
+    }
 }

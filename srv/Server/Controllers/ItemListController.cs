@@ -26,6 +26,6 @@ public class ItemListController : ControllerBase
     [HttpGet("count")]
     public Task<int> GetCount()
     {
-        return Task.FromResult<int>(0);
+        return _itemManager.GetAmountOfItemsAsync();
     }
 }
