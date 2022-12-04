@@ -148,4 +148,8 @@
         <value>Last update</value>
         <comment/>
     </data>
+    <data name="DiscountLabel" xml:space="preserve">
+        <value>Discount</value>
+        <comment/>
+    </data>
 </root>

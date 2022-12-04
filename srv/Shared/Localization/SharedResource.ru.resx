@@ -148,4 +148,8 @@
         <value>Обновлено</value>
         <comment/>
     </data>
+    <data name="DiscountLabel" xml:space="preserve">
+        <value>Скидка</value>
+        <comment/>
+    </data>
 </root>

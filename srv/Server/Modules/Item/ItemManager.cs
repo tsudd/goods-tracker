@@ -10,6 +10,7 @@ internal class ItemManager : IItemManager
     private const int pageSize = 30;
     private const string defaultCurrency = "BYN";
     private const string defaultWeightUnit = "g";
+    private const string defaultCountry = "Belarus";
     private const string defaultImgLink = "img/no_image.png";
     private readonly IItemRepository _itemRepository;
     private readonly ILogger _logger;
@@ -55,7 +56,7 @@ internal class ItemManager : IItemManager
             DiscountPrice = baseItemEntity.DiscountPrice ?? 0,
             Discount = baseItemEntity.Discount ?? 0,
             OnDiscount = baseItemEntity.OnDiscount,
-            Country = baseItemEntity.Country ?? string.Empty,
+            Country = baseItemEntity.Country ?? defaultCountry,
             Currensy = baseItemEntity.Currency ?? defaultCurrency,
             FetchDate = baseItemEntity.FetchDate ?? DateTime.Today,
             ImgLink = baseItemEntity.ImgLink ?? defaultImgLink,

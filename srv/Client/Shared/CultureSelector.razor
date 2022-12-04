@@ -4,7 +4,7 @@
 @inject IStringLocalizer<SharedResource> Loc
 
 
-<div class="form-floating">
+<div class="form-floating p-1">
     <select class="form-select" id="cultureSelector" @bind="Culture" aria-label="Culture selector">
         @foreach (var culture in supportedCultures)
         {

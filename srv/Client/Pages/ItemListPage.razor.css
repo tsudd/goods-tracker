@@ -1,0 +1,9 @@
+.cent {
+    vertical-align: bottom;
+    display: inline-block;
+    font-size: 24px;
+}
+
+.price {
+    display: block;
+}
