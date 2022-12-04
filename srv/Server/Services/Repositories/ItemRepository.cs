@@ -37,12 +37,12 @@ internal sealed class ItemRepository : IItemRepository
 
     }
 
-    public async Task<IEnumerable<BaseItem>> GetItemsByGroupsAsync(int page, int amount)
+    public async Task<IEnumerable<BaseItem>> GetItemsByGroupsAsync(int page, int amount, string? q = null)
     {
         var baseItems = new List<BaseItem>();
         try
         {
-            using var reader = await _dbAccess.ExecuteCommandAsync(GenerateSelectItemGroupCommand(page, amount));
+            using var reader = await _dbAccess.ExecuteCommandAsync(GenerateSelectItemGroupCommand(page, amount, q));
             if (reader.HasRows)
             {
                 while (await reader.ReadAsync())
@@ -103,7 +103,7 @@ internal sealed class ItemRepository : IItemRepository
     private string GenerateItemCountCommand()
     => $"SELECT COUNT(*) FROM ITEM";
 
-    private string GenerateSelectItemGroupCommand(int page, int amount)
+    private string GenerateSelectItemGroupCommand(int page, int amount, string? searchString = null)
     => "SELECT records.ITEMID AS \"Id\""
     + ",records.PRICE AS \"Price\""
     + ",records.CUTPRICE AS \"DiscountPrice\""
@@ -121,6 +121,9 @@ internal sealed class ItemRepository : IItemRepository
     + " LEFT JOIN ITEM AS items ON records.ITEMID = items.ID"
     + " LEFT JOIN STREAM AS streams ON records.STREAMID = streams.ID"
     + " LEFT JOIN VENDOR AS vendors ON items.VENDORID = vendors.ID"
+    + (searchString != null
+    ? $" WHERE CONTAINS(items.NAME1, '{searchString}', FUZZY(0.75,'similarcalculationmode=substringsearch'))"
+    : string.Empty)
     + " GROUP BY records.ITEMID"
     + ",items.NAME1"
     + ",records.PRICE"

@@ -26,6 +26,26 @@ internal class ItemManager : IItemManager
         return _itemRepository.GetItemCountAsync();
     }
 
+    public async Task<IEnumerable<BaseItemModel>> SearchItems(int page, string q)
+    {
+        var baseItemsEntities = await _itemRepository.GetItemsByGroupsAsync(page, pageSize, q);
+        var itemModels = new List<BaseItemModel>();
+
+        foreach (var itemEntity in baseItemsEntities)
+        {
+            try
+            {
+                itemModels.Add(MapBaseItemModel(itemEntity));
+            }
+            catch (FormatException)
+            {
+                _logger.LogError(
+                    $"Couldn't map base item entity to entity model: some fields are missing in {itemEntity.Id}");
+            }
+        }
+        return itemModels;
+    }
+
     public async Task<IEnumerable<BaseItemModel>> GetBaseItemsPage(int page)
     {
         var baseItemsEntities = await _itemRepository.GetItemsByGroupsAsync(page, pageSize);

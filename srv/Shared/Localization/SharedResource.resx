@@ -152,4 +152,44 @@
         <value>Discount</value>
         <comment/>
     </data>
+    <data name="TotalItemsLabel" xml:space="preserve">
+        <value>Items in the database</value>
+        <comment/>
+    </data>
+    <data name="SearchPlaceholder" xml:space="preserve">
+        <value>What are you searching for?</value>
+        <comment/>
+    </data>
+    <data name="OrderByLabel" xml:space="preserve">
+        <value>Order</value>
+        <comment/>
+    </data>
+    <data name="CheapFirstOrder" xml:space="preserve">
+        <value>Cheap first</value>
+        <comment/>
+    </data>
+    <data name="ExpensiveFirstOrder" xml:space="preserve">
+        <value>Expensive first</value>
+        <comment/>
+    </data>
+    <data name="UpdateDateOrder" xml:space="preserve">
+        <value>Last update</value>
+        <comment/>
+    </data>
+    <data name="AllShopsLabel" xml:space="preserve">
+        <value>All shops</value>
+        <comment/>
+    </data>
+    <data name="FilterShopLabel" xml:space="preserve">
+        <value>Shops</value>
+        <comment/>
+    </data>
+    <data name="SearchSetupsLabel" xml:space="preserve">
+        <value>Other</value>
+        <comment/>
+    </data>
+    <data name="OnlyDiscountsLabel" xml:space="preserve">
+        <value>On discount only</value>
+        <comment/>
+    </data>
 </root>

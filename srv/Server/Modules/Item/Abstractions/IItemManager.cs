@@ -6,4 +6,5 @@ public interface IItemManager
 {
     Task<int> GetAmountOfItemsAsync();
     Task<IEnumerable<BaseItemModel>> GetBaseItemsPage(int page);
+    Task<IEnumerable<BaseItemModel>> SearchItems(int page, string q);
 }
