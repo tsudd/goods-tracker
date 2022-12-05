@@ -1,0 +1,73 @@
+@inject IStringLocalizer<SharedResource> Loc
+@using GoodsTracker.Platform.Shared.Models
+@using System.Globalization
+
+<div class="col">
+    <div class="card h-100">
+        <img src="@Item.ImgLink" class="card-img-top img-fluid" alt="@Item.Name">
+        <div class="card-img-overlay">
+            <button type="button" class="btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-heart"
+                    viewBox="0 0 16 16">
+                    <path
+                        d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" />
+                </svg>
+            </button>
+        </div>
+        <div class="card-body d-flex flex-column">
+            <div class="h-35 d-inline-block">
+                <h5 class="card-title">@Item.Name</h5>
+            </div>
+            <div class="card-text text-end fw-light mt-auto">
+                @Item.Weight
+                <small>@Item.WeightUnit</small>
+            </div>
+            <div class="card-text fs-3 text-end row">
+                @if (Item.OnDiscount)
+                {
+                    var price = BuildPrice(Item.DiscountPrice);
+                    <span
+                    class="col align-self-end pb-2 text-decoration-line-through p-0 fs-6">@Item.Price<small>@Item.Currensy</small>
+                    </span>
+                    <span class="col-auto fw-bold text-danger">@price.MainPart.<small class="fs-5">@price.Cents</small><span
+                        class="fs-6 text-danger"> @Item.Currensy</span></span>
+                }
+                else
+                {
+                    var price = BuildPrice(Item.Price);
+                    <span>
+                        <span class="fw-bold">@price.MainPart.<small class="fs-5">@price.Cents</small></span>
+                        <span class="fs-6">@Item.Currensy</span>
+                    </span>
+                }
+            </div>
+            <div class="row justify-content-end text-end">
+                <span class="col ">@Item.Country</span>
+            </div>
+            <div class="row justify-content-end">
+                <span class="col-4 badge bg-primary text-wrap">@Item.VendorName</span>
+            </div>
+            @if (Item.OnDiscount)
+            {
+                <span class="position-absolute top-0 end-0 m-3 badge rounded-pill bg-danger fs-5">
+                    -@Item.Discount %
+                </span>
+            }
+        </div>
+        <div class="card-footer">
+            <small class="text-muted">@Loc["FetchDateLabel"]
+                @Item.FetchDate.ToString("dd/MM/yyyy")</small>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Demonstrates how a parent component can supply parameters
+    [Parameter]
+    public BaseItemModel Item { get; set; } = new BaseItemModel();
+    protected (string MainPart, string Cents) BuildPrice(decimal price)
+    {
+        var priceParts = price.ToString(CultureInfo.InvariantCulture).Split('.');
+        return (priceParts[0], priceParts[1]);
+    }
+}
