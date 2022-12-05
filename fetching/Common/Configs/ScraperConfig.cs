@@ -1,5 +1,6 @@
 namespace GoodsTracker.DataCollector.Common.Configs;
 
+// TODO: provide configuration with list of categories to be exclude from scraping
 public class ScraperConfig
 {
     public string Name { get; init; } = String.Empty;

@@ -28,6 +28,7 @@ public class BasicMapper : IItemMapper
             Protein = TryGetValueOrDefault(fields, ItemFields.Protein, ParseFloatOrDefault),
             Portion = TryGetValueOrDefault(fields, ItemFields.Portion, ParseFloatOrDefault),
             Categories = TryGetValueOrDefault(fields, ItemFields.Categories, ParseCategoriesOrEmpty),
+            Link = TryGetValueOrDefault(fields, ItemFields.ImageLink, noAffect)
         };
     }
 

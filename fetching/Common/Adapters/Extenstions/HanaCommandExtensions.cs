@@ -38,6 +38,12 @@ internal static class HanaCommandExtensions
         cmd.Parameters.Add(CreateParameter("p13", item.Portion));
     }
 
+    internal static void AddItemImageLinkToUpdate(this HanaCommand cmd, Item item, object itemId)
+    {
+        cmd.Parameters.Add(CreateParameter("p0", item.Link));
+        cmd.Parameters.Add(CreateParameter("p1", itemId));
+    }
+
     internal static void AddCategoryToInsert(this HanaCommand cmd, string category)
     {
         cmd.Parameters.Add(CreateParameter("p0", category.GetHashCode()));

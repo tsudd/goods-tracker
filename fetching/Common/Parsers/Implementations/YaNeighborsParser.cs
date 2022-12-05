@@ -146,6 +146,17 @@ public sealed class YaNeighborsParser : IItemParser
             }
         }
 
+        var image =
+            itemPage
+                .DocumentNode
+                .SelectSingleNode(
+                    "//div[@class='SmartImage_root UiKitProductFullCard_picture SmartImage_hideCover']/img"
+                );
+        if (image != null)
+        {
+            fields.Add(ItemFields.ImageLink, image.GetAttributeValue("src", null));
+        }
+
         var categorySequence =
             itemPage
                 .DocumentNode

@@ -7,6 +7,8 @@ using GoodsTracker.DataCollector.Common.Mappers.Interfaces;
 using System.Text;
 
 namespace GoodsTracker.DataCollector.Common.Parsers.Implementations;
+
+// TODO: split into submethods
 public sealed class EmallParser : IItemParser
 {
     private const short DESCRIPTIONS_AMOUNT = 4;
@@ -162,6 +164,15 @@ public sealed class EmallParser : IItemParser
         else
         {
             _logger.LogWarning("couldn't parse item compound");
+        }
+
+        var image =
+            itemPage
+                .DocumentNode
+                .SelectSingleNode("//div[@class='left']/a");
+        if (image != null)
+        {
+            fields.Add(ItemFields.ImageLink, image.GetAttributeValue("href", null));
         }
 
         var categoriesNodes =

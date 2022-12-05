@@ -18,7 +18,7 @@ public class Item
     public float? Carbo { get; set; }
     public float? Portion { get; set; }
     public List<string>? Categories { get; set; }
-    public string? Link { get; set; } = String.Empty;
+    public string? Link { get; set; }
     public string CategoriesEnum => Categories != null ? string.Join('|', Categories) : "";
 
     public override bool Equals(object? obj)

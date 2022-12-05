@@ -17,5 +17,5 @@ public enum ItemFields
     Carbo,
     Portion,
     Categories,
-    Link,
+    ImageLink,
 }
