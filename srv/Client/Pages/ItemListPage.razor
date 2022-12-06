@@ -12,7 +12,7 @@
 <div class="input-group mb-3">
     <input type="text" class="form-control" id="search-input" placeholder="@Loc["SearchPlaceholder"]"
         aria-label="@Loc["SearchPlaceholder"]: " aria-describedby="button-addon2" @bind="SearchInput">
-    <button class="btn btn-primary" type="button" id="button-addon2" @onclick="() => ShowInfo(1)"><svg
+    <button class="btn btn-primary" type="button" id="button-addon2" @onclick="() => SearchItems()"><svg
             xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search"
             viewBox="0 0 16 16">
             <path
@@ -47,90 +47,44 @@
 
 <hr>
 
-@if (items == null)
-{
-    <p><em>@Loc["LoadingLabel"]...</em></p>
-}
-else
-{
-    <div class="row row-cols-1 row-cols-md-4 g-4">
-    @foreach (var item in items)
-        {
+<div class="row row-cols-1 row-cols-md-4 g-4">
+    <InfiniteScrolling ItemsProvider="GetItems" @ref="Scroller">
+        <ItemTemplate Context="item">
             <ItemCard Item=item />
-        }
-    </div>
-}
-<div class="row justify-content-center">
-    <ul class="pagination">
-        <li class="page-item @(currentPage == 1 ? "disabled" : "")" @onclick="PrevPage">
-            <a class="page-link" aria-disabled="true">@Loc["PreviusPageLabel"]</a>
-        </li>
-        @for (var i = currentPage - 2; i <= currentPage + 2; i++)
-        {
-            if (i <= 0 || i > TotalPages)
-                continue;
-            int j = i;
-            if (i == currentPage)
-            {
-                <li class='page-item active' @onclick='() => ShowInfo(j)'>
-                    <a class="page-link">@i</a>
-                </li>
-            }
-            else
-            {
-                <li class='page-item' @onclick='() => ShowInfo(j)'>
-                    <a class="page-link">@i</a>
-                </li>
-            }
-        }
-        <li class="page-item" @onclick="NextPage">
-            <a class="page-link">@Loc["NextPageLabel"]</a>
-        </li>
-    </ul>
+        </ItemTemplate>
+        <LoadingTemplate>
+            <div><span class="oi oi-reload spin"></span> Loading more items...</div>
+        </LoadingTemplate>
+    </InfiniteScrolling>
 </div>
 
+
 @code {
-    private BaseItemModel[]? items;
     public string SearchInput { get; set; } = string.Empty;
-    private int currentPage = 1;
     public int Count { get; set; }
     public int PageSize { get; set; } = 30;
     public int TotalPages { get; set; } = 0;
+    public InfiniteScrolling<BaseItemModel>? Scroller { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         Count = await Http.GetFromJsonAsync<int>("/ItemList/count");
-        TotalPages = (int)Math.Ceiling(decimal.Divide(Count, PageSize));
-        await ShowInfo();
     }
 
-    protected async Task NextPage()
-    {
-        if (currentPage < TotalPages) { currentPage++; await ShowInfo(); }
-    }
-    protected async Task PrevPage()
-    {
-        if
-        (currentPage > 1)
-        {
-            currentPage--;
-            await ShowInfo();
-        }
-    }
-
-    protected async Task ShowInfo()
+    protected async Task<IEnumerable<BaseItemModel>> GetItems(InfiniteScrollingItemsProviderRequest request)
     {
         if (SearchInput.Length > 0)
         {
-            items = await Http.GetFromJsonAsync<BaseItemModel[]>($"/ItemList/search?page={currentPage}&q={SearchInput}");
-            return;
+            return await Http.GetFromJsonAsync<BaseItemModel[]>($"/ItemList/search?index={request.StartIndex}&q={SearchInput}") ??
+            Enumerable.Empty<BaseItemModel>();
         }
-        items = await Http.GetFromJsonAsync<BaseItemModel[]>($"/ItemList?page={currentPage}");
+        return await Http.GetFromJsonAsync<BaseItemModel[]>($"/ItemList?index={request.StartIndex}") ??
+        Enumerable.Empty<BaseItemModel>();
     }
 
-    protected async Task ShowInfo(int page)
+    protected Task SearchItems()
     {
-        currentPage = page;
-        await ShowInfo();
+        Scroller?.ResetList();
+        return Task.CompletedTask;
     }
 }

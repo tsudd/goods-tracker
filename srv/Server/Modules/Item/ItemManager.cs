@@ -26,9 +26,9 @@ internal class ItemManager : IItemManager
         return _itemRepository.GetItemCountAsync();
     }
 
-    public async Task<IEnumerable<BaseItemModel>> SearchItems(int page, string q)
+    public async Task<IEnumerable<BaseItemModel>> SearchItems(int startIndex, string q)
     {
-        var baseItemsEntities = await _itemRepository.GetItemsByGroupsAsync(page, pageSize, q);
+        var baseItemsEntities = await _itemRepository.GetItemsByGroupsAsync(startIndex, pageSize, q);
         var itemModels = new List<BaseItemModel>();
 
         foreach (var itemEntity in baseItemsEntities)

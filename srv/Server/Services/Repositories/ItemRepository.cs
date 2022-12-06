@@ -37,12 +37,12 @@ internal sealed class ItemRepository : IItemRepository
 
     }
 
-    public async Task<IEnumerable<BaseItem>> GetItemsByGroupsAsync(int page, int amount, string? q = null)
+    public async Task<IEnumerable<BaseItem>> GetItemsByGroupsAsync(int startIndex, int amount, string? q = null)
     {
         var baseItems = new List<BaseItem>();
         try
         {
-            using var reader = await _dbAccess.ExecuteCommandAsync(GenerateSelectItemGroupCommand(page, amount, q));
+            using var reader = await _dbAccess.ExecuteCommandAsync(GenerateSelectItemGroupCommand(startIndex, amount, q));
             if (reader.HasRows)
             {
                 while (await reader.ReadAsync())
@@ -103,7 +103,7 @@ internal sealed class ItemRepository : IItemRepository
     private string GenerateItemCountCommand()
     => $"SELECT COUNT(*) FROM ITEM";
 
-    private string GenerateSelectItemGroupCommand(int page, int amount, string? searchString = null)
+    private string GenerateSelectItemGroupCommand(int startIndex, int amount, string? searchString = null)
     => "SELECT records.ITEMID AS \"Id\""
     + ",records.PRICE AS \"Price\""
     + ",records.CUTPRICE AS \"DiscountPrice\""
@@ -134,5 +134,5 @@ internal sealed class ItemRepository : IItemRepository
     + ",items.COUNTY"
     + ",items.LINK"
     + ",vendors.LAND"
-    + $",vendors.NAME1 LIMIT {amount} OFFSET {amount * (page - 1)};";
+    + $",vendors.NAME1 LIMIT {amount} OFFSET {startIndex};";
 }

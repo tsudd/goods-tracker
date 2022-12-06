@@ -22,12 +22,12 @@
                 @Item.Weight
                 <small>@Item.WeightUnit</small>
             </div>
-            <div class="card-text fs-3 text-end row">
+            <div class="card-text fs-3 text-end pt-2 position-relative">
                 @if (Item.OnDiscount)
                 {
                     var price = BuildPrice(Item.DiscountPrice);
-                    <span
-                    class="col align-self-end pb-2 text-decoration-line-through p-0 fs-6">@Item.Price<small>@Item.Currensy</small>
+                    <span class="col end-0 position-absolute text-decoration-line-through fs-6"
+                    style="top: -0.5px">@Item.Price<small>@Item.Currensy</small>
                     </span>
                     <span class="col-auto fw-bold text-danger">@price.MainPart.<small class="fs-5">@price.Cents</small><span
                         class="fs-6 text-danger"> @Item.Currensy</span></span>
