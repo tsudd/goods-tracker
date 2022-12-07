@@ -13,7 +13,7 @@
 <div class="input-group mb-3">
     <input type="text" class="form-control" id="search-input" placeholder="@Loc["SearchPlaceholder"]"
         aria-label="@Loc["SearchPlaceholder"]: " aria-describedby="button-addon2" @bind="SearchInput">
-    <button class="btn btn-primary" type="button" id="button-addon2" @onclick="() => FetchSettingChanged()"><svg
+    <button class="btn btn-primary" type="button" id="button-addon2" @onclick="() => FetchSettingChanged()" \> <svg
             xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search"
             viewBox="0 0 16 16">
             <path
@@ -55,7 +55,7 @@
 <div class="row row-cols-1 row-cols-md-4 g-4">
     <InfiniteScrolling ItemsProvider="GetItems" @ref="Scroller">
         <ItemTemplate Context="item">
-            <ItemCard Item=item />
+            <ItemCard Item=item GetBadge="GetShopBadge" GetShopName="GetShopName" />
         </ItemTemplate>
         <LoadingTemplate>
             <div><span class="oi oi-reload spin"></span> Loading more items...</div>
@@ -135,5 +135,18 @@
         if (OnlyDiscount)
             query.Append($"&onlyDiscount=true");
         return query.ToString();
+    }
+
+    protected string GetShopBadge(int shopId)
+    {
+        return shopId % 2 == 1 ? "bg-primary" : "bg-danger";
+    }
+
+    protected string GetShopName(int shopId)
+    {
+        return Shops
+        .Where(shop => shop.Id == shopId)
+        .First()
+        .GetShopNameWithCulture(CultureInfo.CurrentCulture);
     }
 }

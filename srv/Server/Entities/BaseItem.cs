@@ -14,5 +14,5 @@ public class BaseItem
     public string? Currensy { get; set; }
     public string? ImgLink { get; set; }
     public DateTime? FetchDate { get; set; }
-    public string? VendorName { get; set; }
+    public int VendorId { get; set; }
 }

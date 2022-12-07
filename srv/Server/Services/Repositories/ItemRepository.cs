@@ -141,7 +141,7 @@ internal sealed class ItemRepository : IItemRepository
             + "items.WEIGHTUNIT AS \"WeightUnit\", "
             + "items.COUNTRY AS \"Country\", "
             + "vendors.LAND AS \"Currensy\", "
-            + "vendors.NAME1 AS \"VendorName\", "
+            + "vendors.ID AS \"VendorId\", "
             + "records.FETCHDATE as \"FetchDate\""
             + "FROM "
             + "("

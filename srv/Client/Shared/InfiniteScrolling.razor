@@ -44,7 +44,7 @@
         {
             _loadItemsCts ??= new CancellationTokenSource();
 
-            StateHasChanged(); // Allow the UI to display the loading indicator
+            StateHasChanged();
             try
             {
                 var newItems = await ItemsProvider(new InfiniteScrollingItemsProviderRequest(_items.Count, _loadItemsCts.Token));
@@ -60,7 +60,7 @@
             _loading = false;
         }
 
-        StateHasChanged(); // Display the new items and hide the loading indicator
+        StateHasChanged();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -76,14 +76,12 @@
 
     public async ValueTask DisposeAsync()
     {
-        // Cancel the current load items operation
         if (_loadItemsCts != null)
         {
             _loadItemsCts.Dispose();
             _loadItemsCts = null;
         }
 
-        // Stop the IntersectionObserver
         if (_instance != null)
         {
             await _instance.InvokeVoidAsync("dispose");

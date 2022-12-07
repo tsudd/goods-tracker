@@ -122,7 +122,7 @@ internal class ItemManager : IItemManager
             Currensy = baseItemEntity.Currensy ?? defaultCurrency,
             FetchDate = baseItemEntity.FetchDate ?? DateTime.Today,
             ImgLink = baseItemEntity.ImgLink ?? defaultImgLink,
-            VendorName = baseItemEntity.VendorName ?? throw new FormatException(),
+            VendorId = baseItemEntity.VendorId,
             Weight = baseItemEntity.Weight ?? 0,
             WeightUnit = baseItemEntity.WeightUnit ?? defaultWeightUnit,
         };

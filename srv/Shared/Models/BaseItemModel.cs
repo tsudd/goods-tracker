@@ -15,5 +15,5 @@ public sealed class BaseItemModel
     public string Currensy { get; init; } = String.Empty;
     public string ImgLink { get; init; } = String.Empty;
     public DateTime FetchDate { get; init; }
-    public string VendorName { get; init; } = String.Empty;
+    public int VendorId { get; init; }
 }
