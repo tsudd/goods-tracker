@@ -189,7 +189,7 @@
         <comment/>
     </data>
     <data name="OnlyDiscountsLabel" xml:space="preserve">
-        <value>On discount only</value>
+        <value>Show discounts only</value>
         <comment/>
     </data>
 </root>

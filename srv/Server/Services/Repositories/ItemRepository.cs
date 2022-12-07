@@ -48,6 +48,7 @@ internal sealed class ItemRepository : IItemRepository
         int amount,
         ItemsOrder order,
         int vendorFilterId,
+        bool discountOnly,
         string? q = null)
     {
         var baseItems = new List<BaseItem>();
@@ -55,7 +56,7 @@ internal sealed class ItemRepository : IItemRepository
         {
             using var reader =
                 await _dbAccess.ExecuteCommandAsync(
-                    GenerateSelectItemGroupCommand(startIndex, amount, order, vendorFilterId, q));
+                    GenerateSelectItemGroupCommand(startIndex, amount, order, vendorFilterId, discountOnly, q));
             if (reader.HasRows)
             {
                 while (await reader.ReadAsync())
@@ -123,6 +124,7 @@ internal sealed class ItemRepository : IItemRepository
         int amount,
         ItemsOrder order,
         int vendorFilterId,
+        bool discountOnly = false,
         string? searchString = null)
     {
         return "SELECT "
@@ -165,6 +167,7 @@ internal sealed class ItemRepository : IItemRepository
             + "     FROM "
             + "       ITEMRECORD AS records "
             + "       LEFT OUTER JOIN STREAM AS streams ON streams.ID = records.STREAMID "
+            + (discountOnly ? "WHERE ONDISCOUNT = true" : string.Empty)
             + "   ) AS freshRecords "
             + " WHERE "
             + "   freshRecords.RN = 1 "

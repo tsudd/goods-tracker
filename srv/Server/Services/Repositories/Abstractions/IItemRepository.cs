@@ -11,5 +11,6 @@ public interface IItemRepository
         int amount,
         ItemsOrder order,
         int vendorFilterId,
+        bool discountOnly,
         string? q = null);
 }

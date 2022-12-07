@@ -39,7 +39,12 @@ internal class ItemManager : IItemManager
 
     }
 
-    public async Task<IEnumerable<BaseItemModel>> SearchItems(int startIndex, string q, string order, int shopFilterId)
+    public async Task<IEnumerable<BaseItemModel>> SearchItems(
+        int startIndex,
+        string q,
+        string order,
+        int shopFilterId,
+        bool discountOnly = false)
     {
         var itemsOrder = GetItemsOrder(order);
         var baseItemsEntities = await _itemRepository.GetItemsByGroupsAsync(
@@ -47,6 +52,7 @@ internal class ItemManager : IItemManager
             pageSize,
             itemsOrder,
             shopFilterId,
+            discountOnly,
             q);
         var itemModels = new List<BaseItemModel>();
 
@@ -65,10 +71,15 @@ internal class ItemManager : IItemManager
         return itemModels;
     }
 
-    public async Task<IEnumerable<BaseItemModel>> GetBaseItemsPage(int page, string order, int shopFilterId)
+    public async Task<IEnumerable<BaseItemModel>> GetBaseItemsPage(
+        int page,
+        string order,
+        int shopFilterId,
+        bool discountOnly = false)
     {
         var itemsOrder = GetItemsOrder(order);
-        var baseItemsEntities = await _itemRepository.GetItemsByGroupsAsync(page, pageSize, itemsOrder, shopFilterId);
+        var baseItemsEntities =
+            await _itemRepository.GetItemsByGroupsAsync(page, pageSize, itemsOrder, shopFilterId, discountOnly);
         var itemModels = new List<BaseItemModel>();
 
         foreach (var itemEntity in baseItemsEntities)

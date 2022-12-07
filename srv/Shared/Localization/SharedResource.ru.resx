@@ -152,4 +152,44 @@
         <value>Скидка</value>
         <comment/>
     </data>
+    <data name="TotalItemsLabel" xml:space="preserve">
+        <value>Предметов в базе</value>
+        <comment/>
+    </data>
+    <data name="SearchPlaceholder" xml:space="preserve">
+        <value>Что вы ищете?</value>
+        <comment/>
+    </data>
+    <data name="OrderByLabel" xml:space="preserve">
+        <value>Порядок</value>
+        <comment/>
+    </data>
+    <data name="CheapFirstOrder" xml:space="preserve">
+        <value>Сначала дешевые</value>
+        <comment/>
+    </data>
+    <data name="ExpensiveFirstOrder" xml:space="preserve">
+        <value>Сначала дорогие</value>
+        <comment/>
+    </data>
+    <data name="UpdateDateOrder" xml:space="preserve">
+        <value>По дате обновления</value>
+        <comment/>
+    </data>
+    <data name="AllShopsLabel" xml:space="preserve">
+        <value>Все магазины</value>
+        <comment/>
+    </data>
+    <data name="FilterShopLabel" xml:space="preserve">
+        <value>Магазины</value>
+        <comment/>
+    </data>
+    <data name="SearchSetupsLabel" xml:space="preserve">
+        <value>Други настройки</value>
+        <comment/>
+    </data>
+    <data name="OnlyDiscountsLabel" xml:space="preserve">
+        <value>Показывать только скидочные товары</value>
+        <comment/>
+    </data>
 </root>

@@ -18,11 +18,11 @@ public class ItemListController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IEnumerable<BaseItemModel>?> GetItems(int index, string orderBy, int shop)
+    public async Task<IEnumerable<BaseItemModel>?> GetItems(int index, string orderBy, int shop, bool onlyDiscount)
     {
         try
         {
-            return await _itemManager.GetBaseItemsPage(index, orderBy, shop);
+            return await _itemManager.GetBaseItemsPage(index, orderBy, shop, onlyDiscount);
         }
         catch (InvalidOperationException ex)
         {
@@ -32,11 +32,16 @@ public class ItemListController : ControllerBase
     }
 
     [HttpGet("search")]
-    public async Task<IEnumerable<BaseItemModel>?> SearchItems(int index, string q, string orderBy, int shop)
+    public async Task<IEnumerable<BaseItemModel>?> SearchItems(
+        int index,
+        string q,
+        string orderBy,
+        int shop,
+        bool onlyDiscount)
     {
         try
         {
-            return await _itemManager.SearchItems(index, q, orderBy, shop);
+            return await _itemManager.SearchItems(index, q, orderBy, shop, onlyDiscount);
         }
         catch (InvalidOperationException ex)
         {
