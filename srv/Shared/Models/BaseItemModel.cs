@@ -1,6 +1,6 @@
 namespace GoodsTracker.Platform.Shared.Models;
 
-public class BaseItemModel
+public sealed class BaseItemModel
 {
     public const string DEFAULT_ITEM_NAME = "UNNAMED ITEM";
     public int Id { get; init; }

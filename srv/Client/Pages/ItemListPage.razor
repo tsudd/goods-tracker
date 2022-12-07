@@ -32,8 +32,12 @@
     <div class="col-md-3">
         <label class="form-label" for="shop">@Loc["FilterShopLabel"]</label>
         @* TODO: make shop select multiple *@
-        <select id="shop" class="form-select">
-            <option value="">@Loc["AllShopsLabel"]</option>
+        <select id="shop" class="form-select" @bind="ShopFilter">
+            <option value="0">@Loc["AllShopsLabel"]</option>
+            @foreach (var shop in Shops)
+            {
+                <option value="@shop.Id">@shop.GetShopNameWithCulture(CultureInfo.CurrentCulture)</option>
+            }
         </select>
     </div>
     <div class=" col-md-3">
@@ -61,6 +65,7 @@
 
 @code {
     private string itemsOrder = "none";
+    private int shopFilter = 0;
     public string SearchInput { get; set; } = string.Empty;
     public string ItemsOrder
     {
@@ -71,6 +76,16 @@
             FetchSettingChanged();
         }
     }
+    public int ShopFilter
+    {
+        get { return shopFilter; }
+        set
+        {
+            shopFilter = value;
+            FetchSettingChanged();
+        }
+    }
+    public IEnumerable<ShopModel> Shops { get; private set; } = Enumerable.Empty<ShopModel>();
     public int Count { get; set; }
     public int PageSize { get; set; } = 30;
     public int TotalPages { get; set; } = 0;
@@ -78,7 +93,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Count = await Http.GetFromJsonAsync<int>("/ItemList/count");
+        var model = await Http.GetFromJsonAsync<InfoModel>("/ItemList/info");
+        Count = model?.ItemsCount ?? 0;
+        Shops = model?.Shops ?? Enumerable.Empty<ShopModel>();
     }
 
     protected async Task<IEnumerable<BaseItemModel>> GetItems(InfiniteScrollingItemsProviderRequest request)
@@ -86,11 +103,11 @@
         if (SearchInput.Length > 0)
         {
             return await Http.GetFromJsonAsync<BaseItemModel[]>(
-            $"/ItemList/search?index={request.StartIndex}&q={SearchInput}&orderBy={ItemsOrder}") ??
+            $"/ItemList/search?index={request.StartIndex}&q={SearchInput}&orderBy={ItemsOrder}&shop={ShopFilter}") ??
             Enumerable.Empty<BaseItemModel>();
         }
         return await Http.GetFromJsonAsync<BaseItemModel[]>(
-        $"/ItemList?index={request.StartIndex}&orderBy={ItemsOrder}") ??
+        $"/ItemList?index={request.StartIndex}&orderBy={ItemsOrder}&shop={ShopFilter}") ??
         Enumerable.Empty<BaseItemModel>();
     }
 

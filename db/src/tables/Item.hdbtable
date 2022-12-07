@@ -4,7 +4,7 @@ COLUMN TABLE "ITEM" (
     "NAME2" VARCHAR(100) COMMENT 'Item name 2',
     "NAME3" VARCHAR(100) COMMENT 'Item name 3',
     "LINK" VARCHAR(300) COMMENT 'Link to the item',
-    "COUNTY" VARCHAR(30) COMMENT 'Producer country',
+    "COUNTRY" VARCHAR(30) COMMENT 'Producer country',
     "PRODUCER" VARCHAR(70) COMMENT 'Producer name',
     "VENDORCODE" INT COMMENT 'Vendor code',
     "WEIGHT" REAL COMMENT 'Weight',

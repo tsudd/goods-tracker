@@ -4,7 +4,7 @@ namespace GoodsTracker.Platform.Server.Modules.Item.Abstractions;
 
 public interface IItemManager
 {
-    Task<int> GetAmountOfItemsAsync();
-    Task<IEnumerable<BaseItemModel>> GetBaseItemsPage(int page, string order);
-    Task<IEnumerable<BaseItemModel>> SearchItems(int page, string q, string order);
+    Task<InfoModel> GetItemsInfoAsync();
+    Task<IEnumerable<BaseItemModel>> GetBaseItemsPage(int page, string order, int shopFilterId);
+    Task<IEnumerable<BaseItemModel>> SearchItems(int page, string q, string order, int shopFilterId);
 }

@@ -13,6 +13,7 @@ internal class ItemManager : IItemManager
     private const string defaultWeightUnit = "g";
     private const string defaultCountry = "Belarus";
     private const string defaultImgLink = "img/no_image.png";
+    private const int shopModelColumns = 3;
     private readonly IItemRepository _itemRepository;
     private readonly ILogger _logger;
 
@@ -22,22 +23,38 @@ internal class ItemManager : IItemManager
         _logger = logger;
     }
 
-    public Task<int> GetAmountOfItemsAsync()
+    public async Task<InfoModel> GetItemsInfoAsync()
     {
-        return _itemRepository.GetItemCountAsync();
+        var itemsInfo = await _itemRepository.GetItemsInfoAsync();
+        try
+        {
+            return ItemManager.MapInfoModel(itemsInfo);
+        }
+        catch (FormatException)
+        {
+            _logger.LogError(
+                $"Couldn't map items info to model: wrong format");
+            throw new InvalidOperationException();
+        }
+
     }
 
-    public async Task<IEnumerable<BaseItemModel>> SearchItems(int startIndex, string q, string order)
+    public async Task<IEnumerable<BaseItemModel>> SearchItems(int startIndex, string q, string order, int shopFilterId)
     {
         var itemsOrder = GetItemsOrder(order);
-        var baseItemsEntities = await _itemRepository.GetItemsByGroupsAsync(startIndex, pageSize, itemsOrder, q);
+        var baseItemsEntities = await _itemRepository.GetItemsByGroupsAsync(
+            startIndex,
+            pageSize,
+            itemsOrder,
+            shopFilterId,
+            q);
         var itemModels = new List<BaseItemModel>();
 
         foreach (var itemEntity in baseItemsEntities)
         {
             try
             {
-                itemModels.Add(MapBaseItemModel(itemEntity));
+                itemModels.Add(ItemManager.MapBaseItemModel(itemEntity));
             }
             catch (FormatException)
             {
@@ -48,10 +65,10 @@ internal class ItemManager : IItemManager
         return itemModels;
     }
 
-    public async Task<IEnumerable<BaseItemModel>> GetBaseItemsPage(int page, string order)
+    public async Task<IEnumerable<BaseItemModel>> GetBaseItemsPage(int page, string order, int shopFilterId)
     {
         var itemsOrder = GetItemsOrder(order);
-        var baseItemsEntities = await _itemRepository.GetItemsByGroupsAsync(page, pageSize, itemsOrder);
+        var baseItemsEntities = await _itemRepository.GetItemsByGroupsAsync(page, pageSize, itemsOrder, shopFilterId);
         var itemModels = new List<BaseItemModel>();
 
         foreach (var itemEntity in baseItemsEntities)
@@ -80,7 +97,7 @@ internal class ItemManager : IItemManager
         };
     }
 
-    private BaseItemModel MapBaseItemModel(BaseItem baseItemEntity)
+    private static BaseItemModel MapBaseItemModel(BaseItem baseItemEntity)
     {
         return new BaseItemModel
         {
@@ -91,12 +108,33 @@ internal class ItemManager : IItemManager
             Discount = baseItemEntity.Discount ?? 0,
             OnDiscount = baseItemEntity.OnDiscount,
             Country = baseItemEntity.Country ?? defaultCountry,
-            Currensy = baseItemEntity.Currency ?? defaultCurrency,
+            Currensy = baseItemEntity.Currensy ?? defaultCurrency,
             FetchDate = baseItemEntity.FetchDate ?? DateTime.Today,
             ImgLink = baseItemEntity.ImgLink ?? defaultImgLink,
             VendorName = baseItemEntity.VendorName ?? throw new FormatException(),
             Weight = baseItemEntity.Weight ?? 0,
             WeightUnit = baseItemEntity.WeightUnit ?? defaultWeightUnit,
+        };
+    }
+
+    private static InfoModel MapInfoModel(BaseInfo baseInfo)
+    {
+        return new InfoModel
+        {
+            ItemsCount = baseInfo.ItemsCount,
+            Shops = baseInfo.ShopsColumns
+                .Select(shopColumns =>
+                {
+                    var columns = shopColumns.Split(',');
+                    if (columns.Length != shopModelColumns)
+                        throw new FormatException();
+                    return new ShopModel
+                    {
+                        Id = int.Parse(columns[0]),
+                        Name1 = columns[1],
+                        Name2 = columns[2],
+                    };
+                })
         };
     }
 }

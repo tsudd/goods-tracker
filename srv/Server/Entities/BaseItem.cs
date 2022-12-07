@@ -11,7 +11,7 @@ public class BaseItem
     public float? Weight { get; set; }
     public string? WeightUnit { get; set; }
     public string? Country { get; set; }
-    public string? Currency { get; set; }
+    public string? Currensy { get; set; }
     public string? ImgLink { get; set; }
     public DateTime? FetchDate { get; set; }
     public string? VendorName { get; set; }

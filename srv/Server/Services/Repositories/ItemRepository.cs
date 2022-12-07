@@ -20,16 +20,20 @@ internal sealed class ItemRepository : IItemRepository
         _logger = logger;
     }
 
-    public async Task<int> GetItemCountAsync()
+    public async Task<BaseInfo> GetItemsInfoAsync()
     {
         try
         {
-            using var reader = await _dbAccess.ExecuteCommandAsync(GenerateItemCountCommand());
-            if (reader.HasRows)
+            var itemsInfo = new BaseInfo();
+            using var countReader = await _dbAccess.ExecuteCommandAsync(GenerateItemsCountCommand());
+            await countReader.ReadAsync();
+            itemsInfo.ItemsCount = countReader.GetInt32(0);
+            using var reader = await _dbAccess.ExecuteCommandAsync(GenerateSelectVendorsCommand());
+            while (await reader.ReadAsync())
             {
-                await reader.ReadAsync();
-                return reader.GetInt32(0);
+                itemsInfo.ShopsColumns.Add($"{reader.GetInt32(0)},{reader.GetString(1)},{reader.GetString(1)}");
             }
+            return itemsInfo;
             throw new InvalidOperationException("couldn't read items count");
         }
         catch (InvalidOperationException ex)
@@ -43,13 +47,15 @@ internal sealed class ItemRepository : IItemRepository
         int startIndex,
         int amount,
         ItemsOrder order,
+        int vendorFilterId,
         string? q = null)
     {
         var baseItems = new List<BaseItem>();
         try
         {
             using var reader =
-                await _dbAccess.ExecuteCommandAsync(GenerateSelectItemGroupCommand(startIndex, amount, order, q));
+                await _dbAccess.ExecuteCommandAsync(
+                    GenerateSelectItemGroupCommand(startIndex, amount, order, vendorFilterId, q));
             if (reader.HasRows)
             {
                 while (await reader.ReadAsync())
@@ -107,12 +113,18 @@ internal sealed class ItemRepository : IItemRepository
         return baseItem;
     }
 
-    private string GenerateItemCountCommand()
-    => $"SELECT COUNT(*) FROM ITEM";
+    private string GenerateItemsCountCommand()
+    => $"SELECT COUNT(*) FROM ITEM;";
+    private string GenerateSelectVendorsCommand()
+    => "SELECT ID, NAME1, NAME2 FROM VENDOR;";
 
-    private string GenerateSelectItemGroupCommand(int startIndex, int amount, ItemsOrder order, string? searchString = null)
+    private string GenerateSelectItemGroupCommand(
+        int startIndex,
+        int amount,
+        ItemsOrder order,
+        int vendorFilterId,
+        string? searchString = null)
     {
-        // TODO: adjust column name COUNTY
         return "SELECT "
             + "records.ITEMID AS \"Id\", "
             + "records.PRICE AS \"Price\", "
@@ -125,7 +137,7 @@ internal sealed class ItemRepository : IItemRepository
             + "items.LINK AS \"ImgLink\", "
             + "items.Weight AS \"Weight\", "
             + "items.WEIGHTUNIT AS \"WeightUnit\", "
-            + "items.COUNTY AS \"Country\", "
+            + "items.COUNTRY AS \"Country\", "
             + "vendors.LAND AS \"Currensy\", "
             + "vendors.NAME1 AS \"VendorName\", "
             + "records.FETCHDATE as \"FetchDate\""
@@ -159,15 +171,44 @@ internal sealed class ItemRepository : IItemRepository
             + ") AS records "
             + "LEFT OUTER JOIN ITEM AS items ON records.ITEMID = items.ID "
             + "LEFT OUTER JOIN VENDOR AS vendors ON items.VENDORID = vendors.ID "
-            + (searchString != null
-            ? $" WHERE CONTAINS(items.NAME1, '{searchString}', FUZZY(0.75,'similarcalculationmode=substringsearch'))"
-            : string.Empty)
+            + BuildWhereStatement(searchString, vendorFilterId)
             + BuildOrderByStatement(order)
             + $" LIMIT {amount} OFFSET {startIndex}"
             + ";";
     }
 
-    private string BuildOrderByStatement(ItemsOrder order)
+    private static string BuildWhereStatement(string? searchString, int vendorFilterId)
+    {
+        var whereStatement = new StringBuilder(" WHERE ");
+        if (searchString != null && vendorFilterId > 0)
+        {
+            whereStatement.Append(
+                BuildFuzzySearchStatement(searchString)
+                + " AND "
+                + BuildVendorFilterStatement(vendorFilterId));
+        }
+        else if (searchString != null)
+        {
+            whereStatement.Append(BuildFuzzySearchStatement(searchString));
+        }
+        else if (vendorFilterId > 0)
+        {
+            whereStatement.Append(BuildVendorFilterStatement(vendorFilterId));
+        }
+        else
+        {
+            return string.Empty;
+        }
+        return whereStatement.ToString();
+    }
+
+    private static string BuildFuzzySearchStatement(string searchString)
+    => $" CONTAINS(items.NAME1, '{searchString}', FUZZY(0.75,'similarcalculationmode=substringsearch'))";
+
+    private static string BuildVendorFilterStatement(int vendorId)
+    => $"VENDORID = {vendorId}";
+
+    private static string BuildOrderByStatement(ItemsOrder order)
     {
         if (order == ItemsOrder.None) return string.Empty;
 
