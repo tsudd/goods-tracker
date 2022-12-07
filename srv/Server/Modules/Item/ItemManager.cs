@@ -1,6 +1,7 @@
 using GoodsTracker.Platform.Server.Entities;
 using GoodsTracker.Platform.Server.Modules.Item.Abstractions;
 using GoodsTracker.Platform.Server.Services.Repositories.Abstractions;
+using GoodsTracker.Platform.Server.Services.Repositories.Enumerators;
 using GoodsTracker.Platform.Shared.Models;
 
 namespace GoodsTracker.Platform.Server.Modules;
@@ -26,9 +27,10 @@ internal class ItemManager : IItemManager
         return _itemRepository.GetItemCountAsync();
     }
 
-    public async Task<IEnumerable<BaseItemModel>> SearchItems(int startIndex, string q)
+    public async Task<IEnumerable<BaseItemModel>> SearchItems(int startIndex, string q, string order)
     {
-        var baseItemsEntities = await _itemRepository.GetItemsByGroupsAsync(startIndex, pageSize, q);
+        var itemsOrder = GetItemsOrder(order);
+        var baseItemsEntities = await _itemRepository.GetItemsByGroupsAsync(startIndex, pageSize, itemsOrder, q);
         var itemModels = new List<BaseItemModel>();
 
         foreach (var itemEntity in baseItemsEntities)
@@ -46,9 +48,10 @@ internal class ItemManager : IItemManager
         return itemModels;
     }
 
-    public async Task<IEnumerable<BaseItemModel>> GetBaseItemsPage(int page)
+    public async Task<IEnumerable<BaseItemModel>> GetBaseItemsPage(int page, string order)
     {
-        var baseItemsEntities = await _itemRepository.GetItemsByGroupsAsync(page, pageSize);
+        var itemsOrder = GetItemsOrder(order);
+        var baseItemsEntities = await _itemRepository.GetItemsByGroupsAsync(page, pageSize, itemsOrder);
         var itemModels = new List<BaseItemModel>();
 
         foreach (var itemEntity in baseItemsEntities)
@@ -64,6 +67,17 @@ internal class ItemManager : IItemManager
             }
         }
         return itemModels;
+    }
+
+    private ItemsOrder GetItemsOrder(string orderString)
+    {
+        return orderString switch
+        {
+            "cheap" => ItemsOrder.CheapFirst,
+            "expensive" => ItemsOrder.ExpensiveFirst,
+            "date" => ItemsOrder.ByLastUpdateDate,
+            var _ => ItemsOrder.None
+        };
     }
 
     private BaseItemModel MapBaseItemModel(BaseItem baseItemEntity)

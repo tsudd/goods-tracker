@@ -1,7 +1,9 @@
 using System.Data.Common;
+using System.Text;
 using GoodsTracker.Platform.Server.Entities;
 using GoodsTracker.Platform.Server.Services.DbAccess.Abstractions;
 using GoodsTracker.Platform.Server.Services.Repositories.Abstractions;
+using GoodsTracker.Platform.Server.Services.Repositories.Enumerators;
 
 namespace GoodsTracker.Platform.Server.Services.Repositories;
 
@@ -37,12 +39,17 @@ internal sealed class ItemRepository : IItemRepository
 
     }
 
-    public async Task<IEnumerable<BaseItem>> GetItemsByGroupsAsync(int startIndex, int amount, string? q = null)
+    public async Task<IEnumerable<BaseItem>> GetItemsByGroupsAsync(
+        int startIndex,
+        int amount,
+        ItemsOrder order,
+        string? q = null)
     {
         var baseItems = new List<BaseItem>();
         try
         {
-            using var reader = await _dbAccess.ExecuteCommandAsync(GenerateSelectItemGroupCommand(startIndex, amount, q));
+            using var reader =
+                await _dbAccess.ExecuteCommandAsync(GenerateSelectItemGroupCommand(startIndex, amount, order, q));
             if (reader.HasRows)
             {
                 while (await reader.ReadAsync())
@@ -103,36 +110,75 @@ internal sealed class ItemRepository : IItemRepository
     private string GenerateItemCountCommand()
     => $"SELECT COUNT(*) FROM ITEM";
 
-    private string GenerateSelectItemGroupCommand(int startIndex, int amount, string? searchString = null)
-    => "SELECT records.ITEMID AS \"Id\""
-    + ",records.PRICE AS \"Price\""
-    + ",records.CUTPRICE AS \"DiscountPrice\""
-    + ",records.ONDISCOUNT AS \"OnDiscount\""
-    + ",100 - TO_INTEGER(ROUND((records.CUTPRICE / records.PRICE) * 100, 0)) AS \"Discount\""
-    + ",items.NAME1 AS \"Name\""
-    + ",items.LINK as \"ImgLink\""
-    + ",items.WEIGHT as \"Weight\""
-    + ",items.WEIGHTUNIT as \"WeightUnit\""
-    + ",items.COUNTY as \"Country\""
-    + ",vendors.LAND as \"Currency\""
-    + ",vendors.NAME1 as \"VendorName\""
-    + ",MAX(streams.FETCHDATE) AS \"FetchDate\""
-    + " FROM ITEMRECORD AS records"
-    + " LEFT JOIN ITEM AS items ON records.ITEMID = items.ID"
-    + " LEFT JOIN STREAM AS streams ON records.STREAMID = streams.ID"
-    + " LEFT JOIN VENDOR AS vendors ON items.VENDORID = vendors.ID"
-    + (searchString != null
-    ? $" WHERE CONTAINS(items.NAME1, '{searchString}', FUZZY(0.75,'similarcalculationmode=substringsearch'))"
-    : string.Empty)
-    + " GROUP BY records.ITEMID"
-    + ",items.NAME1"
-    + ",records.PRICE"
-    + ",records.ONDISCOUNT"
-    + ",records.CUTPRICE"
-    + ",items.WEIGHT"
-    + ",items.WEIGHTUNIT"
-    + ",items.COUNTY"
-    + ",items.LINK"
-    + ",vendors.LAND"
-    + $",vendors.NAME1 LIMIT {amount} OFFSET {startIndex};";
+    private string GenerateSelectItemGroupCommand(int startIndex, int amount, ItemsOrder order, string? searchString = null)
+    {
+        // TODO: adjust column name COUNTY
+        return "SELECT "
+            + "records.ITEMID AS \"Id\", "
+            + "records.PRICE AS \"Price\", "
+            + "records.CUTPRICE AS \"DiscountPrice\", "
+            + "records.ONDISCOUNT AS \"OnDiscount\", "
+            + "100 - TO_INTEGER("
+            + "ROUND("
+            + "(records.CUTPRICE / records.PRICE) * 100, 0)) AS \"Discount\", "
+            + "items.NAME1 AS \"Name\", "
+            + "items.LINK AS \"ImgLink\", "
+            + "items.Weight AS \"Weight\", "
+            + "items.WEIGHTUNIT AS \"WeightUnit\", "
+            + "items.COUNTY AS \"Country\", "
+            + "vendors.LAND AS \"Currensy\", "
+            + "vendors.NAME1 AS \"VendorName\", "
+            + "records.FETCHDATE as \"FetchDate\""
+            + "FROM "
+            + "("
+            + " SELECT "
+            + "   freshRecords.ITEMID, "
+            + "   freshRecords.FETCHDATE, "
+            + "   freshRecords.PRICE, "
+            + "   freshRecords.CUTPRICE, "
+            + "   freshRecords.ONDISCOUNT "
+            + " FROM "
+            + "   ( "
+            + "     SELECT "
+            + "       records.ITEMID, "
+            + "       row_number() over("
+            + "         partition by records.ITEMID "
+            + "         order by "
+            + "           streams.FETCHDATE desc "
+            + "       ) as rn, "
+            + "       streams.FETCHDATE, "
+            + "       records.PRICE, "
+            + "       records.CUTPRICE, "
+            + "       records.ONDISCOUNT "
+            + "     FROM "
+            + "       ITEMRECORD AS records "
+            + "       LEFT OUTER JOIN STREAM AS streams ON streams.ID = records.STREAMID "
+            + "   ) AS freshRecords "
+            + " WHERE "
+            + "   freshRecords.RN = 1 "
+            + ") AS records "
+            + "LEFT OUTER JOIN ITEM AS items ON records.ITEMID = items.ID "
+            + "LEFT OUTER JOIN VENDOR AS vendors ON items.VENDORID = vendors.ID "
+            + (searchString != null
+            ? $" WHERE CONTAINS(items.NAME1, '{searchString}', FUZZY(0.75,'similarcalculationmode=substringsearch'))"
+            : string.Empty)
+            + BuildOrderByStatement(order)
+            + $" LIMIT {amount} OFFSET {startIndex}"
+            + ";";
+    }
+
+    private string BuildOrderByStatement(ItemsOrder order)
+    {
+        if (order == ItemsOrder.None) return string.Empty;
+
+        var orderByStatement = new StringBuilder(" ORDER BY ");
+        if (order == ItemsOrder.ByLastUpdateDate)
+            orderByStatement.Append("FetchDate DESC");
+        else if (order == ItemsOrder.CheapFirst)
+            orderByStatement.Append("Price ASC");
+        else if (order == ItemsOrder.ExpensiveFirst)
+            orderByStatement.Append("Price DESC");
+        else throw new InvalidOperationException("couldn't define order of items");
+        return orderByStatement.ToString();
+    }
 }
