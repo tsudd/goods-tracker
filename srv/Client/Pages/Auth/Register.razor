@@ -1,0 +1,99 @@
+@page "/register"
+@using Newtonsoft.Json
+@layout AuthLayout
+@inject IStringLocalizer<SharedResource> Loc
+@inject IJSRuntime JS
+@inject NavigationManager navigationManager
+@inject StateProvider authStateProvider
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+<PageTitle>@Loc["SignUpPageTitle"]</PageTitle>
+
+<EditForm EditContext="@editContext" OnSubmit="@HandleSubmit">
+    <DataAnnotationsValidator />
+    <h1 class="h3 mb-3 fw-normal text-center">@Loc["SignUpFormTitle"]</h1>
+    <div class="form-floating">
+        <input id="emailInput" class="form-control" type="email" placeholder="john.doe@example.com"
+            @bind="RegisterRequest.UserName">
+        <ValidationMessage For="() => RegisterRequest.UserName" />
+        <label for="emailInput">@Loc["EmailAddressLabel"]</label>
+    </div>
+    <div class="form-floating">
+        <input id="passwordInput" class="form-control" type="password" placeholder="@Loc["PasswordLabel"]"
+            @bind="RegisterRequest.Password">
+        <ValidationMessage For="() => RegisterRequest.Password" />
+        <label for="passwordInput">@Loc["PasswordLabel"]</label>
+    </div>
+    <div class="form-floating mb-3">
+        <input id="passwordCanfirmInput" class="form-control" type="password" placeholder="@Loc["PasswordCanfirmLabel"]"
+            @bind="RegisterRequest.PasswordConfirm">
+        <ValidationMessage For="() => RegisterRequest.PasswordConfirm" />
+        <label for="passwordCanfirmInput">@Loc["PasswordCanfirmLabel"]</label>
+    </div>
+    <button class="w-100 btn btn-lg btn-primary mb-3">@Loc["LoginButtonLabel"]</button>
+    <label class="text-danger">@Error</label>
+    <NavLink href="register">
+        <h6 class="font-weight-normal text-center">@Loc["LoginInviteLabel"]</h6>
+    </NavLink>
+</EditForm>
+
+@code {
+    RegisterRequestModel RegisterRequest { get; set; } = new RegisterRequestModel();
+    private IJSObjectReference? module;
+    CurrentUser currentUser { get; set; } = new CurrentUser();
+    string Error { get; set; } = string.Empty;
+    private EditContext? editContext;
+
+    protected override void OnInitialized()
+    {
+        editContext = new(RegisterRequest);
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import",
+            "./js/firebase.js");
+        }
+    }
+
+    async Task OnSubmit()
+    {
+        try
+        {
+            if (module == null)
+                throw new FileLoadException("module is null");
+            var result =
+            await module.InvokeAsync<string>("firebaseCreateUser", RegisterRequest.UserName, RegisterRequest.Password);
+            var userJSON = await module.InvokeAsync<string>("firebaseGetCurrentUser");
+            if (userJSON != null)
+            {
+                FirebaseUser user =
+                JsonConvert.DeserializeObject<FirebaseUser>(userJSON)
+                ?? throw new FormatException("Couldn't serialize user");
+                CurrentUser.IsAuthenticated = true;
+                CurrentUser.UserName = user.Email;
+                await localStorage.SetItemAsync("user", currentUser);
+                authStateProvider.ManageUser();
+                navigationManager.NavigateTo("");
+            }
+            else
+            {
+                Error = result;
+            }
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (editContext != null && editContext.Validate())
+        {
+            await OnSubmit();
+            navigationManager.NavigateTo("");
+        }
+    }
+}

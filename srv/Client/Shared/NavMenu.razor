@@ -1,4 +1,9 @@
 ﻿@inject IStringLocalizer<SharedResource> Loc
+@inject StateProvider authStateProvider
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject IJSRuntime JS
+@inject NavigationManager navigationManager
+@using GoodsTracker.Platform.Client.Extenstions
 
 <nav class="navbar navbar-expand-lg navbar-light">
     <div class="container-fluid">
@@ -22,7 +27,45 @@
                     </NavLink>
                 </li>
             </ul>
+            <div class="text-end">
+                <AuthorizeView>
+                    <Authorized>
+                        <button type="button" class="btn btn-primary ml-md-auto"
+                            @onclick="@LogoutClick">@Loc["LogoutButtonLabel"]</button>
+                    </Authorized>
+                    <NotAuthorized>
+                        <a class="btn btn-outline-primary me-2" href="login">@Loc["LoginButtonLabel"]</a>
+                        <a class="btn btn-outline-warning me-2" href="register">@Loc["SignUpButtonLabel"]</a>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </div>
             <CultureSelector />
         </div>
     </div>
 </nav>
+
+@code {
+    private IJSObjectReference? module;
+
+    [CascadingParameter]
+    Task<AuthenticationState>? AuthenticationState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (module == null)
+            module = module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/firebase.js");
+        await module.InitializeInactivityTimer(DotNetObjectReference.Create(this));
+    }
+
+    [JSInvokable]
+    public async Task LogoutClick()
+    {
+        var signOutState = await module!.InvokeAsync<bool>("firebaseSignOut");
+        CurrentUser.UserName = null;
+        CurrentUser.IsAuthenticated = signOutState;
+        await localStorage.SetItemAsync<string>("refreshToken", null);
+        await localStorage.SetItemAsync<string>("accessToken", null);
+        authStateProvider.ManageUser();
+        navigationManager.NavigateTo("");
+    }
+}

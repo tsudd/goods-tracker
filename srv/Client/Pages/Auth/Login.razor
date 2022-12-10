@@ -1,0 +1,127 @@
+@page "/login"
+@inject IStringLocalizer<SharedResource> Loc
+@layout AuthLayout
+@using Microsoft.JSInterop;
+@using Newtonsoft.Json;
+@using System.Timers;
+@using GoodsTracker.Platform.Client.Models;
+@inject NavigationManager navigationManager
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject Blazored.LocalStorage.ISyncLocalStorageService getLocalStorage
+@inject StateProvider authStateProvider
+@inject IJSRuntime JS
+
+<PageTitle>@Loc["LoginPageTitle"]</PageTitle>
+
+<EditForm EditContext="@editContext" OnSubmit="@HandleSubmit">
+    <DataAnnotationsValidator />
+    @* TODO: try to customize error messages *@
+
+    <h1 class="h3 mb-3 fw-normal text-center">@Loc["LoginFormTitle"]</h1>
+    <div class="form-floating">
+        <InputText id="emailInput" class="form-control" type="email" placeholder="john.doe@example.com"
+            @bind-Value="LoginRequest.UserName" />
+        <ValidationMessage For="() => LoginRequest.UserName" />
+        <label for="emailInput">@Loc["EmailAddressLabel"]</label>
+    </div>
+    <div class="form-floating mb-3">
+        <InputText id="passwordInput" class="form-control" type="password" placeholder="@Loc["PasswordLabel"]"
+            @bind-Value="LoginRequest.Password" />
+        <ValidationMessage For="() => LoginRequest.Password" />
+        <label for="passwordInput">@Loc["PasswordLabel"]</label>
+    </div>
+    <button class="w-100 btn btn-lg btn-primary mb-3" type="submit">@Loc["LoginButtonLabel"]</button>
+    <label class="text-danger">@Error</label>
+    <NavLink href="register">
+        <h6 class="font-weight-normal text-center">@Loc["CreateAccountInvite"]</h6>
+    </NavLink>
+</EditForm>
+
+@code {
+    LoginRequestModel LoginRequest { get; set; } = new LoginRequestModel();
+    private IJSObjectReference? module;
+    CurrentUser currentUser { get; set; } = new CurrentUser();
+    string Error { get; set; } = string.Empty;
+    private static System.Timers.Timer? aTimer { get; set; }
+    FirebaseUserTokens? firebaseUserTokens { get; set; }
+    private EditContext? editContext;
+
+    protected override void OnInitialized()
+    {
+        editContext = new(LoginRequest);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import",
+            "./js/firebase.js");
+        }
+    }
+
+    async Task OnSubmit()
+    {
+        Error = string.Empty;
+        try
+        {
+            var result =
+            await module!.InvokeAsync<string>("firebaseEmailSignIn", LoginRequest.UserName, LoginRequest.Password);
+            var userJSON = await module!.InvokeAsync<string>("firebaseGetCurrentUser");
+            if (userJSON != null)
+            {
+                FirebaseUser user = JsonConvert.DeserializeObject<FirebaseUser>(userJSON) ?? throw new ApplicationException();
+                CurrentUser.IsAuthenticated = true;
+                CurrentUser.UserName = user.Email;
+                await localStorage.SetItemAsync("userId", user.Uid);
+                await localStorage.SetItemAsync("refreshToken", user.StsTokenManager!.RefreshToken);
+                await localStorage.SetItemAsync("accessToken", user.StsTokenManager.AccessToken);
+                SetTimer();
+                authStateProvider.ManageUser();
+            }
+            else
+            {
+                Error = result;
+            }
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (editContext != null && editContext.Validate())
+        {
+            await OnSubmit();
+            navigationManager.NavigateTo("");
+        }
+    }
+
+    public void SetTimer()
+    {
+        aTimer = new System.Timers.Timer(3000000);
+        aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent!);
+        aTimer.AutoReset = true;
+        aTimer.Enabled = true;
+    }
+
+    public async void OnTimedEvent(object source, ElapsedEventArgs e)
+    {
+        if (CurrentUser.IsAuthenticated)
+        {
+            string refreshToken = getLocalStorage.GetItem<string>("refreshToken");
+            var firebaseTokens = await module!.InvokeAsync<string>("getRefreshToken", refreshToken);
+            firebaseUserTokens = JsonConvert.DeserializeObject<FirebaseUserTokens>(firebaseTokens) ??
+            throw new ApplicationException();
+            await localStorage.SetItemAsync("refreshToken", firebaseUserTokens.RefreshToken);
+            await localStorage.SetItemAsync("accessToken", firebaseUserTokens.AccessToken);
+            Console.WriteLine("Tokens refreshed");
+        }
+        else
+        {
+            aTimer?.Stop();
+        }
+    }
+}

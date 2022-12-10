@@ -185,11 +185,59 @@
         <comment/>
     </data>
     <data name="SearchSetupsLabel" xml:space="preserve">
-        <value>Други настройки</value>
+        <value>Другие настройки</value>
         <comment/>
     </data>
     <data name="OnlyDiscountsLabel" xml:space="preserve">
         <value>Показывать только скидочные товары</value>
+        <comment/>
+    </data>
+    <data name="LoginButtonLabel" xml:space="preserve">
+        <value>Войти</value>
+        <comment/>
+    </data>
+    <data name="SignUpButtonLabel" xml:space="preserve">
+        <value>Регистрация</value>
+        <comment/>
+    </data>
+    <data name="LogoutButtonLabel" xml:space="preserve">
+        <value>Выйти</value>
+        <comment/>
+    </data>
+    <data name="LoginPageTitle" xml:space="preserve">
+        <value>Войти</value>
+        <comment/>
+    </data>
+    <data name="EmailAddressLabel" xml:space="preserve">
+        <value>Электронная почта</value>
+        <comment/>
+    </data>
+    <data name="LoginFormTitle" xml:space="preserve">
+        <value>Пожалуйста, войдите в аккаунт</value>
+        <comment/>
+    </data>
+    <data name="PasswordLabel" xml:space="preserve">
+        <value>Пароль</value>
+        <comment/>
+    </data>
+    <data name="CreateAccountInvite" xml:space="preserve">
+        <value>Создать аккаунт</value>
+        <comment/>
+    </data>
+    <data name="SignUpFormTitle" xml:space="preserve">
+        <value>Для создания аккаунта, заполните поля</value>
+        <comment/>
+    </data>
+    <data name="SignUpPageTitle" xml:space="preserve">
+        <value>Регистрация</value>
+        <comment/>
+    </data>
+    <data name="PasswordCanfirmLabel" xml:space="preserve">
+        <value>Подтверждение пароля</value>
+        <comment/>
+    </data>
+    <data name="LoginInviteLabel" xml:space="preserve">
+        <value>Уже есть аккаунт? Войдите в него тут!</value>
         <comment/>
     </data>
 </root>

@@ -573,3 +573,4 @@ Test
 srv/Server/HdbClient/*
 fetching/Common/DbClient/*
 srv/Server/DbClient/*
+srv/Client/wwwroot/js/const.js
