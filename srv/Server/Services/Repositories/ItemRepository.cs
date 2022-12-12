@@ -76,6 +76,26 @@ internal sealed class ItemRepository : IItemRepository
         return baseItems;
     }
 
+    public async Task<bool> AddUserFavoriteItem(int itemId, string userId)
+    {
+        try
+        {
+            var result = await _dbAccess.ExecuteNonQueryAsync(GenerateInsertLikeCommand(itemId, userId));
+            if (result != 1)
+                throw new InvalidOperationException("more than one entries were updated (unexpectetly)");
+            return true;
+        }
+        catch (InvalidOperationException ex)
+        {
+            throw ex;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogCritical($"read error: {ex.Message}");
+            return false;
+        }
+    }
+
     private BaseItem MapBaseItemFields(DbDataReader reader)
     {
         var baseItemType = typeof(BaseItem);
@@ -225,4 +245,7 @@ internal sealed class ItemRepository : IItemRepository
         else throw new InvalidOperationException("couldn't define order of items");
         return orderByStatement.ToString();
     }
+
+    private static string GenerateInsertLikeCommand(int itemId, string userId)
+    => $"INSERT INTO ITEMLIKE (ITEMID, USERID, \"DATE\") VALUES({itemId}, '{userId}', CURRENT_TIMESTAMP(0));";
 }

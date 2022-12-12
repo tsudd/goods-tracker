@@ -16,4 +16,5 @@ public interface IItemManager
         string order,
         int shopFilterId,
         bool discountOnly = false);
+    Task<bool> LikeItem(int itemId, string userId);
 }

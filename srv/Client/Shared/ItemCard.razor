@@ -1,13 +1,15 @@
 @inject IStringLocalizer<SharedResource> Loc
 @using GoodsTracker.Platform.Shared.Models
 @using System.Globalization
+@inject HttpClient Http
+@inject Blazored.LocalStorage.ISyncLocalStorageService getLocalStorage
 
 <div class="col">
     <div class="card h-100">
         <img src="@Item.ImgLink" class="card-img-top img-fluid" style="width: 100%;height: 35vh;object-fit: cover;"
             alt="@Item.Name">
         <div class="card-img-overlay">
-            <button type="button" class="btn">
+            <button type="button" class="btn" @onclick="@AddToFavorites">
                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-heart"
                     viewBox="0 0 16 16">
                     <path
@@ -70,6 +72,9 @@
     [Parameter]
     public Func<int, string>? GetBadge { get; set; }
 
+    [CascadingParameter]
+    Task<AuthenticationState>? AuthenticationState { get; set; }
+
     [Parameter]
     public Func<int, string>? GetShopName { get; set; }
 
@@ -82,5 +87,17 @@
     protected string SetShopNameStyle()
     {
         return $"col-4 badge text-wrap {GetBadge!(Item.VendorId)}";
+    }
+
+    protected async Task AddToFavorites()
+    {
+        if (CurrentUser.IsAuthenticated)
+        {
+            await Http.PostAsJsonAsync<ItemLikeModel>("/Item", new ItemLikeModel
+            {
+                ItemId = Item.Id,
+                UserId = getLocalStorage.GetItem<string>("userId"),
+            });
+        }
     }
 }

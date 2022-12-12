@@ -13,4 +13,5 @@ public interface IItemRepository
         int vendorFilterId,
         bool discountOnly,
         string? q = null);
+    Task<bool> AddUserFavoriteItem(int itemId, string userId);
 }

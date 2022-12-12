@@ -97,6 +97,11 @@ internal class ItemManager : IItemManager
         return itemModels;
     }
 
+    public async Task<bool> LikeItem(int itemId, string userId)
+    {
+        return await _itemRepository.AddUserFavoriteItem(itemId, userId);
+    }
+
     private ItemsOrder GetItemsOrder(string orderString)
     {
         return orderString switch

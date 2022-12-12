@@ -17,17 +17,17 @@ internal sealed class HanaDbAccess : IDbAccess
         _connection.Open();
     }
 
-    public Task<DbDataReader> ExecuteCommandAsync(string command)
+    public async Task<DbDataReader> ExecuteCommandAsync(string command)
     {
         using (var cmd = new HanaCommand(command, _connection))
         {
             try
             {
-                return cmd.ExecuteReaderAsync();
+                return await cmd.ExecuteReaderAsync();
             }
             catch (HanaException ex)
             {
-                _logger.LogError($"Error while communication with HANA: {ex.Message}");
+                _logger.LogError($"Error while communication (SELECT) with HANA: {ex.Message}");
                 throw new InvalidOperationException(ex.Message);
             }
         }
@@ -36,5 +36,21 @@ internal sealed class HanaDbAccess : IDbAccess
     public void Dispose()
     {
         _connection?.Close();
+    }
+
+    public async Task<int> ExecuteNonQueryAsync(string command)
+    {
+        using (var cmd = new HanaCommand(command, _connection))
+        {
+            try
+            {
+                return await cmd.ExecuteNonQueryAsync();
+            }
+            catch (HanaException ex)
+            {
+                _logger.LogError($"Error while communication (INSERT) with HANA: {ex.Message}");
+                throw new InvalidOperationException(ex.Message);
+            }
+        }
     }
 }
