@@ -21,7 +21,7 @@
                     "NAME2",
                     "NAME3",
                     "CITY",
-                    "LINK",
+                    "WEBSITE",
                     "LOGO"
                 ]
             },
@@ -32,7 +32,7 @@
                 "NAME2": 4,
                 "NAME3": 5,
                 "CITY": 6,
-                "LINK": 7,
+                "WEBSITE": 7,
                 "LOGO": 8
             }
         }

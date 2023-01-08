@@ -156,18 +156,18 @@ internal sealed class ItemRepository : IItemRepository
             + "ROUND("
             + "(records.CUTPRICE / records.PRICE) * 100, 0)) AS \"Discount\", "
             + "items.NAME1 AS \"Name\", "
-            + "items.LINK AS \"ImgLink\", "
-            + "items.Weight AS \"Weight\", "
-            + "items.WEIGHTUNIT AS \"WeightUnit\", "
+            + "items.IMAGE_LINK AS \"ImgLink\", "
+            + "items.WEIGHT AS \"Weight\", "
+            + "items.WEIGHT_UNIT AS \"WeightUnit\", "
             + "items.COUNTRY AS \"Country\", "
             + "vendors.LAND AS \"Currensy\", "
             + "vendors.ID AS \"VendorId\", "
-            + "records.FETCHDATE as \"FetchDate\""
+            + "records.FETCH_DATE as \"FetchDate\""
             + "FROM "
             + "("
             + " SELECT "
             + "   freshRecords.ITEMID, "
-            + "   freshRecords.FETCHDATE, "
+            + "   freshRecords.FETCH_DATE, "
             + "   freshRecords.PRICE, "
             + "   freshRecords.CUTPRICE, "
             + "   freshRecords.ONDISCOUNT "
@@ -178,9 +178,9 @@ internal sealed class ItemRepository : IItemRepository
             + "       row_number() over("
             + "         partition by records.ITEMID "
             + "         order by "
-            + "           streams.FETCHDATE desc "
+            + "           streams.FETCH_DATE desc "
             + "       ) as rn, "
-            + "       streams.FETCHDATE, "
+            + "       streams.FETCH_DATE, "
             + "       records.PRICE, "
             + "       records.CUTPRICE, "
             + "       records.ONDISCOUNT "
@@ -193,7 +193,7 @@ internal sealed class ItemRepository : IItemRepository
             + "   freshRecords.RN = 1 "
             + ") AS records "
             + "LEFT OUTER JOIN ITEM AS items ON records.ITEMID = items.ID "
-            + "LEFT OUTER JOIN VENDOR AS vendors ON items.VENDORID = vendors.ID "
+            + "LEFT OUTER JOIN VENDOR AS vendors ON items.VENDOR_ID = vendors.ID "
             + BuildWhereStatement(searchString, vendorFilterId)
             + BuildOrderByStatement(order)
             + $" LIMIT {amount} OFFSET {startIndex}"
@@ -247,5 +247,5 @@ internal sealed class ItemRepository : IItemRepository
     }
 
     private static string GenerateInsertLikeCommand(int itemId, string userId)
-    => $"INSERT INTO ITEMLIKE (ITEMID, USERID, \"DATE\") VALUES({itemId}, '{userId}', CURRENT_TIMESTAMP(0));";
+    => $"INSERT INTO ITEMLIKE (ITEMID, USERID, DATE_ADDED) VALUES({itemId}, '{userId}', CURRENT_TIMESTAMP(0));";
 }

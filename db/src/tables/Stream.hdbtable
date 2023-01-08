@@ -1,6 +1,6 @@
 COLUMN TABLE "STREAM" (
     "ID" INTEGER NOT NULL COMMENT 'ID of item stream',
-    "FETCHDATE" TIMESTAMP COMMENT 'Moment when stream was wetched',
+    "FETCH_DATE" TIMESTAMP COMMENT 'Moment when stream was wetched',
     PRIMARY KEY ("ID")
 ) COMMENT 'Stream' WITH ASSOCIATIONS (
     JOIN "ITEMRECORD" AS "RECORDS" ON "RECORDS"."STREAMID" = "ID"

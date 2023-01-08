@@ -3,19 +3,19 @@ COLUMN TABLE "ITEM" (
     "NAME1" VARCHAR(100) NOT NULL FUZZY SEARCH INDEX ON COMMENT 'Item name 1',
     "NAME2" VARCHAR(100) COMMENT 'Item name 2',
     "NAME3" VARCHAR(100) COMMENT 'Item name 3',
-    "LINK" VARCHAR(300) COMMENT 'Link to the item',
+    "IMAGE_LINK" VARCHAR(300) COMMENT 'Link to the item',
     "COUNTRY" VARCHAR(30) COMMENT 'Producer country',
     "PRODUCER" VARCHAR(70) COMMENT 'Producer name',
-    "VENDORCODE" INT COMMENT 'Vendor code',
+    "VENDOR_CODE" INT COMMENT 'Vendor code',
     "WEIGHT" REAL COMMENT 'Weight',
-    "WEIGHTUNIT" VARCHAR(20) COMMENT 'Weight unit',
+    "WEIGHT_UNIT" VARCHAR(20) COMMENT 'Weight unit',
     "COMPOUND" VARCHAR(700) COMMENT 'Compound',
     "PROTEIN" REAL COMMENT 'Protein amount',
     "FAT" REAL COMMENT 'Fat amount',
     "CARBO" REAL COMMENT 'Carbohydrates amount',
     "PORTION" REAL COMMENT 'Portion weight',
-    "VENDORID" CHAR(10) COMMENT 'Vendor of the item',
+    "VENDOR_ID" INTEGER COMMENT 'Vendor of the item',
     PRIMARY KEY ("ID")
 ) COMMENT 'Item' WITH ASSOCIATIONS (
-    JOIN "VENDOR" AS "VENDORS" ON "VENDORS"."ID" = "VENDORID"
+    JOIN "VENDOR" AS "VENDORS" ON "VENDORS"."ID" = "VENDOR_ID"
 )
