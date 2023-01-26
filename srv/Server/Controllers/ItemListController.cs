@@ -21,7 +21,7 @@ public class ItemListController : ControllerBase
     }
 
     [HttpGet]
-    // [Authorize]
+    [Authorize]
     public async Task<IEnumerable<BaseItemModel>?> GetItems(int index, string orderBy, int shop, bool onlyDiscount)
     {
         try

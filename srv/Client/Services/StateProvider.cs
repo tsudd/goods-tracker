@@ -8,19 +8,29 @@ namespace GoodsTracker.Platform.Client.Services;
 public class StateProvider : AuthenticationStateProvider
 {
     private readonly ILocalStorageService _localStorage;
+    private readonly HttpClient _httpClient;
 
-    public StateProvider(ILocalStorageService localStorage)
+    public StateProvider(ILocalStorageService localStorage, HttpClient httpClient)
     {
         _localStorage = localStorage;
+        _httpClient = httpClient;
     }
 
     public async override Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         var identity = new ClaimsIdentity();
+        var token = await _localStorage.GetItemAsStringAsync("accessToken");
+
+        _httpClient.DefaultRequestHeaders.Authorization = null;
         try
         {
             if (CurrentUser.IsAuthenticated)
             {
+                if (!string.IsNullOrEmpty(token))
+                {
+                    _httpClient.DefaultRequestHeaders.Authorization =
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token.Replace("\"", ""));
+                }
                 var _userId = await _localStorage.GetItemAsync<string>("userId");
                 if (_userId == CurrentUser.Uid)
                 {

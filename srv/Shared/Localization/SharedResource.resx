@@ -129,7 +129,7 @@
         <comment>when page loading</comment>
     </data>
     <data name="SelectLocaleLabel" xml:space="preserve">
-        <value>Language</value>
+        <value>Locale</value>
         <comment>Label for location selector</comment>
     </data>
     <data name="PreviusPageLabel" xml:space="preserve">

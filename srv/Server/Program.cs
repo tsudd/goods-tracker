@@ -6,7 +6,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddPlatformServices();
 
 builder.Services.AddControllersWithViews();
-// builder.Services.AddAuthentication();
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
@@ -32,8 +31,8 @@ app.UseRouting();
 
 // Platform middleware
 app.UsePlatformMiddleware();
-// app.UseAuthentication();
-// app.UseAuthorization();
+app.UseAuthentication();
+app.UseAuthorization();
 
 
 app.MapRazorPages();
