@@ -1,6 +1,6 @@
 namespace GoodsTracker.Platform.Server.Entities;
 
-public class BaseItem
+public sealed class BaseItem
 {
     public int Id { get; set; }
     public string Name { get; set; } = String.Empty;
@@ -15,4 +15,5 @@ public class BaseItem
     public string? ImgLink { get; set; }
     public DateTime? FetchDate { get; set; }
     public int VendorId { get; set; }
+    public bool IsLiked { get; set; }
 }

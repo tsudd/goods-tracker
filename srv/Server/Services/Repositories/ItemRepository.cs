@@ -7,6 +7,7 @@ using GoodsTracker.Platform.Server.Services.Repositories.Enumerators;
 
 namespace GoodsTracker.Platform.Server.Services.Repositories;
 
+// TODO: move free-text search into other method and query (do fuzzy search first and then joins)
 internal sealed class ItemRepository : IItemRepository
 {
     private const string intTypeName = "integer";
@@ -49,6 +50,7 @@ internal sealed class ItemRepository : IItemRepository
         ItemsOrder order,
         int vendorFilterId,
         bool discountOnly,
+        string? userId = null,
         string? q = null)
     {
         var baseItems = new List<BaseItem>();
@@ -56,7 +58,14 @@ internal sealed class ItemRepository : IItemRepository
         {
             using var reader =
                 await _dbAccess.ExecuteCommandAsync(
-                    GenerateSelectItemGroupCommand(startIndex, amount, order, vendorFilterId, discountOnly, q));
+                    GenerateSelectItemGroupCommand(
+                        startIndex,
+                        amount,
+                        order,
+                        vendorFilterId,
+                        userId ?? "",
+                        discountOnly,
+                        q));
             if (reader.HasRows)
             {
                 while (await reader.ReadAsync())
@@ -80,6 +89,9 @@ internal sealed class ItemRepository : IItemRepository
     {
         try
         {
+            var entries = await _dbAccess.ExecuteCommandAsync(GenerateSelectLikeCommand(itemId, userId));
+            if (entries.HasRows)
+                throw new InvalidOperationException("item like already exists.");
             var result = await _dbAccess.ExecuteNonQueryAsync(GenerateInsertLikeCommand(itemId, userId));
             if (result != 1)
                 throw new InvalidOperationException("more than one entries were updated (unexpectetly)");
@@ -92,6 +104,29 @@ internal sealed class ItemRepository : IItemRepository
         catch (Exception ex)
         {
             _logger.LogCritical($"read error: {ex.Message}");
+            return false;
+        }
+    }
+
+    public async Task<bool> DeleteUserFavoriteItem(int itemId, string userId)
+    {
+        try
+        {
+            var entries = await _dbAccess.ExecuteCommandAsync(GenerateSelectLikeCommand(itemId, userId));
+            if (!entries.HasRows)
+                return false;
+            var result = await _dbAccess.ExecuteNonQueryAsync(GenerateDeleteLikeCommand(itemId, userId));
+            if (result != 1)
+                throw new InvalidOperationException("more than one entries were updated (unexpectetly)");
+            return true;
+        }
+        catch (InvalidOperationException ex)
+        {
+            throw ex;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogCritical($"delete error: {ex.Message}");
             return false;
         }
     }
@@ -124,6 +159,11 @@ internal sealed class ItemRepository : IItemRepository
                     prop.SetValue(baseItem, reader.GetInt32(i));
                     continue;
                 }
+                if (reader.GetDataTypeName(i) == intTypeName)
+                {
+                    prop.SetValue(baseItem, reader.GetInt32(i));
+                    continue;
+                }
                 prop.SetValue(baseItem, reader[i]);
             }
             catch (ArgumentException ex)
@@ -134,18 +174,19 @@ internal sealed class ItemRepository : IItemRepository
         return baseItem;
     }
 
-    private string GenerateItemsCountCommand()
+    private static string GenerateItemsCountCommand()
     => $"SELECT COUNT(*) FROM ITEM;";
-    private string GenerateSelectVendorsCommand()
+    private static string GenerateSelectVendorsCommand()
     => "SELECT ID, NAME1, NAME2 FROM VENDOR;";
 
-    private string GenerateSelectItemGroupCommand(
+    private static string GenerateSelectItemGroupCommand(
         int startIndex,
         int amount,
         ItemsOrder order,
         int vendorFilterId,
-        bool discountOnly = false,
-        string? searchString = null)
+        string userId,
+        bool discountOnly,
+        string? searchString)
     {
         return "SELECT "
             + "records.ITEMID AS \"Id\", "
@@ -162,7 +203,8 @@ internal sealed class ItemRepository : IItemRepository
             + "items.COUNTRY AS \"Country\", "
             + "vendors.LAND AS \"Currensy\", "
             + "vendors.ID AS \"VendorId\", "
-            + "records.FETCH_DATE as \"FetchDate\""
+            + "records.FETCH_DATE as \"FetchDate\", "
+            + "(CASE WHEN records.USERID IS NOT NULL THEN TRUE ELSE FALSE END) AS \"IsLiked\" "
             + "FROM "
             + "("
             + " SELECT "
@@ -170,7 +212,8 @@ internal sealed class ItemRepository : IItemRepository
             + "   freshRecords.FETCH_DATE, "
             + "   freshRecords.PRICE, "
             + "   freshRecords.CUTPRICE, "
-            + "   freshRecords.ONDISCOUNT "
+            + "   freshRecords.ONDISCOUNT, "
+            + "   likes.USERID "
             + " FROM "
             + "   ( "
             + "     SELECT "
@@ -189,6 +232,7 @@ internal sealed class ItemRepository : IItemRepository
             + "       LEFT OUTER JOIN STREAM AS streams ON streams.ID = records.STREAMID "
             + (discountOnly ? "WHERE ONDISCOUNT = true" : string.Empty)
             + "   ) AS freshRecords "
+            + $" LEFT JOIN ITEMLIKE AS likes ON freshRecords.ITEMID = likes.ITEMID AND (CASE WHEN likes.USERID = '{userId}' THEN likes.USERID ELSE NULL END) = '{userId}'"
             + " WHERE "
             + "   freshRecords.RN = 1 "
             + ") AS records "
@@ -248,4 +292,10 @@ internal sealed class ItemRepository : IItemRepository
 
     private static string GenerateInsertLikeCommand(int itemId, string userId)
     => $"INSERT INTO ITEMLIKE (ITEMID, USERID, DATE_ADDED) VALUES({itemId}, '{userId}', CURRENT_TIMESTAMP(0));";
+
+    private static string GenerateDeleteLikeCommand(int itemId, string userId)
+    => $"DELETE FROM ITEMLIKE WHERE ITEMID = {itemId} AND USERID = '{userId}';";
+
+    private static string GenerateSelectLikeCommand(int itemId, string userId)
+    => $"SELECT * FROM ITEMLIKE WHERE ITEMID = {itemId} AND USERID ='{userId}';";
 }

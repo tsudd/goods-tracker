@@ -15,6 +15,7 @@ builder.Services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredServic
 builder.Services.AddAuthorizationCore();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddLocalization();
+builder.Services.AddSingleton<UserAlertService>();
 
 var host = builder.Build();
 

@@ -50,12 +50,12 @@
     [CascadingParameter]
     Task<AuthenticationState>? AuthenticationState { get; set; }
 
-    protected override async Task OnInitializedAsync()
-    {
-        if (module == null)
-            module = module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/firebase.js");
-        await module.InitializeInactivityTimer(DotNetObjectReference.Create(this));
-    }
+    @* protected override async Task OnInitializedAsync()
+{
+if (module == null)
+module = module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/firebase.js");
+await module.InitializeInactivityTimer(DotNetObjectReference.Create(this));
+} *@
 
     [JSInvokable]
     public async Task LogoutClick()
@@ -63,6 +63,7 @@
         var signOutState = await module!.InvokeAsync<bool>("firebaseSignOut");
         CurrentUser.UserName = null;
         CurrentUser.IsAuthenticated = signOutState;
+        System.Console.WriteLine("bruhh");
         await localStorage.SetItemAsync<string>("refreshToken", null);
         await localStorage.SetItemAsync<string>("accessToken", null);
         authStateProvider.ManageUser();

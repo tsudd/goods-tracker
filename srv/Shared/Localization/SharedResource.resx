@@ -240,4 +240,12 @@
         <value>Already have an account? Login into it!</value>
         <comment/>
     </data>
+    <data name="NotAuthenticatedToLikeMessage" xml:space="preserve">
+        <value>You should be logged in to add items into "Favourites".</value>
+        <comment/>
+    </data>
+    <data name="SomethingWentWrongMessage" xml:space="preserve">
+        <value>Something went wrong. Please try again later.</value>
+        <comment/>
+    </data>
 </root>

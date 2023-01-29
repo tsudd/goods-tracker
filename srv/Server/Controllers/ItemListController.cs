@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GoodsTracker.Platform.Server.Controllers;
 
+// TODO: replace templates with constants for routes in Shared
+// TODO: introduce response types in attributes
+// TODO: make better responses according to HTTP protocol
 [ApiController]
 [Route("[controller]")]
 public class ItemListController : ControllerBase
@@ -21,13 +24,11 @@ public class ItemListController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize]
     public async Task<IEnumerable<BaseItemModel>?> GetItems(int index, string orderBy, int shop, bool onlyDiscount)
     {
         try
         {
-            var token = this.Request.Cookies["access_token"];
-            return await _itemManager.GetBaseItemsPage(index, orderBy, shop, onlyDiscount);
+            return await _itemManager.GetBaseItemsPage(index, orderBy, shop, ReadUserFromTokenOrDefault(), onlyDiscount);
         }
         catch (InvalidOperationException ex)
         {
@@ -46,7 +47,7 @@ public class ItemListController : ControllerBase
     {
         try
         {
-            return await _itemManager.SearchItems(index, q, orderBy, shop, onlyDiscount);
+            return await _itemManager.SearchItems(index, q, orderBy, shop, ReadUserFromTokenOrDefault(), onlyDiscount);
         }
         catch (InvalidOperationException ex)
         {
@@ -59,5 +60,52 @@ public class ItemListController : ControllerBase
     public async Task<InfoModel> GetInfo()
     {
         return await _itemManager.GetItemsInfoAsync();
+    }
+
+    [Authorize]
+    [HttpPost("like")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> PostItemLike([FromBody] ItemLikeModel itemLike)
+    {
+        try
+        {
+            var userId = ReadUserFromTokenOrDefault();
+            if (userId == null)
+                throw new InvalidOperationException("user can't be empty when saving item like");
+            return await _itemManager.LikeItem(itemLike.ItemId, userId) ? Ok() : NotFound();
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning($"couldn't save item like: {ex.Message}");
+            return BadRequest();
+        }
+    }
+
+    [Authorize]
+    [HttpDelete("like/{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> DeleteItemLike(int id)
+    {
+        try
+        {
+            var userId = ReadUserFromTokenOrDefault();
+            if (userId == null)
+                throw new InvalidOperationException("user can't be empty when saving item like");
+            return await _itemManager.UnLikeItem(id, userId) ? Ok() : NotFound();
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning($"couldn't save item like: {ex.Message}");
+            return BadRequest();
+        }
+    }
+
+    private string? ReadUserFromTokenOrDefault()
+    {
+        return User.Claims.FirstOrDefault(claim => claim.Type == "user_id")?.Value;
     }
 }

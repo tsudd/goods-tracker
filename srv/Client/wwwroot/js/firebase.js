@@ -46,18 +46,18 @@ export async function firebaseSignOut() {
 export async function initializeInactivityTimer(dotnetHelper) {
     var timer;
     let counter = 0;
-    document.addEventListener("mousemove", resetTimer);
-    document.addEventListener("keypress", resetTimer);
+    function logout() {
+        dotnetHelper.invokeMethodAsync("LogoutClick");
+        counter++;
+    }
     function resetTimer() {
         if (counter == 0) {
             clearTimeout(timer);
             timer = setTimeout(logout, 20000);
         }
     }
-    function logout() {
-        dotnetHelper.invokeMethodAsync("LogoutClick");
-        counter++;
-    }
+    document.addEventListener("mousemove", resetTimer);
+    document.addEventListener("keypress", resetTimer);
 }
 
 export async function getRefreshToken(refreshToken) {

@@ -12,6 +12,8 @@ public interface IItemRepository
         ItemsOrder order,
         int vendorFilterId,
         bool discountOnly,
+        string? userId = null,
         string? q = null);
     Task<bool> AddUserFavoriteItem(int itemId, string userId);
+    Task<bool> DeleteUserFavoriteItem(int itemId, string userId);
 }

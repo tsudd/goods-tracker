@@ -16,4 +16,5 @@ public sealed class BaseItemModel
     public string ImgLink { get; init; } = String.Empty;
     public DateTime FetchDate { get; init; }
     public int VendorId { get; init; }
+    public bool Liked { get; init; }
 }

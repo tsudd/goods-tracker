@@ -58,7 +58,7 @@ public class StateProvider : AuthenticationStateProvider
         {
             Console.WriteLine("Request failed:" + ex.ToString());
         }
-        AuthenticationState authState = new AuthenticationState(new ClaimsPrincipal(identity));
+        AuthenticationState authState = new(new ClaimsPrincipal(identity));
         return authState;
     }
 

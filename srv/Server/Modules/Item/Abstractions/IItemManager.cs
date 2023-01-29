@@ -9,12 +9,15 @@ public interface IItemManager
         int page,
         string order,
         int shopFilterId,
+        string? userId,
         bool discountOnly = false);
     Task<IEnumerable<BaseItemModel>> SearchItems(
         int page,
         string q,
         string order,
         int shopFilterId,
+        string? userId,
         bool discountOnly = false);
     Task<bool> LikeItem(int itemId, string userId);
+    Task<bool> UnLikeItem(int itemId, string userId);
 }

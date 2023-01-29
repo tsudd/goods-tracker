@@ -240,4 +240,12 @@
         <value>Уже есть аккаунт? Войдите в него тут!</value>
         <comment/>
     </data>
+    <data name="NotAuthenticatedToLikeMessage" xml:space="preserve">
+        <value>Для добавления предметов в "Любимые" вам необходимо войти.</value>
+        <comment/>
+    </data>
+    <data name="SomethingWentWrongMessage" xml:space="preserve">
+        <value>Что-то пошло не так. Пожалуйста повторите попытку позже.</value>
+        <comment/>
+    </data>
 </root>

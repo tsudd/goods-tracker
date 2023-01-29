@@ -28,7 +28,7 @@ internal class ItemManager : IItemManager
         var itemsInfo = await _itemRepository.GetItemsInfoAsync();
         try
         {
-            return ItemManager.MapInfoModel(itemsInfo);
+            return MapInfoModel(itemsInfo);
         }
         catch (FormatException)
         {
@@ -44,6 +44,7 @@ internal class ItemManager : IItemManager
         string q,
         string order,
         int shopFilterId,
+        string? userId = null,
         bool discountOnly = false)
     {
         var itemsOrder = GetItemsOrder(order);
@@ -53,33 +54,8 @@ internal class ItemManager : IItemManager
             itemsOrder,
             shopFilterId,
             discountOnly,
+            userId,
             q);
-        var itemModels = new List<BaseItemModel>();
-
-        foreach (var itemEntity in baseItemsEntities)
-        {
-            try
-            {
-                itemModels.Add(ItemManager.MapBaseItemModel(itemEntity));
-            }
-            catch (FormatException)
-            {
-                _logger.LogError(
-                    $"Couldn't map base item entity to entity model: some fields are missing in {itemEntity.Id}");
-            }
-        }
-        return itemModels;
-    }
-
-    public async Task<IEnumerable<BaseItemModel>> GetBaseItemsPage(
-        int page,
-        string order,
-        int shopFilterId,
-        bool discountOnly = false)
-    {
-        var itemsOrder = GetItemsOrder(order);
-        var baseItemsEntities =
-            await _itemRepository.GetItemsByGroupsAsync(page, pageSize, itemsOrder, shopFilterId, discountOnly);
         var itemModels = new List<BaseItemModel>();
 
         foreach (var itemEntity in baseItemsEntities)
@@ -97,12 +73,45 @@ internal class ItemManager : IItemManager
         return itemModels;
     }
 
-    public async Task<bool> LikeItem(int itemId, string userId)
+    public async Task<IEnumerable<BaseItemModel>> GetBaseItemsPage(
+        int page,
+        string order,
+        int shopFilterId,
+        string? userId = null,
+        bool discountOnly = false)
     {
-        return await _itemRepository.AddUserFavoriteItem(itemId, userId);
+        var itemsOrder = GetItemsOrder(order);
+        var baseItemsEntities =
+            await _itemRepository.GetItemsByGroupsAsync(page, pageSize, itemsOrder, shopFilterId, discountOnly, userId);
+        var itemModels = new List<BaseItemModel>();
+
+        foreach (var itemEntity in baseItemsEntities)
+        {
+            try
+            {
+                itemModels.Add(MapBaseItemModel(itemEntity));
+            }
+            catch (FormatException)
+            {
+                _logger.LogError(
+                    $"Couldn't map base item entity to entity model: some fields are missing in {itemEntity.Id}");
+            }
+        }
+        return itemModels;
     }
 
-    private ItemsOrder GetItemsOrder(string orderString)
+    public Task<bool> LikeItem(int itemId, string userId)
+    {
+        return _itemRepository.AddUserFavoriteItem(itemId, userId);
+    }
+
+
+    public Task<bool> UnLikeItem(int itemId, string userId)
+    {
+        return _itemRepository.DeleteUserFavoriteItem(itemId, userId);
+    }
+
+    private static ItemsOrder GetItemsOrder(string orderString)
     {
         return orderString switch
         {
@@ -130,6 +139,7 @@ internal class ItemManager : IItemManager
             VendorId = baseItemEntity.VendorId,
             Weight = baseItemEntity.Weight ?? 0,
             WeightUnit = baseItemEntity.WeightUnit ?? defaultWeightUnit,
+            Liked = baseItemEntity.IsLiked
         };
     }
 
