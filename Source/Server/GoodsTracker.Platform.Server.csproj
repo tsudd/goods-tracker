@@ -9,25 +9,13 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.11" />
+    <PackageReference Include="Kwality.CodeStyle" Version="2.0.21" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Client\GoodsTracker.Platform.Client.csproj" />
+    <ProjectReference Include="..\GoodsTracker.Platform.DB\GoodsTracker.Platform.DB.csproj" />
     <ProjectReference Include="..\Shared\GoodsTracker.Platform.Shared.csproj" />
-  </ItemGroup>
-
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <Reference Include="Sap.Data.Hana.Core.v2.1">
-      <!-- PLACE HDB CLIENT DLLs FOR DOTNETCORE AND PLACE THEM TO THE HDBCLIENT -->
-      <!-- <HintPath>HdbClient\v2.1\Sap.Data.Hana.Core.v2.1.dll</HintPath> -->
-      <HintPath>./DbClient/v2.1/Sap.Data.Hana.Core.v2.1.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 

@@ -4,7 +4,7 @@ using GoodsTracker.Platform.Server.Services.Repositories.Abstractions;
 using GoodsTracker.Platform.Server.Services.Repositories.Enumerators;
 using GoodsTracker.Platform.Shared.Models;
 
-namespace GoodsTracker.Platform.Server.Modules;
+namespace GoodsTracker.Platform.Server.Modules.Item;
 
 internal class ItemManager : IItemManager
 {

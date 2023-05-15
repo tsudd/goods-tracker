@@ -3,7 +3,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 // Platform services
-builder.Services.AddPlatformServices();
+builder.Services.AddPlatformServices(builder.Configuration);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

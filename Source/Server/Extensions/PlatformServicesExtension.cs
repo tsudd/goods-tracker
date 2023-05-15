@@ -1,37 +1,39 @@
-using GoodsTracker.Platform.Server.Modules;
+using GoodsTracker.Platform.DB.Context;
+using GoodsTracker.Platform.Server.Modules.Item;
 using GoodsTracker.Platform.Server.Modules.Item.Abstractions;
-using GoodsTracker.Platform.Server.Services.DbAccess;
-using GoodsTracker.Platform.Server.Services.DbAccess.Abstractions;
 using GoodsTracker.Platform.Server.Services.Repositories;
 using GoodsTracker.Platform.Server.Services.Repositories.Abstractions;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
-public static class PlatformServicesExtension
+internal static class PlatformServicesExtension
 {
-    public static void AddPlatformServices(this IServiceCollection services)
+    internal static void AddPlatformServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services
-                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    options.Authority = Environment.GetEnvironmentVariable("FIREBASE_AUTHORITY");
-                    options.TokenValidationParameters = new TokenValidationParameters
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(
+                    options =>
                     {
-                        ValidateIssuer = true,
-                        ValidIssuer = Environment.GetEnvironmentVariable("FIREBASE_AUTHORITY"),
-                        ValidateAudience = true,
-                        ValidAudience = Environment.GetEnvironmentVariable("FIREBASE_AUDIENCE"),
-                        ValidateLifetime = true
-                    };
-                });
+                        options.Authority = configuration["FIREBASE_AUTHORITY"];
 
-        services.AddSingleton<IDbAccess, HanaDbAccess>();
-        services.AddSingleton<IItemRepository, ItemRepository>();
-        services.AddSingleton<IItemManager, ItemManager>();
+                        options.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidateIssuer = true,
+                            ValidIssuer = configuration["FIREBASE_AUTHORITY"],
+                            ValidateAudience = true,
+                            ValidAudience = configuration["FIREBASE_AUDIENCE"],
+                            ValidateLifetime = true,
+                        };
+                    });
 
-        // services.AddLocalization();
+        services.AddDbContext<GoodsTrackerPlatformDbContext>(
+            options => options.UseNpgsql(configuration.GetConnectionString("POSTGRES_CONNECTION_STRING")));
+
+        services.AddScoped<IItemRepository, ItemRepository>();
+        services.AddScoped<IItemManager, ItemManager>();
     }
 }
