@@ -5,5 +5,5 @@ public enum ItemsOrder
     None,
     CheapFirst,
     ExpensiveFirst,
-    ByLastUpdateDate
+    ByLastUpdateDate,
 }

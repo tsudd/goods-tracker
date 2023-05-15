@@ -1,5 +1,6 @@
 using GoodsTracker.Platform.Server.Modules.Item.Abstractions;
 using GoodsTracker.Platform.Shared.Models;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,12 +16,10 @@ public class ItemListController : ControllerBase
     private readonly ILogger<ItemListController> _logger;
     private readonly IItemManager _itemManager;
 
-    public ItemListController(
-        IItemManager itemManager,
-        ILogger<ItemListController> logger)
+    public ItemListController(IItemManager itemManager, ILogger<ItemListController> logger)
     {
-        _logger = logger;
-        _itemManager = itemManager;
+        this._logger = logger;
+        this._itemManager = itemManager;
     }
 
     [HttpGet]
@@ -28,30 +27,33 @@ public class ItemListController : ControllerBase
     {
         try
         {
-            return await _itemManager.GetBaseItemsPage(index, orderBy, shop, ReadUserFromTokenOrDefault(), onlyDiscount);
+            return await this._itemManager.GetBaseItemsPage(
+                index, orderBy, shop, this.ReadUserFromTokenOrDefault(),
+                onlyDiscount);
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning($"couldn't return items page: {ex.Message}");
+            this._logger.LogWarning($"couldn't return items page: {ex.Message}");
+
             return null;
         }
     }
 
     [HttpGet("search")]
     public async Task<IEnumerable<BaseItemModel>?> SearchItems(
-        int index,
-        string q,
-        string orderBy,
-        int shop,
+        int index, string q, string orderBy, int shop,
         bool onlyDiscount)
     {
         try
         {
-            return await _itemManager.SearchItems(index, q, orderBy, shop, ReadUserFromTokenOrDefault(), onlyDiscount);
+            return await this._itemManager.SearchItems(
+                index, q, orderBy, shop,
+                this.ReadUserFromTokenOrDefault(), onlyDiscount);
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning($"couldn't return items page: {ex.Message}");
+            this._logger.LogWarning($"couldn't return items page: {ex.Message}");
+
             return null;
         }
     }
@@ -59,7 +61,7 @@ public class ItemListController : ControllerBase
     [HttpGet("info")]
     public async Task<InfoModel> GetInfo()
     {
-        return await _itemManager.GetItemsInfoAsync();
+        return await this._itemManager.GetItemsInfoAsync();
     }
 
     [Authorize]
@@ -71,15 +73,20 @@ public class ItemListController : ControllerBase
     {
         try
         {
-            var userId = ReadUserFromTokenOrDefault();
+            string? userId = this.ReadUserFromTokenOrDefault();
+
             if (userId == null)
+            {
                 throw new InvalidOperationException("user can't be empty when saving item like");
-            return await _itemManager.LikeItem(itemLike.ItemId, userId) ? Ok() : NotFound();
+            }
+
+            return await this._itemManager.LikeItem(itemLike.ItemId, userId) ? this.Ok() : this.NotFound();
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning($"couldn't save item like: {ex.Message}");
-            return BadRequest();
+            this._logger.LogWarning($"couldn't save item like: {ex.Message}");
+
+            return this.BadRequest();
         }
     }
 
@@ -92,20 +99,26 @@ public class ItemListController : ControllerBase
     {
         try
         {
-            var userId = ReadUserFromTokenOrDefault();
+            string? userId = this.ReadUserFromTokenOrDefault();
+
             if (userId == null)
+            {
                 throw new InvalidOperationException("user can't be empty when saving item like");
-            return await _itemManager.UnLikeItem(id, userId) ? Ok() : NotFound();
+            }
+
+            return await this._itemManager.UnLikeItem(id, userId) ? this.Ok() : this.NotFound();
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning($"couldn't save item like: {ex.Message}");
-            return BadRequest();
+            this._logger.LogWarning($"couldn't save item like: {ex.Message}");
+
+            return this.BadRequest();
         }
     }
 
     private string? ReadUserFromTokenOrDefault()
     {
-        return User.Claims.FirstOrDefault(claim => claim.Type == "user_id")?.Value;
+        return this.User.Claims.FirstOrDefault(claim => claim.Type == "user_id")
+                   ?.Value;
     }
 }

@@ -19,46 +19,39 @@ internal class ItemManager : IItemManager
 
     public ItemManager(IItemRepository itemRepository, ILogger<ItemManager> logger)
     {
-        _itemRepository = itemRepository;
-        _logger = logger;
+        this._itemRepository = itemRepository;
+        this._logger = logger;
     }
 
     public async Task<InfoModel> GetItemsInfoAsync()
     {
-        var itemsInfo = await _itemRepository.GetItemsInfoAsync();
+        BaseInfo itemsInfo = await this._itemRepository.GetItemsInfoAsync();
+
         try
         {
             return MapInfoModel(itemsInfo);
         }
         catch (FormatException)
         {
-            _logger.LogError(
-                $"Couldn't map items info to model: wrong format");
+            this._logger.LogError($"Couldn't map items info to model: wrong format");
+
             throw new InvalidOperationException();
         }
-
     }
 
     public async Task<IEnumerable<BaseItemModel>> SearchItems(
-        int startIndex,
-        string q,
-        string order,
-        int shopFilterId,
-        string? userId = null,
-        bool discountOnly = false)
+        int startIndex, string q, string order, int shopFilterId,
+        string? userId = null, bool discountOnly = false)
     {
-        var itemsOrder = GetItemsOrder(order);
-        var baseItemsEntities = await _itemRepository.GetItemsByGroupsAsync(
-            startIndex,
-            pageSize,
-            itemsOrder,
-            shopFilterId,
-            discountOnly,
-            userId,
-            q);
+        ItemsOrder itemsOrder = GetItemsOrder(order);
+
+        IEnumerable<BaseItem> baseItemsEntities = await this._itemRepository.GetItemsByGroupsAsync(
+            startIndex, pageSize, itemsOrder, shopFilterId,
+            discountOnly, userId, q);
+
         var itemModels = new List<BaseItemModel>();
 
-        foreach (var itemEntity in baseItemsEntities)
+        foreach (BaseItem itemEntity in baseItemsEntities)
         {
             try
             {
@@ -66,26 +59,27 @@ internal class ItemManager : IItemManager
             }
             catch (FormatException)
             {
-                _logger.LogError(
+                this._logger.LogError(
                     $"Couldn't map base item entity to entity model: some fields are missing in {itemEntity.Id}");
             }
         }
+
         return itemModels;
     }
 
     public async Task<IEnumerable<BaseItemModel>> GetBaseItemsPage(
-        int page,
-        string order,
-        int shopFilterId,
-        string? userId = null,
+        int page, string order, int shopFilterId, string? userId = null,
         bool discountOnly = false)
     {
-        var itemsOrder = GetItemsOrder(order);
-        var baseItemsEntities =
-            await _itemRepository.GetItemsByGroupsAsync(page, pageSize, itemsOrder, shopFilterId, discountOnly, userId);
+        ItemsOrder itemsOrder = GetItemsOrder(order);
+
+        IEnumerable<BaseItem> baseItemsEntities = await this._itemRepository.GetItemsByGroupsAsync(
+            page, pageSize, itemsOrder, shopFilterId,
+            discountOnly, userId);
+
         var itemModels = new List<BaseItemModel>();
 
-        foreach (var itemEntity in baseItemsEntities)
+        foreach (BaseItem itemEntity in baseItemsEntities)
         {
             try
             {
@@ -93,22 +87,22 @@ internal class ItemManager : IItemManager
             }
             catch (FormatException)
             {
-                _logger.LogError(
+                this._logger.LogError(
                     $"Couldn't map base item entity to entity model: some fields are missing in {itemEntity.Id}");
             }
         }
+
         return itemModels;
     }
 
     public Task<bool> LikeItem(int itemId, string userId)
     {
-        return _itemRepository.AddUserFavoriteItem(itemId, userId);
+        return this._itemRepository.AddUserFavoriteItem(itemId, userId);
     }
-
 
     public Task<bool> UnLikeItem(int itemId, string userId)
     {
-        return _itemRepository.DeleteUserFavoriteItem(itemId, userId);
+        return this._itemRepository.DeleteUserFavoriteItem(itemId, userId);
     }
 
     private static ItemsOrder GetItemsOrder(string orderString)
@@ -118,7 +112,7 @@ internal class ItemManager : IItemManager
             "cheap" => ItemsOrder.CheapFirst,
             "expensive" => ItemsOrder.ExpensiveFirst,
             "date" => ItemsOrder.ByLastUpdateDate,
-            var _ => ItemsOrder.None
+            var _ => ItemsOrder.None,
         };
     }
 
@@ -139,7 +133,7 @@ internal class ItemManager : IItemManager
             VendorId = baseItemEntity.VendorId,
             Weight = baseItemEntity.Weight ?? 0,
             WeightUnit = baseItemEntity.WeightUnit ?? defaultWeightUnit,
-            Liked = baseItemEntity.IsLiked
+            Liked = baseItemEntity.IsLiked,
         };
     }
 
@@ -148,19 +142,23 @@ internal class ItemManager : IItemManager
         return new InfoModel
         {
             ItemsCount = baseInfo.ItemsCount,
-            Shops = baseInfo.ShopsColumns
-                .Select(shopColumns =>
+            Shops = baseInfo.ShopsColumns.Select(
+                shopColumns =>
                 {
-                    var columns = shopColumns.Split(',');
+                    string[] columns = shopColumns.Split(',');
+
                     if (columns.Length != shopModelColumns)
+                    {
                         throw new FormatException();
+                    }
+
                     return new ShopModel
                     {
                         Id = int.Parse(columns[0]),
                         Name1 = columns[1],
                         Name2 = columns[2],
                     };
-                })
+                }),
         };
     }
 }
