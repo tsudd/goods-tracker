@@ -1,5 +1,0 @@
-COLUMN TABLE "CATEGORY" (
-    "ID" INT COMMENT 'Category ID',
-    "NAME" VARCHAR(60) COMMENT 'Category name',
-    PRIMARY KEY ("ID")
-) COMMENT 'Category'
