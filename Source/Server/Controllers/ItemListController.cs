@@ -9,51 +9,46 @@ namespace GoodsTracker.Platform.Server.Controllers;
 // TODO: replace templates with constants for routes in Shared
 // TODO: introduce response types in attributes
 // TODO: make better responses according to HTTP protocol
+// TODO: more validation
 [ApiController]
 [Route("[controller]")]
 public class ItemListController : ControllerBase
 {
-    private readonly ILogger<ItemListController> _logger;
-    private readonly IItemManager _itemManager;
+    private readonly IItemManager itemManager;
 
-    public ItemListController(IItemManager itemManager, ILogger<ItemListController> logger)
+    public ItemListController(IItemManager itemManager)
     {
-        this._logger = logger;
-        this._itemManager = itemManager;
+        this.itemManager = itemManager;
     }
 
     [HttpGet]
-    public async Task<IEnumerable<BaseItemModel>?> GetItems(int index, string orderBy, int shop, bool onlyDiscount)
+    public async Task<IEnumerable<BaseItemModel>?> GetItems(int index, string orderBy, bool onlyDiscount, int? shop)
     {
         try
         {
-            return await this._itemManager.GetBaseItemsPage(
-                index, orderBy, shop, this.ReadUserFromTokenOrDefault(),
-                onlyDiscount);
+            return await this.itemManager.GetBaseItemsPage(
+                index, orderBy, shop ?? 0, this.ReadUserFromTokenOrDefault(),
+                onlyDiscount).ConfigureAwait(false);
         }
-        catch (InvalidOperationException ex)
+        catch (InvalidOperationException)
         {
-            this._logger.LogWarning($"couldn't return items page: {ex.Message}");
-
             return null;
         }
     }
 
     [HttpGet("search")]
     public async Task<IEnumerable<BaseItemModel>?> SearchItems(
-        int index, string q, string orderBy, int shop,
-        bool onlyDiscount)
+        int index, string q, string orderBy,
+        bool onlyDiscount, int? shop)
     {
         try
         {
-            return await this._itemManager.SearchItems(
-                index, q, orderBy, shop,
-                this.ReadUserFromTokenOrDefault(), onlyDiscount);
+            return await this.itemManager.SearchItems(
+                index, q, orderBy, shop ?? 0,
+                this.ReadUserFromTokenOrDefault(), onlyDiscount).ConfigureAwait(false);
         }
-        catch (InvalidOperationException ex)
+        catch (InvalidOperationException)
         {
-            this._logger.LogWarning($"couldn't return items page: {ex.Message}");
-
             return null;
         }
     }
@@ -61,7 +56,7 @@ public class ItemListController : ControllerBase
     [HttpGet("info")]
     public async Task<InfoModel> GetInfo()
     {
-        return await this._itemManager.GetItemsInfoAsync();
+        return await this.itemManager.GetItemsInfoAsync().ConfigureAwait(false);
     }
 
     [Authorize]
@@ -71,6 +66,11 @@ public class ItemListController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PostItemLike([FromBody] ItemLikeModel itemLike)
     {
+        if (itemLike == null)
+        {
+            return this.BadRequest("Request model should be provided");
+        }
+
         try
         {
             string? userId = this.ReadUserFromTokenOrDefault();
@@ -80,12 +80,10 @@ public class ItemListController : ControllerBase
                 throw new InvalidOperationException("user can't be empty when saving item like");
             }
 
-            return await this._itemManager.LikeItem(itemLike.ItemId, userId) ? this.Ok() : this.NotFound();
+            return await this.itemManager.LikeItem(itemLike.ItemId, userId).ConfigureAwait(false) ? this.Ok() : this.NotFound();
         }
-        catch (InvalidOperationException ex)
+        catch (InvalidOperationException)
         {
-            this._logger.LogWarning($"couldn't save item like: {ex.Message}");
-
             return this.BadRequest();
         }
     }
@@ -106,12 +104,10 @@ public class ItemListController : ControllerBase
                 throw new InvalidOperationException("user can't be empty when saving item like");
             }
 
-            return await this._itemManager.UnLikeItem(id, userId) ? this.Ok() : this.NotFound();
+            return await this.itemManager.UnLikeItemAsync(id, userId).ConfigureAwait(false) ? this.Ok() : this.NotFound();
         }
-        catch (InvalidOperationException ex)
+        catch (InvalidOperationException)
         {
-            this._logger.LogWarning($"couldn't save item like: {ex.Message}");
-
             return this.BadRequest();
         }
     }

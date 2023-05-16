@@ -1,12 +1,15 @@
 using GoodsTracker.Platform.DB.Entities;
+
 using Microsoft.EntityFrameworkCore;
-using Stream = System.IO.Stream;
+
+using Stream = GoodsTracker.Platform.DB.Entities.Stream;
 
 namespace GoodsTracker.Platform.DB.Context;
 
 public class GoodsTrackerPlatformDbContext : DbContext
 {
-    public GoodsTrackerPlatformDbContext(DbContextOptions options) : base(options)
+    public GoodsTrackerPlatformDbContext(DbContextOptions options)
+        : base(options)
     {
     }
 
@@ -17,5 +20,40 @@ public class GoodsTrackerPlatformDbContext : DbContext
     public DbSet<ItemRecord> ItemRecords { get; set; } = null!;
     public DbSet<FavoriteItem> FavoriteItems { get; set; } = null!;
     public DbSet<Producer> Producers { get; set; } = null!;
-    public DbSet<ItemError> ItemErrors { get; set; } = null!;
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder);
+        _ = optionsBuilder.UseSnakeCaseNamingConvention();
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // ArgumentNullException.ThrowIfNull(modelBuilder);
+        // base.OnModelCreating(modelBuilder);
+        //
+        // modelBuilder.Entity<Category>()
+        //             .ToTable("categories");
+        //
+        // modelBuilder.Entity<Vendor>()
+        //             .ToTable("vendors");
+        //
+        // modelBuilder.Entity<Stream>()
+        //             .ToTable("streams");
+        //
+        // modelBuilder.Entity<Item>()
+        //             .ToTable("items");
+        //
+        // modelBuilder.Entity<Category>()
+        //             .ToTable("categories");
+        //
+        // modelBuilder.Entity<ItemRecord>()
+        //             .ToTable("item_records");
+        //
+        // modelBuilder.Entity<FavoriteItem>()
+        //             .ToTable("favorite_items");
+        //
+        // modelBuilder.Entity<Producer>()
+        //             .ToTable("producers");
+    }
 }

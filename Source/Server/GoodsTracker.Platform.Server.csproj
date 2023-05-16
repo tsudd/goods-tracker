@@ -7,15 +7,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.11"/>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.11"/>
-        <PackageReference Include="Kwality.CodeStyle" Version="2.0.21"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.11" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.11" />
+        <PackageReference Include="Kwality.CodeStyle" Version="2.0.21" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Client\GoodsTracker.Platform.Client.csproj"/>
-        <ProjectReference Include="..\GoodsTracker.Platform.DB\GoodsTracker.Platform.DB.csproj"/>
-        <ProjectReference Include="..\Shared\GoodsTracker.Platform.Shared.csproj"/>
+        <ProjectReference Include="..\Client\GoodsTracker.Platform.Client.csproj" />
+        <ProjectReference Include="..\GoodsTracker.Platform.DB\GoodsTracker.Platform.DB.csproj" />
+        <ProjectReference Include="..\Shared\GoodsTracker.Platform.Shared.csproj" />
     </ItemGroup>
 
 

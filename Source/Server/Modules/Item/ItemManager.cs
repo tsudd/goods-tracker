@@ -6,7 +6,8 @@ using GoodsTracker.Platform.Shared.Models;
 
 namespace GoodsTracker.Platform.Server.Modules.Item;
 
-internal class ItemManager : IItemManager
+// TODO: move constants into shared
+internal sealed class ItemManager : IItemManager
 {
     private const int pageSize = 30;
     private const string defaultCurrency = "BYN";
@@ -14,95 +15,77 @@ internal class ItemManager : IItemManager
     private const string defaultCountry = "Belarus";
     private const string defaultImgLink = "img/no_image.png";
     private const int shopModelColumns = 3;
-    private readonly IItemRepository _itemRepository;
-    private readonly ILogger _logger;
+    private readonly IItemRepository itemRepository;
+    private readonly ILogger logger;
 
     public ItemManager(IItemRepository itemRepository, ILogger<ItemManager> logger)
     {
-        this._itemRepository = itemRepository;
-        this._logger = logger;
+        this.itemRepository = itemRepository;
+        this.logger = logger;
     }
 
     public async Task<InfoModel> GetItemsInfoAsync()
     {
-        BaseInfo itemsInfo = await this._itemRepository.GetItemsInfoAsync();
+        BaseInfo itemsInfo = await this.itemRepository.GetItemsInfoAsync().ConfigureAwait(false);
 
         try
         {
             return MapInfoModel(itemsInfo);
         }
-        catch (FormatException)
+        catch (FormatException ex)
         {
-            this._logger.LogError($"Couldn't map items info to model: wrong format");
+            LoggerMessage.Define(
+                LogLevel.Error, 0,
+                "Couldn't map items info to model: wrong format")(
+                this.logger, null);
 
-            throw new InvalidOperationException();
+            throw new InvalidOperationException(ex.Message);
         }
     }
 
     public async Task<IEnumerable<BaseItemModel>> SearchItems(
-        int startIndex, string q, string order, int shopFilterId,
-        string? userId = null, bool discountOnly = false)
+        int page, string q, string order, int shopFilterId,
+        string? userId, bool discountOnly = false)
     {
         ItemsOrder itemsOrder = GetItemsOrder(order);
 
-        IEnumerable<BaseItem> baseItemsEntities = await this._itemRepository.GetItemsByGroupsAsync(
-            startIndex, pageSize, itemsOrder, shopFilterId,
-            discountOnly, userId, q);
+        IEnumerable<BaseItem> baseItemsEntities = await this.itemRepository.GetItemsByGroupsAsync(
+            page, pageSize, itemsOrder, shopFilterId,
+            discountOnly, userId, $"%{q}%").ConfigureAwait(false);
 
-        var itemModels = new List<BaseItemModel>();
-
-        foreach (BaseItem itemEntity in baseItemsEntities)
-        {
-            try
-            {
-                itemModels.Add(MapBaseItemModel(itemEntity));
-            }
-            catch (FormatException)
-            {
-                this._logger.LogError(
-                    $"Couldn't map base item entity to entity model: some fields are missing in {itemEntity.Id}");
-            }
-        }
-
-        return itemModels;
+        return baseItemsEntities.Select(MapBaseItemModel)
+                                .ToList();
     }
 
     public async Task<IEnumerable<BaseItemModel>> GetBaseItemsPage(
-        int page, string order, int shopFilterId, string? userId = null,
+        int page, string order, int shopFilterId, string? userId,
         bool discountOnly = false)
     {
         ItemsOrder itemsOrder = GetItemsOrder(order);
 
-        IEnumerable<BaseItem> baseItemsEntities = await this._itemRepository.GetItemsByGroupsAsync(
+        IEnumerable<BaseItem> baseItemsEntities = await this.itemRepository.GetItemsByGroupsAsync(
             page, pageSize, itemsOrder, shopFilterId,
-            discountOnly, userId);
+            discountOnly, userId).ConfigureAwait(false);
 
-        var itemModels = new List<BaseItemModel>();
+        return baseItemsEntities.Select(MapBaseItemModel)
+                                .ToList();
+    }
 
-        foreach (BaseItem itemEntity in baseItemsEntities)
+    public async Task<bool> LikeItem(int itemId, string userId)
+    {
+        if (!this.itemRepository.HasAll(itemId))
         {
-            try
-            {
-                itemModels.Add(MapBaseItemModel(itemEntity));
-            }
-            catch (FormatException)
-            {
-                this._logger.LogError(
-                    $"Couldn't map base item entity to entity model: some fields are missing in {itemEntity.Id}");
-            }
+            return false;
         }
 
-        return itemModels;
+        DateTime dateTime = DateTime.Now.ToUniversalTime();
+
+        return await this.itemRepository.AddUserFavoriteItemAsync(itemId, userId, dateTime).ConfigureAwait(false);
     }
 
-    public Task<bool> LikeItem(int itemId, string userId)
+    public Task<bool> UnLikeItemAsync(int itemId, string userId)
     {
-        return this._itemRepository.AddUserFavoriteItem(itemId, userId);
-    }
-
-    public Task<bool> UnLikeItem(int itemId, string userId)
-    {
-        return this._itemRepository.DeleteUserFavoriteItem(itemId, userId);
+        return this.itemRepository.DeleteUserFavoriteItemAsync(itemId, userId);
     }
 
     private static ItemsOrder GetItemsOrder(string orderString)
@@ -116,6 +99,7 @@ internal class ItemManager : IItemManager
         };
     }
 
+    // TODO: move to extension method
     private static BaseItemModel MapBaseItemModel(BaseItem baseItemEntity)
     {
         return new BaseItemModel
@@ -143,7 +127,7 @@ internal class ItemManager : IItemManager
         {
             ItemsCount = baseInfo.ItemsCount,
             Shops = baseInfo.ShopsColumns.Select(
-                shopColumns =>
+                static shopColumns =>
                 {
                     string[] columns = shopColumns.Split(',');
 

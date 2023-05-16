@@ -15,5 +15,5 @@ public interface IItemManager
         string? userId, bool discountOnly = false);
 
     Task<bool> LikeItem(int itemId, string userId);
-    Task<bool> UnLikeItem(int itemId, string userId);
+    Task<bool> UnLikeItemAsync(int itemId, string userId);
 }

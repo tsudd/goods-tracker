@@ -1,6 +1,3 @@
-using System.Data.Common;
-using System.Text;
-
 using GoodsTracker.Platform.DB.Context;
 using GoodsTracker.Platform.Server.Entities;
 using GoodsTracker.Platform.Server.Services.Repositories.Abstractions;
@@ -8,335 +5,162 @@ using GoodsTracker.Platform.Server.Services.Repositories.Enumerators;
 
 namespace GoodsTracker.Platform.Server.Services.Repositories;
 
-using System.Reflection;
+using GoodsTracker.Platform.DB.Entities;
+using GoodsTracker.Platform.Server.Services.Repositories.Extensions;
+
+using Microsoft.EntityFrameworkCore;
 
 // TODO: move free-text search into other method and query (do fuzzy search first and then joins)
 internal sealed class ItemRepository : IItemRepository
 {
-    private const string intTypeName = "integer";
-    private const string decimalTypeName = "decimal";
     private readonly GoodsTrackerPlatformDbContext context;
-    private readonly ILogger _logger;
 
-    public ItemRepository(GoodsTrackerPlatformDbContext context, ILogger<ItemRepository> logger)
+    public ItemRepository(GoodsTrackerPlatformDbContext context)
     {
         this.context = context;
-        this._logger = logger;
     }
 
+    // TODO: make this method more safe
     public async Task<BaseInfo> GetItemsInfoAsync()
     {
-        try
-        {
-            throw new NotImplementedException();
+        var vendorsInfo = await this.context.Vendors.Select(
+                                        static v => new
+                                        {
+                                            v.Id,
+                                            v.Name1,
+                                            v.Name2,
+                                        })
+                                    .ToListAsync()
+                                    .ConfigureAwait(false);
 
-            // var itemsInfo = new BaseInfo();
-            // using var countReader = await _dbAccess.ExecuteCommandAsync(GenerateItemsCountCommand());
-            // await countReader.ReadAsync();
-            // itemsInfo.ItemsCount = countReader.GetInt32(0);
-            // using var reader = await _dbAccess.ExecuteCommandAsync(GenerateSelectVendorsCommand());
-            // while (await reader.ReadAsync())
-            // {
-            //     itemsInfo.ShopsColumns.Add($"{reader.GetInt32(0)},{reader.GetString(1)},{reader.GetString(1)}");
-            // }
-            // return itemsInfo;
-        }
-        catch (InvalidOperationException ex)
+        return new BaseInfo
         {
-            throw ex;
-        }
+            ItemsCount = this.context.Items.Count(),
+            ShopsColumns = vendorsInfo.Select(static v => $"{v.Id},{v.Name1},{v.Name2}")
+                                      .ToList(),
+        };
     }
 
     public async Task<IEnumerable<BaseItem>> GetItemsByGroupsAsync(
-        int startIndex, int amount, ItemsOrder order, int vendorFilterId,
+        int page, int amount, ItemsOrder order, int vendorFilterId,
         bool discountOnly, string? userId = null, string? q = null)
     {
-        var baseItems = new List<BaseItem>();
-
-        try
-        {
-            // using var reader =
-            //     await _dbAccess.ExecuteCommandAsync(
-            //         GenerateSelectItemGroupCommand(
-            //             startIndex,
-            //             amount,
-            //             order,
-            //             vendorFilterId,
-            //             userId ?? "",
-            //             discountOnly,
-            //             q));
-            // if (reader.HasRows)
-            // {
-            //     while (await reader.ReadAsync())
-            //     {
-            //         baseItems.Add(MapBaseItemFields(reader));
-            //     }
-            // }
-            throw new NotImplementedException();
-        }
-        catch (InvalidOperationException ex)
-        {
-            throw ex;
-        }
-        catch (Exception ex)
-        {
-            this._logger.LogCritical($"read error: {ex.Message}");
-        }
-
-        return baseItems;
-    }
-
-    public async Task<bool> AddUserFavoriteItem(int itemId, string userId)
-    {
-        try
-        {
-            // var entries = await _dbAccess.ExecuteCommandAsync(GenerateSelectLikeCommand(itemId, userId));
-            // if (entries.HasRows)
-            //     throw new InvalidOperationException("item like already exists.");
-            // var result = await _dbAccess.ExecuteNonQueryAsync(GenerateInsertLikeCommand(itemId, userId));
-            // if (result != 1)
-            //     throw new InvalidOperationException("more than one entries were updated (unexpectetly)");
-            // return true;
-            throw new NotImplementedException();
-        }
-        catch (InvalidOperationException ex)
-        {
-            throw ex;
-        }
-        catch (Exception ex)
-        {
-            this._logger.LogCritical($"read error: {ex.Message}");
-
-            return false;
-        }
-    }
-
-    public async Task<bool> DeleteUserFavoriteItem(int itemId, string userId)
-    {
-        try
-        {
-            // var entries = await _dbAccess.ExecuteCommandAsync(GenerateSelectLikeCommand(itemId, userId));
-            // if (!entries.HasRows)
-            //     return false;
-            // var result = await _dbAccess.ExecuteNonQueryAsync(GenerateDeleteLikeCommand(itemId, userId));
-            // if (result != 1)
-            //     throw new InvalidOperationException("more than one entries were updated (unexpectetly)");
-            // return true;
-            throw new NotImplementedException();
-        }
-        catch (InvalidOperationException ex)
-        {
-            throw ex;
-        }
-        catch (Exception ex)
-        {
-            this._logger.LogCritical($"delete error: {ex.Message}");
-
-            return false;
-        }
-    }
-
-    private BaseItem MapBaseItemFields(DbDataReader reader)
-    {
-        Type? baseItemType = typeof(BaseItem);
-        var baseItem = new BaseItem();
-
-        for (var i = 0; i < reader.FieldCount; i++)
-        {
-            try
+        var query =
+            from record in this.context.GetItemRecords(discountOnly)
+            join stream in this.context.Streams on record.StreamId equals stream.Id
+            join item in this.context.Items on record.ItemId equals item.Id
+            join producer in this.context.Producers on item.ProducerId equals producer.Id into producerGroup
+            from producer in producerGroup.DefaultIfEmpty()
+            join favoriteItem in this.context.FavoriteItems on new
             {
-                PropertyInfo? prop = baseItemType.GetProperty(reader.GetName(i));
-
-                if (prop is null)
-                {
-                    throw new ArgumentException($"no such field in the model: {reader.GetName(i)}");
-                }
-
-                if (reader.IsDBNull(i))
-                {
-                    prop.SetValue(baseItem, null);
-
-                    continue;
-                }
-
-                if (reader.GetDataTypeName(i) == decimalTypeName)
-                {
-                    prop.SetValue(baseItem, reader.GetDecimal(i));
-
-                    continue;
-                }
-
-                if (reader.GetDataTypeName(i) == intTypeName)
-                {
-                    prop.SetValue(baseItem, reader.GetInt32(i));
-
-                    continue;
-                }
-
-                if (reader.GetDataTypeName(i) == intTypeName)
-                {
-                    prop.SetValue(baseItem, reader.GetInt32(i));
-
-                    continue;
-                }
-
-                prop.SetValue(baseItem, reader[i]);
-            }
-            catch (ArgumentException ex)
+                Key1 = record.ItemId,
+                Key2 = userId,
+            } equals new
             {
-                this._logger.LogWarning($"error while mapping item fields: {ex.Message}");
-            }
-        }
+                Key1 = favoriteItem.ItemId,
+                Key2 = favoriteItem.UserId,
+            } into favoriteGroup
+            from favoriteItem in favoriteGroup.DefaultIfEmpty()
+            join vendor in this.context.Vendors on item.VendorId equals vendor.Id
+            where !this.context.ItemRecords.Any(
+                ir => ir.ItemId == record.ItemId && ir.Stream.FetchDate > stream.FetchDate)
+            select new
+            {
+                Id = record.ItemId,
+                record.Price,
+                record.CutPrice,
+                record.OnDiscount,
+                Name = item.Name1,
+                ImgLink = item.ImageLink,
+                item.Weight,
+                item.WeightUnit,
+                Currensy = vendor.Land,
+                item.VendorId,
+                item.ImageLink,
+                stream.FetchDate,
+                producer.Country,
+                IsLiked = favoriteItem != null,
+            };
 
-        return baseItem;
-    }
+        // TODO: try to move it into an extension methods. Reflection possible option
+        var searchableQuery = q != null ? query.Where(i => EF.Functions.ILike(i.Name, q)) : query;
+        var filteredByVendor = vendorFilterId > 0 ? searchableQuery.Where(i => i.VendorId == vendorFilterId) : searchableQuery;
 
-    private static string GenerateItemsCountCommand()
-    {
-        return $"SELECT COUNT(*) FROM ITEM;";
-    }
-
-    private static string GenerateSelectVendorsCommand()
-    {
-        return "SELECT ID, NAME1, NAME2 FROM VENDOR;";
-    }
-
-    private static string GenerateSelectItemGroupCommand(
-        int startIndex, int amount, ItemsOrder order, int vendorFilterId,
-        string userId, bool discountOnly, string? searchString)
-    {
-        return "SELECT " +
-               "records.ITEMID AS \"Id\", " +
-               "records.PRICE AS \"Price\", " +
-               "records.CUTPRICE AS \"DiscountPrice\", " +
-               "records.ONDISCOUNT AS \"OnDiscount\", " +
-               "100 - TO_INTEGER(" +
-               "ROUND(" +
-               "(records.CUTPRICE / records.PRICE) * 100, 0)) AS \"Discount\", " +
-               "items.NAME1 AS \"Name\", " +
-               "items.IMAGE_LINK AS \"ImgLink\", " +
-               "items.WEIGHT AS \"Weight\", " +
-               "items.WEIGHT_UNIT AS \"WeightUnit\", " +
-               "items.COUNTRY AS \"Country\", " +
-               "vendors.LAND AS \"Currensy\", " +
-               "vendors.ID AS \"VendorId\", " +
-               "records.FETCH_DATE as \"FetchDate\", " +
-               "(CASE WHEN records.USERID IS NOT NULL THEN TRUE ELSE FALSE END) AS \"IsLiked\" " +
-               "FROM " +
-               "(" +
-               " SELECT " +
-               "   freshRecords.ITEMID, " +
-               "   freshRecords.FETCH_DATE, " +
-               "   freshRecords.PRICE, " +
-               "   freshRecords.CUTPRICE, " +
-               "   freshRecords.ONDISCOUNT, " +
-               "   likes.USERID " +
-               " FROM " +
-               "   ( " +
-               "     SELECT " +
-               "       records.ITEMID, " +
-               "       row_number() over(" +
-               "         partition by records.ITEMID " +
-               "         order by " +
-               "           streams.FETCH_DATE desc " +
-               "       ) as rn, " +
-               "       streams.FETCH_DATE, " +
-               "       records.PRICE, " +
-               "       records.CUTPRICE, " +
-               "       records.ONDISCOUNT " +
-               "     FROM " +
-               "       ITEMRECORD AS records " +
-               "       LEFT OUTER JOIN STREAM AS streams ON streams.ID = records.STREAMID " +
-               (discountOnly ? "WHERE ONDISCOUNT = true" : string.Empty) +
-               "   ) AS freshRecords " +
-               $" LEFT JOIN ITEMLIKE AS likes ON freshRecords.ITEMID = likes.ITEMID AND (CASE WHEN likes.USERID = '{userId}' THEN likes.USERID ELSE NULL END) = '{userId}'" +
-               " WHERE " +
-               "   freshRecords.RN = 1 " +
-               ") AS records " +
-               "LEFT OUTER JOIN ITEM AS items ON records.ITEMID = items.ID " +
-               "LEFT OUTER JOIN VENDOR AS vendors ON items.VENDOR_ID = vendors.ID " +
-               BuildWhereStatement(searchString, vendorFilterId) +
-               BuildOrderByStatement(order) +
-               $" LIMIT {amount} OFFSET {startIndex}" +
-               ";";
-    }
-
-    private static string BuildWhereStatement(string? searchString, int vendorFilterId)
-    {
-        var whereStatement = new StringBuilder(" WHERE ");
-
-        if (searchString != null && vendorFilterId > 0)
+        var orderedQuery = order switch
         {
-            whereStatement.Append(
-                BuildFuzzySearchStatement(searchString) + " AND " + BuildVendorFilterStatement(vendorFilterId));
-        }
-        else if (searchString != null)
-        {
-            whereStatement.Append(BuildFuzzySearchStatement(searchString));
-        }
-        else if (vendorFilterId > 0)
-        {
-            whereStatement.Append(BuildVendorFilterStatement(vendorFilterId));
-        }
-        else
-        {
-            return string.Empty;
-        }
+            ItemsOrder.ByLastUpdateDate => filteredByVendor.OrderByDescending(static i => i.FetchDate),
+            ItemsOrder.CheapFirst => filteredByVendor.OrderBy(static i => i.Price),
+            ItemsOrder.ExpensiveFirst => filteredByVendor.OrderByDescending(static i => i.Price),
+            var _ => filteredByVendor.OrderByDescending(static i => i.Id),
+        };
 
-        return whereStatement.ToString();
+        var result = await orderedQuery
+                           .Skip(page)
+                           .Take(amount)
+                           .ToListAsync().ConfigureAwait(false);
+
+        return result.Select(
+            static r => new BaseItem
+            {
+                Id = r.Id,
+                Name = r.Name,
+                Currensy = r.Currensy,
+                FetchDate = r.FetchDate,
+                Discount = CalculateDiscount(r.CutPrice, r.Price),
+                Price = r.Price,
+                VendorId = r.VendorId,
+                Weight = r.Weight,
+                WeightUnit = r.WeightUnit,
+                OnDiscount = r.OnDiscount,
+                DiscountPrice = r.CutPrice,
+                ImgLink = r.ImageLink?.ToString(),
+                Country = r.Country,
+                IsLiked = r.IsLiked,
+            });
     }
 
-    private static string BuildFuzzySearchStatement(string searchString)
+    private static int CalculateDiscount(decimal? cutPrice, decimal price)
     {
-        return $" CONTAINS(items.NAME1, '{searchString}', FUZZY(0.75,'similarcalculationmode=substringsearch'))";
+        return (int)Math.Round((1 - (cutPrice ?? 0) / price) * 100);
     }
 
-    private static string BuildVendorFilterStatement(int vendorId)
+    // TODO: rewrite to use Result
+    public async Task<bool> AddUserFavoriteItemAsync(int itemId, string userId, DateTime dateTime)
     {
-        return $"VENDORID = {vendorId}";
+        this.context.Add(
+            new FavoriteItem
+            {
+                ItemId = itemId,
+                UserId = userId,
+                DateAdded = dateTime,
+            });
+
+        await this.context.SaveChangesAsync()
+                  .ConfigureAwait(false);
+
+        return true;
     }
 
-    private static string BuildOrderByStatement(ItemsOrder order)
+    // TODO: implement checks instead of exceptions handling
+    public async Task<bool> DeleteUserFavoriteItemAsync(int itemId, string userId)
     {
-        if (order == ItemsOrder.None)
+        var favoriteItem = new FavoriteItem
         {
-            return string.Empty;
-        }
+            ItemId = itemId,
+            UserId = userId,
+        };
 
-        var orderByStatement = new StringBuilder(" ORDER BY ");
+        this.context.Attach(favoriteItem);
+        this.context.FavoriteItems.Remove(favoriteItem);
+        await this.context.SaveChangesAsync().ConfigureAwait(false);
 
-        if (order == ItemsOrder.ByLastUpdateDate)
-        {
-            orderByStatement.Append("FetchDate DESC");
-        }
-        else if (order == ItemsOrder.CheapFirst)
-        {
-            orderByStatement.Append("Price ASC");
-        }
-        else if (order == ItemsOrder.ExpensiveFirst)
-        {
-            orderByStatement.Append("Price DESC");
-        }
-        else
-        {
-            throw new InvalidOperationException("couldn't define order of items");
-        }
-
-        return orderByStatement.ToString();
+        return true;
     }
 
-    private static string GenerateInsertLikeCommand(int itemId, string userId)
+    public bool HasAll(params int[] itemIds)
     {
-        return $"INSERT INTO ITEMLIKE (ITEMID, USERID, DATE_ADDED) VALUES({itemId}, '{userId}', CURRENT_TIMESTAMP(0));";
-    }
-
-    private static string GenerateDeleteLikeCommand(int itemId, string userId)
-    {
-        return $"DELETE FROM ITEMLIKE WHERE ITEMID = {itemId} AND USERID = '{userId}';";
-    }
-
-    private static string GenerateSelectLikeCommand(int itemId, string userId)
-    {
-        return $"SELECT * FROM ITEMLIKE WHERE ITEMID = {itemId} AND USERID ='{userId}';";
+        return this.context.Items.Count(x => itemIds.Contains(x.Id)) ==
+               itemIds.Distinct()
+                      .Count();
     }
 }

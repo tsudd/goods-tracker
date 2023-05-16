@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace GoodsTracker.Platform.DB.Entities;
@@ -17,6 +16,5 @@ public class FavoriteItem
     [Required]
     public Item Item { get; set; } = null!;
 
-    [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
     public DateTime DateAdded { get; set; }
 }
