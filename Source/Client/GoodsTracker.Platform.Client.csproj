@@ -21,4 +21,15 @@
     <ProjectReference Include="..\Shared\GoodsTracker.Platform.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\font\css\open-iconic-bootstrap.min.css" />
+  </ItemGroup>
+
+  <Target Name="BuildCssDev" Condition="'$(Configuration)' == 'Debug'" BeforeTargets="Build">
+    <Exec Command="npm run sass" />
+  </Target>
+  <Target Name="BuildCssProd" Condition="'$(Configuration)' == 'Release'" BeforeTargets="Build">
+    <Exec Command="npm run sass" />
+  </Target>
+
 </Project>

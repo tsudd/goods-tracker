@@ -4,16 +4,25 @@
 @implements IAsyncDisposable
 @using GoodsTracker.Platform.Client.Modules;
 
-@foreach (var item in _items)
-{
-    @ItemTemplate(item)
-}
-@if (_loading)
-{
-    @LoadingTemplate
-}
-
-<div @ref="_lastItemIndicator" style="height:1px"></div>
+<div class="d-flex justify-content-center flex-column">
+    <div class="row row-cols-1 row-cols-md-4 g-4">
+        @foreach (var item in _items)
+        {
+            @ItemTemplate(item)
+        }
+    </div>
+    <div class="row-mt-5 justify-content-center">
+        @if (_loading)
+        {
+            @LoadingTemplate
+        }
+        else if (_items.Count == 0)
+        {
+            <button class="btn btn-primary" type="button" id="button-addon2" @onclick=@TryToUpdate>Try to load again</button>
+        }
+        <div @ref="_lastItemIndicator" style="height:1px"></div>
+    </div>
+</div>
 
 @code {
     private List<T> _items = new();
@@ -63,6 +72,11 @@
         StateHasChanged();
     }
 
+    private Task TryToUpdate()
+    {
+        return LoadMoreItems();
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         // Initialize the IntersectionObserver
@@ -101,5 +115,6 @@
     {
         _items.Clear();
         StateHasChanged();
+        await TryToUpdate();
     }
 }

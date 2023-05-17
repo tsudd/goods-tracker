@@ -137,7 +137,7 @@
     {
         if (CurrentUser.IsAuthenticated)
         {
-            var result = await Http.DeleteAsync($"/ItemList/likeыфаыфваыва/{Item.Id}");
+            var result = await Http.DeleteAsync($"/ItemList/like/{Item.Id}");
             if (result.IsSuccessStatusCode)
             {
                 Liked = false;
