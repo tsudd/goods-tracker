@@ -1,0 +1,27 @@
+{
+  "name": "goods-tracker",
+  "version": "1.0.0",
+  "description": "Track your favorite grocery products with goods-tracker.",
+  "main": "index.js",
+  "scripts": {
+    "sass": "npx sass ./scss/custom.scss ./wwwroot/css/tracker.css",
+    "sass:watch": "npx sass --watch ./scss/custom.scss ./wwwroot/css/tracker.css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tsudd/goods-tracker.git"
+  },
+  "keywords": [
+    "blazor"
+  ],
+  "author": "tsudd",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tsudd/goods-tracker/issues"
+  },
+  "homepage": "https://github.com/tsudd/goods-tracker#readme",
+  "devDependencies": {
+    "bootstrap": "^5.2.3",
+    "sass": "^1.62.1"
+  }
+}
