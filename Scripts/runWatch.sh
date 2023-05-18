@@ -1,1 +1,1 @@
-dotnet watch run debug --project $1 --urls "http://localhost:5000;https://localhost:5001"
+dotnet watch run --project $1 --urls "http://localhost:7145"

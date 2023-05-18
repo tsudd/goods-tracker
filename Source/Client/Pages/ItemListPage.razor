@@ -1,65 +1,73 @@
 @page "/items"
 @using GoodsTracker.Platform.Shared.Models
 @using System.Globalization
+@inject UserAlertService AlertService
 @using System.Text
 @inject HttpClient Http
 @inject IStringLocalizer<SharedResource> Loc
 
 <PageTitle>@Loc["ItemListPageTitle"]</PageTitle>
 
-<h1>@Loc["ItemListPageTitle"]</h1>
-
-<label for="search-input" class="form-label">@Loc["TotalItemsLabel"]: <span class="fw-bold">@Count</span></label>
-<div class="input-group mb-3">
-    <input type="text" class="form-control" id="search-input" placeholder="@Loc["SearchPlaceholder"]"
-        aria-label="@Loc["SearchPlaceholder"]: " aria-describedby="button-addon2" @bind="SearchInput">
-    <button class="btn btn-primary" type="button" id="button-addon2" @onclick=@FetchSettingChanged> <svg
-            xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search"
-            viewBox="0 0 16 16">
-            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0
-        1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
-        </svg></button>
-</div>
-<div class="row g-3">
-    <div class="col-md-3">
-        <label class="form-label" for="orderby">@Loc["OrderByLabel"]</label>
-        <select id="orderby" class="form-select" @bind="ItemsOrder">
-            <option value="none" selected></option>
-            <option value="cheap">@Loc["CheapFirstOrder"]</option>
-            <option value="expensive">@Loc["ExpensiveFirstOrder"]</option>
-            <option value="date">@Loc["UpdateDateOrder"]</option>
-        </select>
+<div class="p-3">
+    <h1>@Loc["ItemListPageTitle"]</h1>
+    
+    <label for="search-input" class="form-label">@Loc["TotalItemsLabel"]: <span class="fw-bold">@Count</span></label>
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" id="search-input" placeholder="@Loc["SearchPlaceholder"]"
+            aria-label="@Loc["SearchPlaceholder"]: " aria-describedby="button-addon2" @bind="SearchInput">
+        <button class="btn btn-primary" type="button" id="button-addon2" @onclick=@FetchSettingChanged> <svg
+                xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search"
+                viewBox="0 0 16 16">
+                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0
+            1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+            </svg></button>
     </div>
-    <div class="col-md-3">
-        <label class="form-label" for="shop">@Loc["FilterShopLabel"]</label>
-        @* TODO: make shop select multiple *@
-        <select id="shop" class="form-select" @bind="ShopFilter">
-            <option value="0">@Loc["AllShopsLabel"]</option>
-            @foreach (var shop in Shops)
-            {
-                <option value="@shop.Id">@shop.GetShopNameWithCulture(CultureInfo.CurrentCulture)</option>
-            }
-        </select>
-    </div>
-    <div class=" col-md-3">
-        <label class="form-label" for="switches">@Loc["SearchSetupsLabel"]</label>
-        <div class="form-check form-switch" id="switches">
-            <input class="form-check-input" type="checkbox" id="onDiscountOnlySwitch" @bind="OnlyDiscount">
-            <label class="form-check-label" for="onDiscountOnlySwitch">@Loc["OnlyDiscountsLabel"]</label>
+    <div class="row g-3">
+        <div class="col-md-1">
+            <button class="w-100 btn btn-lg btn-primary mb-3 mt-4">@Loc["CategoryButtonLabel"]</button>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" for="orderby">@Loc["OrderByLabel"]</label>
+            <select id="orderby" class="form-select" @bind="ItemsOrder">
+                <option value="none" selected></option>
+                <option value="cheap">@Loc["CheapFirstOrder"]</option>
+                <option value="expensive">@Loc["ExpensiveFirstOrder"]</option>
+                <option value="date">@Loc["UpdateDateOrder"]</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" for="shop">@Loc["FilterShopLabel"]</label>
+            @* TODO: make shop select multiple *@
+            <select id="shop" class="form-select" @bind="ShopFilter">
+                <option value="0">@Loc["AllShopsLabel"]</option>
+                @foreach (var shop in Shops)
+                {
+                    <option value="@shop.Id">@shop.GetShopNameWithCulture(CultureInfo.CurrentCulture)</option>
+                }
+            </select>
+        </div>
+        <div class=" col-md-3">
+            <label class="form-label" for="switches">@Loc["SearchSetupsLabel"]</label>
+            <div class="form-check form-switch" id="switches">
+                <input class="form-check-input" type="checkbox" id="onDiscountOnlySwitch" @bind="OnlyDiscount">
+                <label class="form-check-label" for="onDiscountOnlySwitch">@Loc["OnlyDiscountsLabel"]</label>
+            </div>
         </div>
     </div>
+    
+    <hr>
+    
+    <div class="mb-4">
+        <InfiniteScrolling ItemsProvider="GetItems" @ref="Scroller">
+            <ItemTemplate Context="item">
+                <ItemCard Item=item GetBadge="GetShopBadge" GetShopName="GetShopName" />
+            </ItemTemplate>
+            <LoadingTemplate>
+                <div><span class="oi oi-reload spin"></span> Loading more items...</div>
+            </LoadingTemplate>
+        </InfiniteScrolling>
+    </div>
 </div>
-
-<hr>
-
-<InfiniteScrolling ItemsProvider="GetItems" @ref="Scroller">
-    <ItemTemplate Context="item">
-        <ItemCard Item=item GetBadge="GetShopBadge" GetShopName="GetShopName" />
-    </ItemTemplate>
-    <LoadingTemplate>
-        <div><span class="oi oi-reload spin"></span> Loading more items...</div>
-    </LoadingTemplate>
-</InfiniteScrolling>
 
 
 @code {
@@ -102,22 +110,35 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var model = await Http.GetFromJsonAsync<InfoModel>("/ItemList/info").ConfigureAwait(false);
-        Count = model?.ItemsCount ?? 0;
-        Shops = model?.Shops ?? Enumerable.Empty<ShopModel>();
+        try
+        {
+            var model = await Http.GetFromJsonAsync<InfoModel>("/ItemList/info").ConfigureAwait(false);
+            Count = model?.ItemsCount ?? 0;
+            Shops = model?.Shops ?? Enumerable.Empty<ShopModel>();   
+        } catch (Exception)
+        {
+            AlertService.AddMessage(new UserAlert(Loc["SomethingWentWrongMessage"], Alerts.Danger));
+        }
     }
 
     protected async Task<IEnumerable<BaseItemModel>> GetItems(InfiniteScrollingItemsProviderRequest request)
     {
-        if (SearchInput.Length > 0)
+        try
         {
+            if (SearchInput.Length > 0)
+            {
+                return await Http.GetFromJsonAsync<BaseItemModel[]>(
+                    $"/ItemList/search?index={request.StartIndex}&q={SearchInput}{BuildGetItemsRequestQuery()}").ConfigureAwait(false) ??
+                       Enumerable.Empty<BaseItemModel>();
+            }
             return await Http.GetFromJsonAsync<BaseItemModel[]>(
-            $"/ItemList/search?index={request.StartIndex}&q={SearchInput}{BuildGetItemsRequestQuery()}") ??
-            Enumerable.Empty<BaseItemModel>();
+                $"/ItemList?index={request.StartIndex}{BuildGetItemsRequestQuery()}").ConfigureAwait(false) ??
+                   Enumerable.Empty<BaseItemModel>();   
+        } catch (Exception)
+        {
+            AlertService.AddMessage(new UserAlert(Loc["SomethingWentWrongMessage"], Alerts.Danger));
+            return Enumerable.Empty<BaseItemModel>();
         }
-        return await Http.GetFromJsonAsync<BaseItemModel[]>(
-        $"/ItemList?index={request.StartIndex}{BuildGetItemsRequestQuery()}") ??
-        Enumerable.Empty<BaseItemModel>();
     }
 
     protected Task FetchSettingChanged()

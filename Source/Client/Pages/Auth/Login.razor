@@ -17,8 +17,8 @@
     <DataAnnotationsValidator />
     @* TODO: try to customize error messages *@
 
-    <h1 class="h3 mb-3 fw-normal text-center">@Loc["LoginFormTitle"]</h1>
-    <div class="form-floating">
+    <h1 class="h4 mb-3 fw-normal text-center">@Loc["LoginFormTitle"]</h1>
+    <div class="form-floating mb-3">
         <InputText id="emailInput" class="form-control" type="email" placeholder="john.doe@example.com"
             @bind-Value="LoginRequest.UserName" />
         <ValidationMessage For="() => LoginRequest.UserName" />
@@ -117,7 +117,6 @@
             throw new ApplicationException();
             await localStorage.SetItemAsync("refreshToken", firebaseUserTokens.RefreshToken);
             await localStorage.SetItemAsync("accessToken", firebaseUserTokens.AccessToken);
-            Console.WriteLine("Tokens refreshed");
         }
         else
         {

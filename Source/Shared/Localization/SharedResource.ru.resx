@@ -248,4 +248,108 @@
         <value>Что-то пошло не так. Пожалуйста повторите попытку позже.</value>
         <comment/>
     </data>
+    <data name="IntroMessage1" xml:space="preserve">
+        <value>Навигация в мире ценообразования может быть сложной задачей. Будь то попытка узнать, сколько стоит продукт, или желание сравнить цены у разных продавцов, это может быть трудоемким процессом, полным неопределенности.</value>
+        <comment/>
+    </data>
+    <data name="IntroMessage2" xml:space="preserve">
+        <value>Вот тут-то и вступает в игру "howMuch". Мы - сервис, предоставляющий самую точную и актуальную информацию о ценах. Наша цель - помочь вам принимать обоснованные решения быстро и уверенно, сэкономив ваше время и усилия.</value>
+        <comment/>
+    </data>
+    <data name="IntroMessage3" xml:space="preserve">
+        <value>Наша платформа названа "howMuch", потому что мы стремимся ответить на этот вопрос для вас. Всякий раз, когда вы сталкиваетесь с продуктом или услугой и задаетесь вопросом "сколько это стоит?", мы хотим быть вашим основным источником ответов.</value>
+        <comment/>
+    </data>
+    <data name="WelcomeTo" xml:space="preserve">
+        <value>Добро пожаловать в</value>
+        <comment/>
+    </data>
+    <data name="GetAccountMessage" xml:space="preserve">
+        <value>Давайте познакомимся</value>
+        <comment/>
+    </data>
+    <data name="GetAccountCaption" xml:space="preserve">
+        <value>Создайте аккаунт сегодня и начните открывать для себя лучшие сделки, отслеживать цены и экономить на ваших любимых товарах. </value>
+        <comment/>
+    </data>
+    <data name="GetAccountButtonLabel" xml:space="preserve">
+        <value>Создать аккаунт</value>
+        <comment/>
+    </data>
+    <data name="ExploreMoreMessage" xml:space="preserve">
+        <value>Откройте для себя больше с howMuch</value>
+        <comment/>
+    </data>
+    <data name="ExploreMoreCaption" xml:space="preserve">
+        <value>Начните просматривать наш разнообразный ассортимент товаров сегодня и откройте для себя лучшие предложения, подобранные специально для вас.</value>
+        <comment/>
+    </data>
+    <data name="ExploreMoreButtonLabel" xml:space="preserve">
+        <value>Начать просмотр</value>
+        <comment/>
+    </data>
+    <data name="QuestionMessage" xml:space="preserve">
+        <value>У вас есть вопросы? У нас есть ответы!</value>
+        <comment/>
+    </data>
+    <data name="QuestionCaption" xml:space="preserve">
+        <value>Посетите наш развернутый раздел часто задаваемых вопросов, чтобы получить подробные ответы на все ваши запросы. </value>
+        <comment/>
+    </data>
+    <data name="QuestionButtonLabel" xml:space="preserve">
+        <value>FAQ</value>
+        <comment/>
+    </data>
+    <data name="MarketingHeadLine1" xml:space="preserve">
+        <value>Мы готовы помочь.</value>
+        <comment/>
+    </data>
+    <data name="MarketingOptions1Label" xml:space="preserve">
+        <value>Точное ценообразование</value>
+        <comment/>
+    </data>
+    <data name="MarketingOptions2Label" xml:space="preserve">
+        <value>Полная информация</value>
+        <comment/>
+    </data>
+    <data name="MarketingOptions3Label" xml:space="preserve">
+        <value>Пользовательский интерфейс</value>
+        <comment/>
+    </data>
+    <data name="MarketingOptions4Label" xml:space="preserve">
+        <value>Экономия времени</value>
+        <comment/>
+    </data>
+    <data name="MarketingOptions1Caption" xml:space="preserve">
+        <value>Мы собираем информацию из надежных источников и регулярно обновляем нашу базу данных, чтобы гарантировать точность представленных цен.</value>
+        <comment/>
+    </data>
+    <data name="MarketingOptions2Caption" xml:space="preserve">
+        <value>Мы не только предоставляем цену, но и даем дополнительную информацию, такую как скидки, подробности о продавце и многое другое.</value>
+        <comment/>
+    </data>
+    <data name="MarketingOptions3Caption" xml:space="preserve">
+        <value> Наша платформа разработана так, чтобы быть интуитивно понятной и простой в использовании. Вы можете найти нужную информацию всего за несколько кликов.</value>
+        <comment/>
+    </data>
+    <data name="MarketingOptions4Caption" xml:space="preserve">
+        <value>Забудьте о бесконечном просмотре и сравнении. С "howMuch" у вас есть вся необходимая информация в одном месте.</value>
+        <comment/>
+    </data>
+    <data name="BackToTop" xml:space="preserve">
+        <value>Назад к началу</value>
+        <comment/>
+    </data>
+    <data name="CategoryButtonLabel" xml:space="preserve">
+        <value>Каталог</value>
+        <comment/>
+    </data>
+    <data name="FavoritesLabel" xml:space="preserve">
+        <value>Любимые</value>
+        <comment/>
+    </data>
+    <data name="ComparisonLabel" xml:space="preserve">
+        <value>Сравнение</value>
+        <comment/>
+    </data>
 </root>

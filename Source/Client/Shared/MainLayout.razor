@@ -1,14 +1,18 @@
 ﻿@inherits LayoutComponentBase
+@inject IStringLocalizer<SharedResource> Loc
 
-<div class="page">
+<div class="d-flex flex-column h-100">
     <header>
         <NavMenu />
     </header>
 
-    <main>
-        <article class="content px-4">
-            @Body
-        </article>
+    <main class="">
+        @Body
     </main>
+    <footer class="footer mt-auto container mb-1">
+        <p class="float-end"><a href="#">@Loc["BackToTop"]</a></p>
+        @* <a href="#">Privacy</a> &middot; <a href="#">Terms</a> *@
+        <p class="text-muted">&copy; 2023 how<strong>Much</strong>, Inc. &middot;</p>
+    </footer>
     <AlertComponent />
 </div>

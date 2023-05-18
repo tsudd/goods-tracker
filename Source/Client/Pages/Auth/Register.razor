@@ -11,14 +11,14 @@
 
 <EditForm EditContext="@editContext" OnSubmit="@HandleSubmit">
     <DataAnnotationsValidator />
-    <h1 class="h3 mb-3 fw-normal text-center">@Loc["SignUpFormTitle"]</h1>
-    <div class="form-floating">
+    <h1 class="h4 mb-3 fw-normal text-center">@Loc["SignUpFormTitle"]</h1>
+    <div class="form-floating mb-3">
         <input id="emailInput" class="form-control" type="email" placeholder="john.doe@example.com"
             @bind="RegisterRequest.UserName">
         <ValidationMessage For="() => RegisterRequest.UserName" />
         <label for="emailInput">@Loc["EmailAddressLabel"]</label>
     </div>
-    <div class="form-floating">
+    <div class="form-floating mb-3">
         <input id="passwordInput" class="form-control" type="password" placeholder="@Loc["PasswordLabel"]"
             @bind="RegisterRequest.Password">
         <ValidationMessage For="() => RegisterRequest.Password" />
@@ -32,7 +32,7 @@
     </div>
     <button class="w-100 btn btn-lg btn-primary mb-3">@Loc["LoginButtonLabel"]</button>
     <label class="text-danger">@Error</label>
-    <NavLink href="register">
+    <NavLink href="login">
         <h6 class="font-weight-normal text-center">@Loc["LoginInviteLabel"]</h6>
     </NavLink>
 </EditForm>

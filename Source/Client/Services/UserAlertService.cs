@@ -2,26 +2,27 @@ using GoodsTracker.Platform.Client.Models;
 
 namespace GoodsTracker.Platform.Client.Services;
 
-public class UserAlertService
+public sealed class UserAlertService
 {
-    public List<UserAlert> RaisedAlerts { get; private set; }
-    public event Action RefreshRequested;
+    internal List<UserAlert> RaisedAlerts { get; }
+    public event Action? RefreshRequested;
 
     public UserAlertService()
     {
-        RaisedAlerts = new List<UserAlert>();
+        this.RaisedAlerts = new List<UserAlert>();
     }
 
-    public void AddMessage(UserAlert alert)
+    internal void AddMessage(UserAlert alert)
     {
-        RaisedAlerts.Add(alert);
-        RefreshRequested?.Invoke();
+        this.RaisedAlerts.Add(alert);
+        this.RefreshRequested?.Invoke();
 
         // pop message off after a delay
-        _ = new Timer((_) =>
-        {
-            RaisedAlerts.RemoveAt(0);
-            RefreshRequested?.Invoke();
-        }, null, 8000, Timeout.Infinite);
+        _ = new Timer(
+            _ =>
+            {
+                this.RaisedAlerts.RemoveAt(0);
+                this.RefreshRequested!.Invoke();
+            }, null, 8000, Timeout.Infinite);
     }
 }

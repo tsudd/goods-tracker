@@ -8,7 +8,7 @@
 <nav class="navbar navbar-expand-lg bg-primary">
     <div class="container-fluid">
         <a class="navbar-brand" href="">
-            howMuch
+            <BrandLogo/>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll"
             aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
@@ -26,6 +26,21 @@
                         @Loc["ItemListPageTitle"]
                     </NavLink>
                 </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="favorites">
+                        @Loc["FavoritesLabel"]
+                    </NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="compare">
+                        @Loc["ComparisonLabel"]
+                    </NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="faq">
+                        @Loc["QuestionButtonLabel"]
+                    </NavLink>
+                </li>
             </ul>
             <div class="text-end">
                 <AuthorizeView>
@@ -35,7 +50,7 @@
                     </Authorized>
                     <NotAuthorized>
                         <a class="btn btn-outline-secondary me-2" href="login">@Loc["LoginButtonLabel"]</a>
-                        <a class="btn btn-outline-warning me-2" href="register">@Loc["SignUpButtonLabel"]</a>
+                        <a class="btn btn-warning me-2" href="register">@Loc["SignUpButtonLabel"]</a>
                     </NotAuthorized>
                 </AuthorizeView>
             </div>
@@ -56,8 +71,8 @@
         var signOutState = await module!.InvokeAsync<bool>("firebaseSignOut");
         CurrentUser.UserName = null;
         CurrentUser.IsAuthenticated = signOutState;
-        await localStorage.SetItemAsync<string>("refreshToken", null);
-        await localStorage.SetItemAsync<string>("accessToken", null);
+        await localStorage.SetItemAsync<string>("refreshToken", null!);
+        await localStorage.SetItemAsync<string>("accessToken", null!);
         authStateProvider.ManageUser();
         navigationManager.NavigateTo("");
     }

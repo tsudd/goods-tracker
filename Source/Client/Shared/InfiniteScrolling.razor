@@ -8,10 +8,10 @@
     <div class="row row-cols-1 row-cols-md-4 g-4">
         @foreach (var item in _items)
         {
-            @ItemTemplate(item)
+            @ItemTemplate!(item)
         }
     </div>
-    <div class="row-mt-5 justify-content-center">
+    <div class="d-flex mt-5 justify-content-center">
         @if (_loading)
         {
             @LoadingTemplate
@@ -56,7 +56,7 @@
             StateHasChanged();
             try
             {
-                var newItems = await ItemsProvider(new InfiniteScrollingItemsProviderRequest(_items.Count, _loadItemsCts.Token));
+                var newItems = await ItemsProvider!(new InfiniteScrollingItemsProviderRequest(_items.Count, _loadItemsCts.Token));
                 _items.AddRange(newItems);
             }
             catch (OperationCanceledException oce) when (oce.CancellationToken == _loadItemsCts.Token)

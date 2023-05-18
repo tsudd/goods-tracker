@@ -570,7 +570,6 @@ $RECYCLE.BIN/
 Test
 /.vscode/
 .env
-srv/Server/HdbClient/*
-fetching/Common/DbClient/*
-srv/Server/DbClient/*
-srv/Client/wwwroot/js/const.js
+./Source/Client/wwwroot/js/const.js
+./Source/Client/wwwroot/css/tracker.css
+./Source/Client/wwwroot/css/tracker.css.map

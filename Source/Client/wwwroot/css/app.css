@@ -1,7 +1,8 @@
 ﻿html,
 body {
-    font-family: Ubuntu, Helvetica, Arial, sans-serif;
+    font-family: Ubuntu, Helvetica, Arial, sans-serif !important;
     height: 100%;
+    background-color: var(--bs-light) !important;
 }
 
 #app {
@@ -15,12 +16,6 @@ h1:focus {
 a,
 .btn-link {
     color: #0071c1;
-}
-
-.btn-primary {
-    color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
 }
 
 .content {

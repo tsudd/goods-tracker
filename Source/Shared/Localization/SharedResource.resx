@@ -248,4 +248,108 @@
         <value>Something went wrong. Please try again later.</value>
         <comment/>
     </data>
+    <data name="IntroMessage1" xml:space="preserve">
+        <value>Navigating the world of pricing can be a daunting task. Whether you're trying to figure out how much a product costs, or want to compare prices across different vendors, it can be a time-consuming process filled with uncertainty.</value>
+        <comment/>
+    </data>
+    <data name="IntroMessage2" xml:space="preserve">
+        <value>This is where "howMuch" comes into play. We are a service dedicated to providing you with the most accurate, up-to-date pricing information. Our goal is to help you make informed decisions quickly and confidently, saving you time and effort.</value>
+        <comment/>
+    </data>
+    <data name="IntroMessage3" xml:space="preserve">
+        <value>Our platform is named "howMuch" because that's the question we aim to answer for you. Whenever you come across a product and wonder "how much does this cost?", we want to be your go-to source for the answer.</value>
+        <comment/>
+    </data>
+    <data name="WelcomeTo" xml:space="preserve">
+        <value>Welcome to</value>
+        <comment/>
+    </data>
+    <data name="GetAccountMessage" xml:space="preserve">
+        <value>Lets get familiar</value>
+        <comment/>
+    </data>
+    <data name="GetAccountCaption" xml:space="preserve">
+        <value>Create an account today and start discovering the best deals, tracking prices, and saving money on your favorite items. </value>
+        <comment/>
+    </data>
+    <data name="GetAccountButtonLabel" xml:space="preserve">
+        <value>Sign up today</value>
+        <comment/>
+    </data>
+    <data name="ExploreMoreMessage" xml:space="preserve">
+        <value>Explore More With howMuch</value>
+        <comment/>
+    </data>
+    <data name="ExploreMoreCaption" xml:space="preserve">
+        <value>Start browsing our diverse range of items today and discover the best deals tailored for you. </value>
+        <comment/>
+    </data>
+    <data name="ExploreMoreButtonLabel" xml:space="preserve">
+        <value>Browse more</value>
+        <comment/>
+    </data>
+    <data name="QuestionMessage" xml:space="preserve">
+        <value>Got Questions? We've Got Answers!</value>
+        <comment/>
+    </data>
+    <data name="QuestionCaption" xml:space="preserve">
+        <value>Visit our comprehensive FAQ section to get detailed answers to all your queries. </value>
+        <comment/>
+    </data>
+    <data name="QuestionButtonLabel" xml:space="preserve">
+        <value>FAQ</value>
+        <comment/>
+    </data>
+    <data name="MarketingOptions1Label" xml:space="preserve">
+        <value>Accurate Pricing</value>
+        <comment/>
+    </data>
+    <data name="MarketingOptions2Label" xml:space="preserve">
+        <value>Comprehensive Information</value>
+        <comment/>
+    </data>
+    <data name="MarketingOptions3Label" xml:space="preserve">
+        <value>User-Friendly Interface</value>
+        <comment/>
+    </data>
+    <data name="MarketingOptions4Label" xml:space="preserve">
+        <value>Time-Saving</value>
+        <comment/>
+    </data>
+    <data name="MarketingOptions1Caption" xml:space="preserve">
+        <value>We gather information from reliable sources and update our database regularly to ensure the prices you see are accurate.</value>
+        <comment/>
+    </data>
+    <data name="MarketingOptions2Caption" xml:space="preserve">
+        <value>Not only do we provide the price, but we also give you additional information like discounts, vendor details, and more.</value>
+        <comment/>
+    </data>
+    <data name="MarketingOptions3Caption" xml:space="preserve">
+        <value>Our platform is designed to be intuitive and easy to use. You can find the information you need with just a few clicks.</value>
+        <comment/>
+    </data>
+    <data name="MarketingOptions4Caption" xml:space="preserve">
+        <value>Say goodbye to endless browsing and comparing. With "HowMuch", you have all the information you need in one place.</value>
+        <comment/>
+    </data>
+    <data name="MarketingHeadLine1" xml:space="preserve">
+        <value>We're here to help</value>
+        <comment/>
+    </data>
+    <data name="BackToTop" xml:space="preserve">
+        <value>Back to top</value>
+        <comment/>
+    </data>
+    <data name="CategoryButtonLabel" xml:space="preserve">
+        <value>Catalog</value>
+        <comment/>
+    </data>
+    <data name="FavoritesLabel" xml:space="preserve">
+        <value>Favorites</value>
+        <comment/>
+    </data>
+    <data name="ComparisonLabel" xml:space="preserve">
+        <value>Compare</value>
+        <comment/>
+    </data>
 </root>
