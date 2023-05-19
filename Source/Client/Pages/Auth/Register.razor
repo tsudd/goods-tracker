@@ -38,7 +38,7 @@
 </EditForm>
 
 @code {
-    RegisterRequestModel RegisterRequest { get; set; } = new RegisterRequestModel();
+    RegisterRequestModel RegisterRequest { get; set; } = new();
     private IJSObjectReference? module;
     CurrentUser currentUser { get; set; } = new CurrentUser();
     string Error { get; set; } = string.Empty;
@@ -68,7 +68,7 @@
             var userJSON = await module.InvokeAsync<string>("firebaseGetCurrentUser");
             if (userJSON != null)
             {
-                FirebaseUser user =
+                var user =
                 JsonConvert.DeserializeObject<FirebaseUser>(userJSON)
                 ?? throw new FormatException("Couldn't serialize user");
                 CurrentUser.IsAuthenticated = true;
@@ -93,7 +93,6 @@
         if (editContext != null && editContext.Validate())
         {
             await OnSubmit();
-            navigationManager.NavigateTo("");
         }
     }
 }

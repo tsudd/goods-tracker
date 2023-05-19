@@ -1,10 +1,8 @@
 @page "/login"
 @inject IStringLocalizer<SharedResource> Loc
 @layout AuthLayout
-@using Microsoft.JSInterop;
 @using Newtonsoft.Json;
 @using System.Timers;
-@using GoodsTracker.Platform.Client.Models;
 @inject NavigationManager navigationManager
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject Blazored.LocalStorage.ISyncLocalStorageService getLocalStorage
@@ -38,11 +36,11 @@
 </EditForm>
 
 @code {
-    LoginRequestModel LoginRequest { get; set; } = new LoginRequestModel();
+    LoginRequestModel LoginRequest { get; set; } = new ();
     private IJSObjectReference? module;
-    CurrentUser currentUser { get; set; } = new CurrentUser();
+    CurrentUser currentUser { get; set; } = new ();
     string Error { get; set; } = string.Empty;
-    private static System.Timers.Timer? aTimer { get; set; }
+    private static Timer? aTimer { get; set; }
     FirebaseUserTokens? firebaseUserTokens { get; set; }
     private EditContext? editContext;
 
@@ -76,8 +74,9 @@
                 await localStorage.SetItemAsync("userId", user.Uid);
                 await localStorage.SetItemAsync("refreshToken", user.StsTokenManager!.RefreshToken);
                 await localStorage.SetItemAsync("accessToken", user.StsTokenManager.AccessToken);
-                SetTimer();
+                // SetTimer();
                 authStateProvider.ManageUser();
+                navigationManager.NavigateTo("");
             }
             else
             {
@@ -95,7 +94,6 @@
         if (editContext != null && editContext.Validate())
         {
             await OnSubmit();
-            navigationManager.NavigateTo("");
         }
     }
 

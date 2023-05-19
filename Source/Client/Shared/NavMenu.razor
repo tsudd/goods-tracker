@@ -1,8 +1,8 @@
 ﻿@inject IStringLocalizer<SharedResource> Loc
 @inject StateProvider authStateProvider
-@inject ILocalStorageService localStorage
+@inject ILocalStorageService LocalStorage
 @inject IJSRuntime JS
-@inject NavigationManager navigationManager
+@inject NavigationManager NavigationManager
 @using GoodsTracker.Platform.Client.Extenstions
 
 <nav class="navbar navbar-expand-lg bg-primary">
@@ -46,7 +46,7 @@
                 <AuthorizeView>
                     <Authorized>
                         <button type="button" class="btn btn-outline-secondary ml-md-auto"
-                            @onclick="@LogoutClick">@Loc["LogoutButtonLabel"]</button>
+                                @onclick="@LogoutClick">@Loc["LogoutButtonLabel"]</button>
                     </Authorized>
                     <NotAuthorized>
                         <a class="btn btn-outline-secondary me-2" href="login">@Loc["LoginButtonLabel"]</a>
@@ -64,6 +64,15 @@
 
     [CascadingParameter]
     Task<AuthenticationState>? AuthenticationState { get; set; }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import",
+                "./js/firebase.js");
+        }
+    }
 
     [JSInvokable]
     public async Task LogoutClick()
@@ -71,9 +80,9 @@
         var signOutState = await module!.InvokeAsync<bool>("firebaseSignOut");
         CurrentUser.UserName = null;
         CurrentUser.IsAuthenticated = signOutState;
-        await localStorage.SetItemAsync<string>("refreshToken", null!);
-        await localStorage.SetItemAsync<string>("accessToken", null!);
+        await LocalStorage.RemoveItemAsync("refreshToken");
+        await LocalStorage.RemoveItemAsync("accessToken");
         authStateProvider.ManageUser();
-        navigationManager.NavigateTo("");
+        NavigationManager.NavigateTo("");
     }
 }
