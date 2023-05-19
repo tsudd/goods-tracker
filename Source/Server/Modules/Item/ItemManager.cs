@@ -6,19 +6,16 @@ using GoodsTracker.Platform.Shared.Models;
 
 namespace GoodsTracker.Platform.Server.Modules.Item;
 
-// TODO: move constants into shared
+using GoodsTracker.Platform.Server.Modules.Item.Extensions;
+
 internal sealed class ItemManager : IItemManager
 {
     private const int pageSize = 30;
-    private const string defaultCurrency = "BYN";
-    private const string defaultWeightUnit = "g";
-    private const string defaultCountry = "Belarus";
-    private const string defaultImgLink = "img/no_image.png";
     private const int shopModelColumns = 3;
     private readonly IItemRepository itemRepository;
     private readonly ILogger logger;
 
-    public ItemManager(IItemRepository itemRepository, ILogger<ItemManager> logger)
+    public ItemManager(IItemRepository itemRepository, ILogger logger)
     {
         this.itemRepository = itemRepository;
         this.logger = logger;
@@ -43,32 +40,39 @@ internal sealed class ItemManager : IItemManager
         }
     }
 
-    public async Task<IEnumerable<BaseItemModel>> SearchItems(
+    public Task<IEnumerable<BaseItemModel>> SearchItems(
         int page, string q, string order, int shopFilterId,
         string? userId, bool discountOnly = false)
     {
-        ItemsOrder itemsOrder = GetItemsOrder(order);
-
-        IEnumerable<BaseItem> baseItemsEntities = await this.itemRepository.GetItemsByGroupsAsync(
-            page, pageSize, itemsOrder, shopFilterId,
-            discountOnly, userId, $"%{q}%").ConfigureAwait(false);
-
-        return baseItemsEntities.Select(MapBaseItemModel)
-                                .ToList();
+        return this.GetBaseItemsAsync(
+            page, order, shopFilterId, userId,
+            discountOnly, $"%{q}%");
     }
 
-    public async Task<IEnumerable<BaseItemModel>> GetBaseItemsPage(
+    public Task<IEnumerable<BaseItemModel>> GetBaseItemsPage(
         int page, string order, int shopFilterId, string? userId,
         bool discountOnly = false)
+    {
+        return this.GetBaseItemsAsync(
+            page, order, shopFilterId, userId,
+            discountOnly);
+    }
+
+    private async Task<IEnumerable<BaseItemModel>> GetBaseItemsAsync(
+        int page,
+        string order,
+        int shopFilterId,
+        string? userId,
+        bool discountOnly,
+        string? q = null)
     {
         ItemsOrder itemsOrder = GetItemsOrder(order);
 
         IEnumerable<BaseItem> baseItemsEntities = await this.itemRepository.GetItemsByGroupsAsync(
             page, pageSize, itemsOrder, shopFilterId,
-            discountOnly, userId).ConfigureAwait(false);
+            discountOnly, userId, q).ConfigureAwait(false);
 
-        return baseItemsEntities.Select(MapBaseItemModel)
-                                .ToList();
+        return baseItemsEntities.Select(static i => i.ToModel());
     }
 
     public async Task<bool> LikeItem(int itemId, string userId)
@@ -83,7 +87,7 @@ internal sealed class ItemManager : IItemManager
         return await this.itemRepository.AddUserFavoriteItemAsync(itemId, userId, dateTime).ConfigureAwait(false);
     }
 
-    public Task<bool> UnLikeItemAsync(int itemId, string userId)
+    public Task<bool> UnLikeItem(int itemId, string userId)
     {
         return this.itemRepository.DeleteUserFavoriteItemAsync(itemId, userId);
     }
@@ -96,28 +100,6 @@ internal sealed class ItemManager : IItemManager
             "expensive" => ItemsOrder.ExpensiveFirst,
             "date" => ItemsOrder.ByLastUpdateDate,
             var _ => ItemsOrder.None,
-        };
-    }
-
-    // TODO: move to extension method
-    private static BaseItemModel MapBaseItemModel(BaseItem baseItemEntity)
-    {
-        return new BaseItemModel
-        {
-            Id = baseItemEntity.Id,
-            Name = baseItemEntity.Name,
-            Price = baseItemEntity.Price,
-            DiscountPrice = baseItemEntity.DiscountPrice ?? 0,
-            Discount = baseItemEntity.Discount ?? 0,
-            OnDiscount = baseItemEntity.OnDiscount,
-            Country = baseItemEntity.Country ?? defaultCountry,
-            Currensy = baseItemEntity.Currensy ?? defaultCurrency,
-            FetchDate = baseItemEntity.FetchDate ?? DateTime.Today,
-            ImgLink = baseItemEntity.ImgLink ?? defaultImgLink,
-            VendorId = baseItemEntity.VendorId,
-            Weight = baseItemEntity.Weight ?? 0,
-            WeightUnit = baseItemEntity.WeightUnit ?? defaultWeightUnit,
-            Liked = baseItemEntity.IsLiked,
         };
     }
 

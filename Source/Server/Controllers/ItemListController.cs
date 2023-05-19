@@ -37,9 +37,7 @@ public class ItemListController : ControllerBase
     }
 
     [HttpGet("search")]
-    public async Task<IEnumerable<BaseItemModel>?> SearchItems(
-        int index, string q, string orderBy,
-        bool onlyDiscount, int? shop)
+    public async Task<IEnumerable<BaseItemModel>?> SearchItems(int index, string q, string orderBy, bool onlyDiscount, int? shop)
     {
         try
         {
@@ -104,7 +102,7 @@ public class ItemListController : ControllerBase
                 throw new InvalidOperationException("user can't be empty when saving item like");
             }
 
-            return await this.itemManager.UnLikeItemAsync(id, userId).ConfigureAwait(false) ? this.Ok() : this.NotFound();
+            return await this.itemManager.UnLikeItem(id, userId).ConfigureAwait(false) ? this.Ok() : this.NotFound();
         }
         catch (InvalidOperationException)
         {
