@@ -245,7 +245,7 @@
         <comment/>
     </data>
     <data name="SomethingWentWrongMessage" xml:space="preserve">
-        <value>Что-то пошло не так. Пожалуйста повторите попытку позже.</value>
+        <value>Что-то пошло не так. Пожалуйста повторите попытку позже.LoginButtonLabel</value>
         <comment/>
     </data>
     <data name="IntroMessage1" xml:space="preserve">
@@ -350,6 +350,54 @@
     </data>
     <data name="ComparisonLabel" xml:space="preserve">
         <value>Сравнение</value>
+        <comment/>
+    </data>
+    <data name="ItemLabel" xml:space="preserve">
+        <value>Единичный товар</value>
+        <comment/>
+    </data>
+    <data name="VendorCodeLabel" xml:space="preserve">
+        <value>Артикул</value>
+        <comment/>
+    </data>
+    <data name="ItemDescriptionLabel" xml:space="preserve">
+        <value>Описание товара</value>
+        <comment/>
+    </data>
+    <data name="NutritionLabel" xml:space="preserve">
+        <value>Пищевая ценность на</value>
+        <comment/>
+    </data>
+    <data name="ProteinLabel" xml:space="preserve">
+        <value>Белки</value>
+        <comment/>
+    </data>
+    <data name="FatLabel" xml:space="preserve">
+        <value>Жиры</value>
+        <comment/>
+    </data>
+    <data name="CarboLabel" xml:space="preserve">
+        <value>Углеводы</value>
+        <comment/>
+    </data>
+    <data name="OnePeaceLabel" xml:space="preserve">
+        <value>шт</value>
+        <comment/>
+    </data>
+    <data name="AddToComparisonButtonLabel" xml:space="preserve">
+        <value>Добавить к сравнению</value>
+        <comment/>
+    </data>
+    <data name="SimilarItemsLabel" xml:space="preserve">
+        <value>Похожие</value>
+        <comment/>
+    </data>
+    <data name="PricesGraphLabel" xml:space="preserve">
+        <value>Динамика цен</value>
+        <comment/>
+    </data>
+    <data name="DoRegisterButtonLabel" xml:space="preserve">
+        <value>Зарегистрироваться</value>
         <comment/>
     </data>
 </root>

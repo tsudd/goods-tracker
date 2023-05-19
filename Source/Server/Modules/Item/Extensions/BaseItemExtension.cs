@@ -22,7 +22,7 @@ internal static class BaseItemExtension
             ImgLink = baseItem.ImgLink ?? GoodsTrackerDefaults.DefaultImgLink,
             VendorId = baseItem.VendorId,
             Weight = baseItem.Weight ?? 0,
-            WeightUnit = baseItem.WeightUnit ?? GoodsTrackerDefaults.DefaultImgLink,
+            WeightUnit = baseItem.WeightUnit ?? GoodsTrackerDefaults.DefaultWeightUnit,
             Liked = baseItem.IsLiked,
         };
     }

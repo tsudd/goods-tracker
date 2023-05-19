@@ -337,7 +337,7 @@
         <comment/>
     </data>
     <data name="BackToTop" xml:space="preserve">
-        <value>Back to top</value>
+        <value>Back to home</value>
         <comment/>
     </data>
     <data name="CategoryButtonLabel" xml:space="preserve">
@@ -350,6 +350,54 @@
     </data>
     <data name="ComparisonLabel" xml:space="preserve">
         <value>Compare</value>
+        <comment/>
+    </data>
+    <data name="ItemLabel" xml:space="preserve">
+        <value>Item</value>
+        <comment/>
+    </data>
+    <data name="VendorCodeLabel" xml:space="preserve">
+        <value>Vendor</value>
+        <comment/>
+    </data>
+    <data name="ItemDescriptionLabel" xml:space="preserve">
+        <value>Item description</value>
+        <comment/>
+    </data>
+    <data name="NutritionLabel" xml:space="preserve">
+        <value>Nutrition in</value>
+        <comment/>
+    </data>
+    <data name="ProteinLabel" xml:space="preserve">
+        <value>Proteins</value>
+        <comment/>
+    </data>
+    <data name="FatLabel" xml:space="preserve">
+        <value>Fats</value>
+        <comment/>
+    </data>
+    <data name="CarboLabel" xml:space="preserve">
+        <value>Carbonates</value>
+        <comment/>
+    </data>
+    <data name="OnePeaceLabel" xml:space="preserve">
+        <value>peace</value>
+        <comment/>
+    </data>
+    <data name="AddToComparisonButtonLabel" xml:space="preserve">
+        <value>Add to comparison</value>
+        <comment/>
+    </data>
+    <data name="SimilarItemsLabel" xml:space="preserve">
+        <value>Similar</value>
+        <comment/>
+    </data>
+    <data name="PricesGraphLabel" xml:space="preserve">
+        <value>Price dynamics</value>
+        <comment/>
+    </data>
+    <data name="DoRegisterButtonLabel" xml:space="preserve">
+        <value>Register</value>
         <comment/>
     </data>
 </root>
