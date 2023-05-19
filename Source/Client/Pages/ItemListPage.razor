@@ -3,6 +3,7 @@
 @using System.Globalization
 @inject UserAlertService AlertService
 @using System.Text
+@using GoodsTracker.Platform.Client.Constants
 @inject HttpClient Http
 @inject IStringLocalizer<SharedResource> Loc
 
@@ -112,7 +113,7 @@
     {
         try
         {
-            var model = await Http.GetFromJsonAsync<InfoModel>("/ItemList/info").ConfigureAwait(false);
+            var model = await Http.GetFromJsonAsync<InfoModel>(GoodsTrackerRoutes.ItemModuleRoute + "/info").ConfigureAwait(false);
             Count = model?.ItemsCount ?? 0;
             Shops = model?.Shops ?? Enumerable.Empty<ShopModel>();   
         } catch (Exception)
@@ -127,12 +128,12 @@
         {
             if (SearchInput.Length > 0)
             {
-                return await Http.GetFromJsonAsync<BaseItemModel[]>(
-                    $"/ItemList/search?index={request.StartIndex}&q={SearchInput}{BuildGetItemsRequestQuery()}").ConfigureAwait(false) ??
+                return await Http.GetFromJsonAsync<BaseItemModel[]>(GoodsTrackerRoutes.ItemModuleRoute +
+                    $"/search?index={request.StartIndex}&q={SearchInput}{BuildGetItemsRequestQuery()}").ConfigureAwait(false) ??
                        Enumerable.Empty<BaseItemModel>();
             }
-            return await Http.GetFromJsonAsync<BaseItemModel[]>(
-                $"/ItemList?index={request.StartIndex}{BuildGetItemsRequestQuery()}").ConfigureAwait(false) ??
+            return await Http.GetFromJsonAsync<BaseItemModel[]>(GoodsTrackerRoutes.ItemModuleRoute +
+                $"?index={request.StartIndex}{BuildGetItemsRequestQuery()}").ConfigureAwait(false) ??
                    Enumerable.Empty<BaseItemModel>();   
         } catch (Exception)
         {

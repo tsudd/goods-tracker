@@ -9,4 +9,7 @@ public static class GoodsTrackerDefaults
     public const string DefaultCountry = "Belarus";
     public const string DefaultImgLink = "img/no_image.png";
     public static DateTime DefaultFetchDate => DateTime.Today;
+    
+    public const string ItemModuleRoute = "items";
+    public const string ItemModuleSearchRoute = "search";
 }

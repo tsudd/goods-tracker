@@ -6,12 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GoodsTracker.Platform.Server.Controllers;
 
+using GoodsTracker.Platform.Shared.Constants;
+
 // TODO: replace templates with constants for routes in Shared
 // TODO: introduce response types in attributes
 // TODO: make better responses according to HTTP protocol
 // TODO: more validation
 [ApiController]
-[Route("[controller]")]
+[Route($"{GoodsTrackerDefaults.GoodsTrackerApiV1}/{GoodsTrackerDefaults.ItemModuleRoute}")]
 public class ItemListController : ControllerBase
 {
     private readonly IItemManager itemManager;

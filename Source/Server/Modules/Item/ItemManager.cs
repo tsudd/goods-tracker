@@ -13,9 +13,9 @@ internal sealed class ItemManager : IItemManager
     private const int pageSize = 30;
     private const int shopModelColumns = 3;
     private readonly IItemRepository itemRepository;
-    private readonly ILogger logger;
+    private readonly ILogger<ItemManager> logger;
 
-    public ItemManager(IItemRepository itemRepository, ILogger logger)
+    public ItemManager(IItemRepository itemRepository, ILogger<ItemManager> logger)
     {
         this.itemRepository = itemRepository;
         this.logger = logger;

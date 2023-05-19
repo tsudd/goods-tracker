@@ -1,6 +1,7 @@
 @inject IStringLocalizer<SharedResource> Loc
 @using GoodsTracker.Platform.Shared.Models
 @using System.Globalization
+@using GoodsTracker.Platform.Client.Constants
 @inject HttpClient Http
 @inject Blazored.LocalStorage.ISyncLocalStorageService getLocalStorage
 @inject UserAlertService AlertService
@@ -114,7 +115,7 @@
     {
         if (CurrentUser.IsAuthenticated)
         {
-            var result = await Http.PostAsJsonAsync<ItemLikeModel>("/ItemList/like", new ItemLikeModel
+            var result = await Http.PostAsJsonAsync(GoodsTrackerRoutes.ItemModuleRoute + "/like", new ItemLikeModel
                 {
                     ItemId = Item.Id
                 });
@@ -137,7 +138,7 @@
     {
         if (CurrentUser.IsAuthenticated)
         {
-            var result = await Http.DeleteAsync($"/ItemList/like/{Item.Id}");
+            var result = await Http.DeleteAsync(GoodsTrackerRoutes.ItemModuleRoute + $"/like/{Item.Id}");
             if (result.IsSuccessStatusCode)
             {
                 Liked = false;
