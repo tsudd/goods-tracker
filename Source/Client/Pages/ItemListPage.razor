@@ -2,10 +2,9 @@
 @using GoodsTracker.Platform.Shared.Models
 @using System.Globalization
 @inject UserAlertService AlertService
-@using System.Text
-@using GoodsTracker.Platform.Client.Constants
-@inject HttpClient Http
+@using FluentResults
 @inject IStringLocalizer<SharedResource> Loc
+@inject ItemManagementService ItemManagementService
 
 <PageTitle>@Loc["ItemListPageTitle"]</PageTitle>
 
@@ -61,7 +60,7 @@
     <div class="mb-4">
         <InfiniteScrolling ItemsProvider="GetItems" @ref="Scroller">
             <ItemTemplate Context="item">
-                <ItemCard Item=item GetBadge="GetShopBadge" GetShopName="GetShopName" />
+                <ItemCard Item="item"  GetShopName="GetShopName" />
             </ItemTemplate>
             <LoadingTemplate>
                 <div><span class="oi oi-reload spin"></span> Loading more items...</div>
@@ -72,99 +71,83 @@
 
 
 @code {
-    private string itemsOrder = "none";
-    private int shopFilter = 0;
-    private bool onlyDiscount = false;
-    public string SearchInput { get; set; } = string.Empty;
-    public string ItemsOrder
+    private string _itemsOrder = "none";
+    private int _shopFilter;
+    private bool _onlyDiscount;
+    private string SearchInput { get; set; } = string.Empty;
+
+    private string ItemsOrder
     {
-        get { return itemsOrder; }
+        get { return _itemsOrder; }
         set
         {
-            itemsOrder = value;
+            _itemsOrder = value;
             FetchSettingChanged();
         }
     }
     public int ShopFilter
     {
-        get { return shopFilter; }
+        get { return _shopFilter; }
         set
         {
-            shopFilter = value;
+            _shopFilter = value;
             FetchSettingChanged();
         }
     }
     public bool OnlyDiscount
     {
-        get { return onlyDiscount; }
+        get { return _onlyDiscount; }
         set
         {
-            onlyDiscount = value;
+            _onlyDiscount = value;
             FetchSettingChanged();
         }
     }
-    public IEnumerable<ShopModel> Shops { get; private set; } = Enumerable.Empty<ShopModel>();
-    public int Count { get; set; }
+
+    private IEnumerable<ShopModel> Shops { get; set; } = Enumerable.Empty<ShopModel>();
+    private int Count { get; set; }
     public int PageSize { get; set; } = 30;
     public int TotalPages { get; set; } = 0;
-    public InfiniteScrolling<BaseItemModel>? Scroller { get; set; }
+    private InfiniteScrolling<BaseItemModel>? Scroller { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            var model = await Http.GetFromJsonAsync<InfoModel>(GoodsTrackerRoutes.ItemModuleRoute + "/info").ConfigureAwait(false);
-            Count = model?.ItemsCount ?? 0;
-            Shops = model?.Shops ?? Enumerable.Empty<ShopModel>();   
-        } catch (Exception)
+        var getInfoResult = await ItemManagementService.GetInfoAsync().ConfigureAwait(false);
+        if (getInfoResult.IsFailed)
         {
             AlertService.AddMessage(new UserAlert(Loc["SomethingWentWrongMessage"], Alerts.Danger));
+            return;
         }
+        var model = getInfoResult.Value;
+        Count = model.ItemsCount;
+        Shops = model.Shops ?? Enumerable.Empty<ShopModel>();   
     }
 
-    protected async Task<IEnumerable<BaseItemModel>> GetItems(InfiniteScrollingItemsProviderRequest request)
+    private async Task<IEnumerable<BaseItemModel>> GetItems(InfiniteScrollingItemsProviderRequest request)
     {
-        try
+        Result<IEnumerable<BaseItemModel>> result;
+        
+        if (SearchInput.Length > 0)
         {
-            if (SearchInput.Length > 0)
-            {
-                return await Http.GetFromJsonAsync<BaseItemModel[]>(GoodsTrackerRoutes.ItemModuleRoute +
-                    $"/search?index={request.StartIndex}&q={SearchInput}{BuildGetItemsRequestQuery()}").ConfigureAwait(false) ??
-                       Enumerable.Empty<BaseItemModel>();
-            }
-            return await Http.GetFromJsonAsync<BaseItemModel[]>(GoodsTrackerRoutes.ItemModuleRoute +
-                $"?index={request.StartIndex}{BuildGetItemsRequestQuery()}").ConfigureAwait(false) ??
-                   Enumerable.Empty<BaseItemModel>();   
-        } catch (Exception)
-        {
-            AlertService.AddMessage(new UserAlert(Loc["SomethingWentWrongMessage"], Alerts.Danger));
-            return Enumerable.Empty<BaseItemModel>();
+            result = await ItemManagementService.SearchItemsAsync(SearchInput, request.StartIndex, ItemsOrder, ShopFilter, OnlyDiscount).ConfigureAwait(false);
         }
+        else
+        {
+            result = await ItemManagementService.GetItemsAsync(request.StartIndex, ItemsOrder, ShopFilter, OnlyDiscount).ConfigureAwait(false);
+        }
+
+        if (!result.IsFailed) return result.Value;
+        AlertService.AddMessage(new UserAlert(Loc["SomethingWentWrongMessage"], Alerts.Danger));
+        return Enumerable.Empty<BaseItemModel>();
     }
 
-    protected Task FetchSettingChanged()
+    private Task FetchSettingChanged()
     {
         Scroller?.ResetList();
         return Task.CompletedTask;
     }
 
-    protected string BuildGetItemsRequestQuery()
-    {
-        var query = new StringBuilder(
-        $"&orderBy={ItemsOrder}");
-        if (shopFilter > 0)
-            query.Append($"&shop={ShopFilter}");
-        if (OnlyDiscount)
-            query.Append("&onlyDiscount=true");
-        return query.ToString();
-    }
-
-    protected string GetShopBadge(int shopId)
-    {
-        return shopId % 2 == 1 ? "bg-primary" : "bg-danger";
-    }
-
-    protected string GetShopName(int shopId)
+    private string GetShopName(int shopId)
     {
         return Shops
             .FirstOrDefault(shop => shop.Id == shopId)
