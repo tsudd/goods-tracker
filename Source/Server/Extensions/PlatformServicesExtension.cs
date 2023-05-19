@@ -10,6 +10,8 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
+using GoodsTracker.Platform.Server.Modules.Favorites;
+
 internal static class PlatformServicesExtension
 {
     internal static void AddPlatformServices(this IServiceCollection services, IConfiguration configuration)
@@ -35,5 +37,6 @@ internal static class PlatformServicesExtension
 
         services.AddScoped<IItemRepository, ItemRepository>();
         services.AddScoped<IItemManager, ItemManager>();
+        services.AddFavoritesModuleService();
     }
 }

@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GoodsTracker.Platform.Server.Controllers;
 
+using GoodsTracker.Platform.Server.Controllers.Extensions;
 using GoodsTracker.Platform.Shared.Constants;
 
-// TODO: replace templates with constants for routes in Shared
 // TODO: introduce response types in attributes
 // TODO: make better responses according to HTTP protocol
 // TODO: more validation
@@ -110,11 +110,5 @@ public class ItemListController : ControllerBase
         {
             return this.BadRequest();
         }
-    }
-
-    private string? ReadUserFromTokenOrDefault()
-    {
-        return this.User.Claims.FirstOrDefault(claim => claim.Type == "user_id")
-                   ?.Value;
     }
 }

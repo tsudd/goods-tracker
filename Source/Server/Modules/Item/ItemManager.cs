@@ -6,7 +6,7 @@ using GoodsTracker.Platform.Shared.Models;
 
 namespace GoodsTracker.Platform.Server.Modules.Item;
 
-using GoodsTracker.Platform.Server.Modules.Item.Extensions;
+using GoodsTracker.Platform.Server.Modules.Extensions;
 
 internal sealed class ItemManager : IItemManager
 {

@@ -400,4 +400,12 @@
         <value>Register</value>
         <comment/>
     </data>
+    <data name="NotAuthorizedToSeeFavorites" xml:space="preserve">
+        <value>To see your favorite items you need to</value>
+        <comment/>
+    </data>
+    <data name="LoginInvite" xml:space="preserve">
+        <value>login into your account</value>
+        <comment/>
+    </data>
 </root>

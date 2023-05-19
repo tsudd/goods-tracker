@@ -121,4 +121,25 @@ public sealed class ItemManagementService
 
         return result.IsSuccessStatusCode ? Result.Ok(ActionResults.Success) : Result.Fail("Delete like failed.");
     }
+
+    internal async Task<Result<IEnumerable<BaseItemModel>>> GetFavorites()
+    {
+        var url = new Uri(GoodsTrackerRoutes.FavoritesModuleRoute, UriKind.Relative);
+
+        try
+        {
+            IEnumerable<BaseItemModel>? result = await this.httpClient.GetFromJsonAsync<IEnumerable<BaseItemModel>>(url)
+                                                           .ConfigureAwait(false);
+
+            return Result.Ok(result ?? Enumerable.Empty<BaseItemModel>());
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result.Fail("Items request failed." + ex.Message);
+        }
+        catch (HttpRequestException ex)
+        {
+            return Result.Fail("Items request failed." + ex.Message);
+        }
+    }
 }

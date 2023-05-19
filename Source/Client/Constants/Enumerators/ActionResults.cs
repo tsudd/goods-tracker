@@ -1,6 +1,6 @@
 namespace GoodsTracker.Platform.Client.Constants.Enumerators;
 
-public enum ActionResults
+internal enum ActionResults
 {
     NotAuthenticated,
     NotAuthorized,

@@ -11,5 +11,5 @@ public static class GoodsTrackerDefaults
     public static DateTime DefaultFetchDate => DateTime.Today;
     
     public const string ItemModuleRoute = "items";
-    public const string ItemModuleSearchRoute = "search";
+    public const string FavoritesModuleRoute = "favorites";
 }

@@ -1,6 +1,8 @@
 @page "/favorites"
 @using GoodsTracker.Platform.Shared.Models
 @inject IStringLocalizer<SharedResource> Loc
+@inject ItemManagementService ItemManagementService
+@inject UserAlertService AlertService
 
 <PageTitle>@Loc["FavoritesLabel"]</PageTitle>
 
@@ -9,47 +11,47 @@
     
     <hr/>
     
-    <div class="container">
-        <div class="col justify-content-center">
-            <FavoriteItemCard Item="ItemModel1"></FavoriteItemCard>
-            <FavoriteItemCard Item="ItemModel2"></FavoriteItemCard>
-        </div>
-    </div>
+    <AuthorizeView>
+        <Authorized>
+            <div class="container">
+                <div class="col justify-content-center">
+                    @foreach(var item in FavoriteItems)
+                    {
+                        <FavoriteItemCard Item="item"></FavoriteItemCard>
+                    }
+                </div>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            <div class="d-flex mt-5 justify-content-center">
+                <h3>@Loc["NotAuthorizedToSeeFavorites"] <NavLink href="login">@Loc["LoginInvite"]</NavLink>.</h3>
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
 </div>
 
 @code {
-
-    public BaseItemModel ItemModel1 = new BaseItemModel
-    {
-        Id = 1,
-        Currensy = "BYN",
-        FetchDate = DateTime.Today,
-        Country = "Беларусь",
-        ImgLink = "https://avatars.mds.yandex.net/get-eda/3709189/309002db176ee60d37b5def843c57c76/500x500",
-        OnDiscount = false,
-        WeightUnit = "г",
-        Name = "Салат Оливье салат майонезный Самое время вес 0,25",
-        VendorId = 1,
-        Weight = 250,
-        Price = 3.54m,
-        Liked = false,
-    };
+    [CascadingParameter]
+    Task<AuthenticationState>? AuthenticationState { get; set; }
     
-    public BaseItemModel ItemModel2 = new BaseItemModel
+    private IEnumerable<BaseItemModel> FavoriteItems { get; set; } = new List<BaseItemModel>();
+    
+    protected override async Task OnInitializedAsync()
     {
-        Id = 1,
-        Currensy = "BYN",
-        FetchDate = DateTime.Today,
-        Country = "Беларусь",
-        ImgLink = "https://avatars.mds.yandex.net/get-eda/3378693/ea1577c31364251e6c4c0c46dc5b9931/500x500",
-        OnDiscount = true,
-        WeightUnit = "мл",
-        Name = "Кефир ДЕТСКИЙ жир. 3.2% ТБА вес 0.25кг Депи",
-        VendorId = 1,
-        Weight = 250,
-        Price = 2.59m,
-        DiscountPrice = 2.20m,
-        Liked = false,
-    };
-
+        if (CurrentUser.IsAuthenticated)
+        {
+            await FetchDataAsync().ConfigureAwait(false);
+        }
+    }
+    
+    private async Task FetchDataAsync()
+    {
+        var getFavorites = await ItemManagementService.GetFavorites().ConfigureAwait(false);
+        if (getFavorites.IsFailed)
+        {
+            AlertService.AddMessage(new UserAlert(Loc["SomethingWentWrongMessage"], Alerts.Warning));
+        }
+        
+        FavoriteItems = getFavorites.Value;
+    }
 }

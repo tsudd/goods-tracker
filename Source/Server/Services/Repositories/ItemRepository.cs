@@ -63,6 +63,8 @@ internal sealed class ItemRepository : IItemRepository
             from favoriteItem in favoriteGroup.DefaultIfEmpty()
             join vendor in this.context.Vendors on item.VendorId equals vendor.Id
             where !this.context.ItemRecords.Any(
+
+                // ReSharper disable once LambdaExpressionCanBeMadeStatic
                 ir => ir.ItemId == record.ItemId && ir.Stream.FetchDate > stream.FetchDate)
             select new
             {
@@ -71,7 +73,6 @@ internal sealed class ItemRepository : IItemRepository
                 record.CutPrice,
                 record.OnDiscount,
                 Name = item.Name1,
-                ImgLink = item.ImageLink,
                 item.Weight,
                 item.WeightUnit,
                 Currensy = vendor.Land,
@@ -106,7 +107,6 @@ internal sealed class ItemRepository : IItemRepository
                 Name = r.Name,
                 Currensy = r.Currensy,
                 FetchDate = r.FetchDate,
-                Discount = CalculateDiscount(r.CutPrice, r.Price),
                 Price = r.Price,
                 VendorId = r.VendorId,
                 Weight = r.Weight,
@@ -117,11 +117,6 @@ internal sealed class ItemRepository : IItemRepository
                 Country = r.Country,
                 IsLiked = r.IsLiked,
             });
-    }
-
-    private static int CalculateDiscount(decimal? cutPrice, decimal price)
-    {
-        return (int)Math.Round((1 - (cutPrice ?? 0) / price) * 100);
     }
 
     // TODO: rewrite to use Result

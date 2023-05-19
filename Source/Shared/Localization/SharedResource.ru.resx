@@ -400,4 +400,12 @@
         <value>Зарегистрироваться</value>
         <comment/>
     </data>
+    <data name="NotAuthorizedToSeeFavorites" xml:space="preserve">
+        <value>Чтобы получить доступ к списку, вам необходимо</value>
+        <comment/>
+    </data>
+    <data name="LoginInvite" xml:space="preserve">
+        <value>Войти</value>
+        <comment/>
+    </data>
 </root>

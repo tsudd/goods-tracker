@@ -1,8 +1,9 @@
-namespace GoodsTracker.Platform.Server.Modules.Item.Extensions;
+namespace GoodsTracker.Platform.Server.Modules.Extensions;
 
 using GoodsTracker.Platform.Server.Entities;
-using GoodsTracker.Platform.Shared.Models;
+using GoodsTracker.Platform.Server.Modules.Helpers;
 using GoodsTracker.Platform.Shared.Constants;
+using GoodsTracker.Platform.Shared.Models;
 
 internal static class BaseItemExtension
 {
@@ -14,7 +15,7 @@ internal static class BaseItemExtension
             Name = baseItem.Name,
             Price = baseItem.Price,
             DiscountPrice = baseItem.DiscountPrice ?? 0,
-            Discount = baseItem.Discount ?? 0,
+            Discount = PriceHelper.CalculateDiscount(baseItem.DiscountPrice, baseItem.Price),
             OnDiscount = baseItem.OnDiscount,
             Country = baseItem.Country ?? GoodsTrackerDefaults.DefaultCountry,
             Currensy = baseItem.Currensy ?? GoodsTrackerDefaults.DefaultCurrency,
