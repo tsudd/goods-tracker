@@ -2,6 +2,8 @@ using GoodsTracker.Platform.Shared.Models;
 
 namespace GoodsTracker.Platform.Server.Modules.Item.Abstractions;
 
+using FluentResults;
+
 public interface IItemManager
 {
     Task<InfoModel> GetItemsInfoAsync();
@@ -16,4 +18,5 @@ public interface IItemManager
 
     Task<bool> LikeItem(int itemId, string userId);
     Task<bool> UnLikeItem(int itemId, string userId);
+    Task<Result<ItemModel>> GetItemAsync(int itemId);
 }

@@ -5,6 +5,8 @@ using GoodsTracker.Platform.Server.Services.Repositories.Enumerators;
 
 namespace GoodsTracker.Platform.Server.Services.Repositories;
 
+using FluentResults;
+
 using GoodsTracker.Platform.DB.Entities;
 using GoodsTracker.Platform.Server.Services.Repositories.Extensions;
 
@@ -85,7 +87,10 @@ internal sealed class ItemRepository : IItemRepository
 
         // TODO: try to move it into an extension methods. Reflection possible option
         var searchableQuery = q != null ? query.Where(i => EF.Functions.ILike(i.Name, q)) : query;
-        var filteredByVendor = vendorFilterId > 0 ? searchableQuery.Where(i => i.VendorId == vendorFilterId) : searchableQuery;
+
+        var filteredByVendor = vendorFilterId > 0
+            ? searchableQuery.Where(i => i.VendorId == vendorFilterId)
+            : searchableQuery;
 
         var orderedQuery = order switch
         {
@@ -95,10 +100,10 @@ internal sealed class ItemRepository : IItemRepository
             var _ => filteredByVendor.OrderByDescending(static i => i.Id),
         };
 
-        var result = await orderedQuery
-                           .Skip(page)
-                           .Take(amount)
-                           .ToListAsync().ConfigureAwait(false);
+        var result = await orderedQuery.Skip(page)
+                                       .Take(amount)
+                                       .ToListAsync()
+                                       .ConfigureAwait(false);
 
         return result.Select(
             static r => new BaseItem
@@ -147,9 +152,74 @@ internal sealed class ItemRepository : IItemRepository
 
         this.context.Attach(favoriteItem);
         this.context.FavoriteItems.Remove(favoriteItem);
-        await this.context.SaveChangesAsync().ConfigureAwait(false);
+
+        await this.context.SaveChangesAsync()
+                  .ConfigureAwait(false);
 
         return true;
+    }
+
+    public async Task<Result<Item>> GetItemByIdAsync(int itemId)
+    {
+        var item = await this.context.Items.Include(static i => i.Producer)
+                             .Include(static i => i.Vendor)
+                             .Include(static i => i.Categories)
+                             .Include(static i => i.PriceRecords)
+                             .ThenInclude(static record => record.Stream)
+                             .Select(
+                                 static i => new
+                                 {
+                                     i.Id,
+                                     Name = i.Name1,
+                                     i.Categories,
+                                     i.Adult,
+                                     i.Carbo,
+                                     i.Compound,
+                                     i.Fat,
+                                     i.Protein,
+                                     i.Producer,
+                                     VendorName = i.Vendor.Name1,
+                                     i.Vendor.Land,
+                                     i.VendorId,
+                                     i.Weight,
+                                     i.WeightUnit,
+                                     i.PublicId,
+                                     i.VendorCode,
+                                     i.PriceRecords,
+                                     i.Portion,
+                                     i.ImageLink,
+                                 })
+                             .FirstOrDefaultAsync(i => i.Id == itemId)
+                             .ConfigureAwait(false);
+
+        return item == null
+            ? Result.Fail("Item not found")
+            : Result.Ok(
+                new Item
+                {
+                    Id = item.Id,
+                    WeightUnit = item.WeightUnit,
+                    Categories = item.Categories,
+                    Adult = item.Adult,
+                    Carbo = item.Carbo,
+                    Fat = item.Fat,
+                    Protein = item.Protein,
+                    Producer = item.Producer,
+                    Compound = item.Compound,
+                    Weight = item.Weight,
+                    VendorId = item.VendorId,
+                    Name1 = item.Name,
+                    ImageLink = item.ImageLink,
+                    PriceRecords = item.PriceRecords,
+                    Vendor = new Vendor
+                    {
+                        Id = item.VendorId,
+                        Name1 = item.VendorName,
+                        Land = item.Land,
+                    },
+                    Portion = item.Portion,
+                    VendorCode = item.VendorCode,
+                });
     }
 
     public bool HasAll(params int[] itemIds)

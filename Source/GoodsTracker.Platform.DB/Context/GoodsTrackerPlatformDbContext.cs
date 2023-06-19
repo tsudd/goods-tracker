@@ -29,31 +29,5 @@ public class GoodsTrackerPlatformDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // ArgumentNullException.ThrowIfNull(modelBuilder);
-        // base.OnModelCreating(modelBuilder);
-        //
-        // modelBuilder.Entity<Category>()
-        //             .ToTable("categories");
-        //
-        // modelBuilder.Entity<Vendor>()
-        //             .ToTable("vendors");
-        //
-        // modelBuilder.Entity<Stream>()
-        //             .ToTable("streams");
-        //
-        // modelBuilder.Entity<Item>()
-        //             .ToTable("items");
-        //
-        // modelBuilder.Entity<Category>()
-        //             .ToTable("categories");
-        //
-        // modelBuilder.Entity<ItemRecord>()
-        //             .ToTable("item_records");
-        //
-        // modelBuilder.Entity<FavoriteItem>()
-        //             .ToTable("favorite_items");
-        //
-        // modelBuilder.Entity<Producer>()
-        //             .ToTable("producers");
     }
 }

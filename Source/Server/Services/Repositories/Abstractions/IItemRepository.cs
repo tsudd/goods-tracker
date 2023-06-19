@@ -3,6 +3,10 @@ using GoodsTracker.Platform.Server.Services.Repositories.Enumerators;
 
 namespace GoodsTracker.Platform.Server.Services.Repositories.Abstractions;
 
+using FluentResults;
+
+using GoodsTracker.Platform.DB.Entities;
+
 internal interface IItemRepository
 {
     Task<BaseInfo> GetItemsInfoAsync();
@@ -14,4 +18,5 @@ internal interface IItemRepository
     Task<bool> AddUserFavoriteItemAsync(int itemId, string userId, DateTime dateTime);
     Task<bool> DeleteUserFavoriteItemAsync(int itemId, string userId);
     bool HasAll(params int[] itemIds);
+    Task<Result<Item>> GetItemByIdAsync(int itemId);
 }

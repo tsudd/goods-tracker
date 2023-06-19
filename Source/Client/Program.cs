@@ -27,5 +27,9 @@ builder.Services.AddLocalization();
 builder.Services.AddSingleton<UserAlertService>();
 builder.Services.AddScoped<ItemManagementService>();
 WebAssemblyHost host = builder.Build();
-await host.SetDefaultCulture().ConfigureAwait(false);
-await host.RunAsync().ConfigureAwait(false);
+
+await host.SetDefaultCulture()
+          .ConfigureAwait(false);
+
+await host.RunAsync()
+          .ConfigureAwait(false);

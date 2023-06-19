@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GoodsTracker.Platform.Server.Controllers;
 
+using FluentResults;
+
 using GoodsTracker.Platform.Server.Controllers.Extensions;
 using GoodsTracker.Platform.Shared.Constants;
 
@@ -29,8 +31,9 @@ public class ItemListController : ControllerBase
         try
         {
             return await this.itemManager.GetBaseItemsPage(
-                index, orderBy, shop ?? 0, this.ReadUserFromTokenOrDefault(),
-                onlyDiscount).ConfigureAwait(false);
+                                 index, orderBy, shop ?? 0, this.ReadUserFromTokenOrDefault(),
+                                 onlyDiscount)
+                             .ConfigureAwait(false);
         }
         catch (InvalidOperationException)
         {
@@ -39,13 +42,35 @@ public class ItemListController : ControllerBase
     }
 
     [HttpGet("search")]
-    public async Task<IEnumerable<BaseItemModel>?> SearchItems(int index, string q, string orderBy, bool onlyDiscount, int? shop)
+    public async Task<IEnumerable<BaseItemModel>?> SearchItems(
+        int index, string q, string orderBy, bool onlyDiscount,
+        int? shop)
     {
         try
         {
             return await this.itemManager.SearchItems(
-                index, q, orderBy, shop ?? 0,
-                this.ReadUserFromTokenOrDefault(), onlyDiscount).ConfigureAwait(false);
+                                 index, q, orderBy, shop ?? 0,
+                                 this.ReadUserFromTokenOrDefault(), onlyDiscount)
+                             .ConfigureAwait(false);
+        }
+        catch (InvalidOperationException)
+        {
+            return null;
+        }
+    }
+
+    [HttpGet("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ItemModel?> GetItem(int id)
+    {
+        try
+        {
+            Result<ItemModel> getItemModelResult = await this.itemManager.GetItemAsync(id)
+                                                             .ConfigureAwait(false);
+
+            return getItemModelResult.IsSuccess ? getItemModelResult.Value : null;
         }
         catch (InvalidOperationException)
         {
@@ -56,7 +81,8 @@ public class ItemListController : ControllerBase
     [HttpGet("info")]
     public async Task<InfoModel> GetInfo()
     {
-        return await this.itemManager.GetItemsInfoAsync().ConfigureAwait(false);
+        return await this.itemManager.GetItemsInfoAsync()
+                         .ConfigureAwait(false);
     }
 
     [Authorize]
@@ -80,7 +106,10 @@ public class ItemListController : ControllerBase
                 throw new InvalidOperationException("user can't be empty when saving item like");
             }
 
-            return await this.itemManager.LikeItem(itemLike.ItemId, userId).ConfigureAwait(false) ? this.Ok() : this.NotFound();
+            return await this.itemManager.LikeItem(itemLike.ItemId, userId)
+                             .ConfigureAwait(false)
+                ? this.Ok()
+                : this.NotFound();
         }
         catch (InvalidOperationException)
         {
@@ -104,7 +133,10 @@ public class ItemListController : ControllerBase
                 throw new InvalidOperationException("user can't be empty when saving item like");
             }
 
-            return await this.itemManager.UnLikeItem(id, userId).ConfigureAwait(false) ? this.Ok() : this.NotFound();
+            return await this.itemManager.UnLikeItem(id, userId)
+                             .ConfigureAwait(false)
+                ? this.Ok()
+                : this.NotFound();
         }
         catch (InvalidOperationException)
         {

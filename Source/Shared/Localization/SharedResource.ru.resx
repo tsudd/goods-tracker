@@ -408,4 +408,13 @@
         <value>Войти</value>
         <comment/>
     </data>
+    <data name="CountryNameLabel" xml:space="preserve">
+        <value>Страна</value>
+    </data>
+    <data name="ProducerNameLabel" xml:space="preserve">
+        <value>Производитель</value>
+    </data>
+    <data name="NotFoundContentLabel" xml:space="preserve">
+        <value>404 Страница не найдена.</value>
+    </data>
 </root>

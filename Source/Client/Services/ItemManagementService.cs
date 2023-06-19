@@ -25,7 +25,8 @@ public sealed class ItemManagementService
         {
             return await this.httpClient.GetFromJsonAsync<InfoModel>(
                                  new Uri(GoodsTrackerRoutes.ItemModuleRoute + "/info", UriKind.Relative))
-                             .ConfigureAwait(false) ?? Result.Fail<InfoModel>("No info received");
+                             .ConfigureAwait(false) ??
+                   Result.Fail<InfoModel>("No info received");
         }
         catch (InvalidOperationException ex)
         {
@@ -33,11 +34,27 @@ public sealed class ItemManagementService
         }
     }
 
-    internal Task<Result<IEnumerable<BaseItemModel>>> GetItemsAsync(int page, string itemsOrder, int shopFilter, bool onlyDiscount)
+    internal async Task<Result<ItemModel>> GetItemDetailsAsync(int id)
+    {
+        try
+        {
+            return await this.httpClient.GetFromJsonAsync<ItemModel>(
+                                 new Uri(GoodsTrackerRoutes.ItemModuleRoute + $"/{id}", UriKind.Relative))
+                             .ConfigureAwait(false) ??
+                   Result.Fail<ItemModel>("No item received");
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result.Fail<ItemModel>(ex.Message);
+        }
+    }
+
+    internal Task<Result<IEnumerable<BaseItemModel>>> GetItemsAsync(
+        int page, string itemsOrder, int shopFilter, bool onlyDiscount)
     {
         var url = new Uri(
-            GoodsTrackerRoutes.ItemModuleRoute +
-            BuildGetItemsRequestQuery(page, itemsOrder, shopFilter, onlyDiscount), UriKind.Relative);
+            GoodsTrackerRoutes.ItemModuleRoute + BuildGetItemsRequestQuery(page, itemsOrder, shopFilter, onlyDiscount),
+            UriKind.Relative);
 
         return this.GetItemsAsync(url);
     }
@@ -72,8 +89,7 @@ public sealed class ItemManagementService
 
     private static string BuildGetItemsRequestQuery(int page, string itemsOrder, int shopFilter, bool onlyDiscount)
     {
-        var query = new StringBuilder(
-            $"?index={page}&orderBy={itemsOrder}");
+        var query = new StringBuilder($"?index={page}&orderBy={itemsOrder}");
 
         if (shopFilter > 0)
         {
@@ -101,10 +117,12 @@ public sealed class ItemManagementService
         }
 
         HttpResponseMessage result = await this.httpClient.PostAsJsonAsync(
-            GoodsTrackerRoutes.ItemModuleRoute + "/like", new ItemLikeModel
-            {
-                ItemId = itemId,
-            }).ConfigureAwait(false);
+                                                   GoodsTrackerRoutes.ItemModuleRoute + "/like",
+                                                   new ItemLikeModel
+                                                   {
+                                                       ItemId = itemId,
+                                                   })
+                                               .ConfigureAwait(false);
 
         return result.IsSuccessStatusCode ? Result.Ok(ActionResults.Success) : Result.Fail("Like failed.");
     }
@@ -117,7 +135,8 @@ public sealed class ItemManagementService
         }
 
         HttpResponseMessage result = await this.httpClient.DeleteAsync(
-            new Uri(GoodsTrackerRoutes.ItemModuleRoute + $"/like/{itemId}")).ConfigureAwait(false);
+                                                   new Uri(GoodsTrackerRoutes.ItemModuleRoute + $"/like/{itemId}"))
+                                               .ConfigureAwait(false);
 
         return result.IsSuccessStatusCode ? Result.Ok(ActionResults.Success) : Result.Fail("Delete like failed.");
     }

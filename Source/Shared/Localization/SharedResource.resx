@@ -357,8 +357,7 @@
         <comment/>
     </data>
     <data name="VendorCodeLabel" xml:space="preserve">
-        <value>Vendor</value>
-        <comment/>
+        <value>Vendor code</value>
     </data>
     <data name="ItemDescriptionLabel" xml:space="preserve">
         <value>Item description</value>
@@ -407,5 +406,14 @@
     <data name="LoginInvite" xml:space="preserve">
         <value>login into your account</value>
         <comment/>
+    </data>
+    <data name="CountryNameLabel" xml:space="preserve">
+        <value>Country</value>
+    </data>
+    <data name="ProducerNameLabel" xml:space="preserve">
+        <value>Producer</value>
+    </data>
+    <data name="NotFoundContentLabel" xml:space="preserve">
+        <value>404 Not found.</value>
     </data>
 </root>

@@ -6,7 +6,11 @@ using GoodsTracker.Platform.Shared.Models;
 
 namespace GoodsTracker.Platform.Server.Modules.Item;
 
+using FluentResults;
+
+using GoodsTracker.Platform.DB.Entities;
 using GoodsTracker.Platform.Server.Modules.Extensions;
+using GoodsTracker.Platform.Shared.Constants;
 
 internal sealed class ItemManager : IItemManager
 {
@@ -23,7 +27,8 @@ internal sealed class ItemManager : IItemManager
 
     public async Task<InfoModel> GetItemsInfoAsync()
     {
-        BaseInfo itemsInfo = await this.itemRepository.GetItemsInfoAsync().ConfigureAwait(false);
+        BaseInfo itemsInfo = await this.itemRepository.GetItemsInfoAsync()
+                                       .ConfigureAwait(false);
 
         try
         {
@@ -32,9 +37,7 @@ internal sealed class ItemManager : IItemManager
         catch (FormatException ex)
         {
             LoggerMessage.Define(
-                LogLevel.Error, 0,
-                "Couldn't map items info to model: wrong format")(
-                this.logger, null);
+                LogLevel.Error, 0, "Couldn't map items info to model: wrong format")(this.logger, null);
 
             throw new InvalidOperationException(ex.Message);
         }
@@ -59,18 +62,15 @@ internal sealed class ItemManager : IItemManager
     }
 
     private async Task<IEnumerable<BaseItemModel>> GetBaseItemsAsync(
-        int page,
-        string order,
-        int shopFilterId,
-        string? userId,
-        bool discountOnly,
-        string? q = null)
+        int page, string order, int shopFilterId, string? userId,
+        bool discountOnly, string? q = null)
     {
         ItemsOrder itemsOrder = GetItemsOrder(order);
 
         IEnumerable<BaseItem> baseItemsEntities = await this.itemRepository.GetItemsByGroupsAsync(
-            page, pageSize, itemsOrder, shopFilterId,
-            discountOnly, userId, q).ConfigureAwait(false);
+                                                                page, pageSize, itemsOrder, shopFilterId,
+                                                                discountOnly, userId, q)
+                                                            .ConfigureAwait(false);
 
         return baseItemsEntities.Select(static i => i.ToModel());
     }
@@ -84,12 +84,36 @@ internal sealed class ItemManager : IItemManager
 
         DateTime dateTime = DateTime.Now.ToUniversalTime();
 
-        return await this.itemRepository.AddUserFavoriteItemAsync(itemId, userId, dateTime).ConfigureAwait(false);
+        return await this.itemRepository.AddUserFavoriteItemAsync(itemId, userId, dateTime)
+                         .ConfigureAwait(false);
     }
 
     public Task<bool> UnLikeItem(int itemId, string userId)
     {
         return this.itemRepository.DeleteUserFavoriteItemAsync(itemId, userId);
+    }
+
+    public async Task<Result<ItemModel>> GetItemAsync(int itemId)
+    {
+        Result<Item> getItemResult = await this.itemRepository.GetItemByIdAsync(itemId)
+                                               .ConfigureAwait(false);
+
+        if (getItemResult.IsFailed)
+        {
+            return getItemResult.ToResult();
+        }
+
+        Item item = getItemResult.Value;
+        ItemRecord? latestItemPrice = item.PriceRecords.MaxBy(static ip => ip.Stream.FetchDate);
+
+        if (latestItemPrice == null)
+        {
+            return Result.Fail("Item doesn't have any price records");
+        }
+
+        return getItemResult.IsFailed
+            ? getItemResult.ToResult<ItemModel>()
+            : Result.Ok(item.ToModel(latestItemPrice));
     }
 
     private static ItemsOrder GetItemsOrder(string orderString)
