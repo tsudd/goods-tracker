@@ -37,7 +37,7 @@ internal static class ItemExtensions
                 static record => new ItemPriceInfo
                 {
                     Price = record.Price,
-                    DiscountPrice = record.CutPrice ?? 0,
+                    DiscountPrice = record.CutPrice,
                     FetchDate = record.Stream.FetchDate,
                 }),
             Liked = false,

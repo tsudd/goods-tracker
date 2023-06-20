@@ -416,4 +416,19 @@
     <data name="NotFoundContentLabel" xml:space="preserve">
         <value>404 Not found.</value>
     </data>
+    <data name="PriceAxisLabel" xml:space="preserve">
+        <value>Price</value>
+    </data>
+    <data name="PriceHistoryLabel" xml:space="preserve">
+        <value>Price dynamics</value>
+    </data>
+    <data name="DiscountsHistoryLabel" xml:space="preserve">
+        <value>Discounts dynamics</value>
+    </data>
+    <data name="TimeAxisLabel" xml:space="preserve">
+        <value>Update date</value>
+    </data>
+    <data name="WeightLabel" xml:space="preserve">
+        <value>Weight</value>
+    </data>
 </root>

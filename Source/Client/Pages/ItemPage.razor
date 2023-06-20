@@ -4,6 +4,8 @@
 @inject NavigationManager NavigationManager
 @using GoodsTracker.Platform.Shared.Models
 @using System.Globalization
+@using Radzen
+@using Radzen.Blazor
 
 <PageTitle>@Loc["ItemLabel"]</PageTitle>
 <div class="p-3">
@@ -24,28 +26,36 @@
                     <img src="@Item.ImgLink" class="img-fluid" width="500" height="500" style="transform: scale(1) translate3d(0px, 0px, 0px);"
                          alt="@Item.Name">
                     <div class="d-flex text-muted mt-3 justify-content-between">
-                        <span class="row">@Loc["ProducerNameLabel"]: @Item.ProducerName</span>
                         <span>@Loc["CountryNameLabel"]: @Item.Country</span>
                         <span>@Loc["VendorCodeLabel"]: @Item.VendorCode</span>
                     </div>
                 </div>
                 <div class="col-md-5">
-                    @if (Item.Weight == null)
+                    <span class="row">@Loc["ProducerNameLabel"]: @Item.ProducerName</span>
+                    @if (Item.Weight != null)
                     {
                         <h5>@Loc["ItemDescriptionLabel"]:</h5>
                         <p class="mt-3">@Item.Compound</p>
-                        <strong>@Loc["NutritionLabel"] @Item.Portion @Item.WeightUnit</strong>
-                        <div class="d-flex flex-column text-muted mt-3 md-5">
-                            <span class="row justify-content-between">
-                                <span class="col">@Loc["ProteinLabel"]:</span><span class="col-auto text-end">@Item.Protein @Item.WeightUnit</span>
-                            </span>
-                            <span class="row justify-content-between">
-                                <span class="col">@Loc["FatLabel"]:</span><span class="col-auto text-end">@Item.Fat @Item.WeightUnit</span>
-                            </span>
-                            <span class="row justify-content-between">
-                                <span class="col">@Loc["CarboLabel"]:</span><span class="col-auto text-end">@Item.Carbo @Item.WeightUnit</span>
-                            </span>
-                        </div>
+                        <h5>@Loc["WeightLabel"]: @Item.Weight @Item.WeightUnit</h5>
+                        if (Item.Portion != null)
+                        {
+                            <strong>@Loc["NutritionLabel"] @Item.Portion @Item.WeightUnit</strong>
+                            <div class="d-flex flex-column text-muted mt-3 md-5">
+                                <span class="row justify-content-between">
+                                    <span class="col">@Loc["ProteinLabel"]:</span><span class="col-auto text-end">@Item.Protein @Item.WeightUnit</span>
+                                </span>
+                                <span class="row justify-content-between">
+                                    <span class="col">@Loc["FatLabel"]:</span><span class="col-auto text-end">@Item.Fat @Item.WeightUnit</span>
+                                </span>
+                                <span class="row justify-content-between">
+                                    <span class="col">@Loc["CarboLabel"]:</span><span class="col-auto text-end">@Item.Carbo @Item.WeightUnit</span>
+                                </span>
+                            </div>
+                        }
+                    }
+                    @if (!string.IsNullOrEmpty(Item.ProducerName))
+                    {
+                        <h5>@Loc["ProducerNameLabel"]: @Item.ProducerName</h5>
                     }
                 </div>
                 <div class="col-md-3 p-3">
@@ -80,11 +90,16 @@
                                     {
                                         var price = SplitPrice(Item.DiscountPrice);
                                         <span class="col position-absolute text-decoration-line-through fs-6"
-                                              style="top: -0.5px">@Item.Price<small>@Item.Currency</small>
+                                              style="top: -0.5px">
+                                            @Item.Price<small>@Item.Currency</small>
                                         </span>
-                                        <span class="col-auto fw-bold text-danger">@price.MainPart.<small class="fs-5">@price.Cents</small>
+                                        <span class="col-auto fw-bold text-danger">
+                                            @price.MainPart.<small class="fs-5">@price.Cents</small>
                                             <span
-                                                class="fs-6 text-danger"> @Item.Currency</span></span>
+                                                class="fs-6 text-danger">
+                                                @Item.Currency
+                                            </span>
+                                        </span>
                                     }
                                     else
                                     {
@@ -104,7 +119,26 @@
                 </div>
             </div>
             <h2 class="mt-4">@Loc["PricesGraphLabel"]</h2>
-            <h2 class="mt-4">@Loc["SimilarItemsLabel"]</h2>
+            <div class="row p-4">
+                <RadzenChart Style="height:500px;">
+                    <RadzenAreaSeries Data="@PriceHistory" Stroke="rgb(205, 218, 50)" StrokeWidth="2" Fill="rgba(205, 218, 50,.5)" CategoryProperty="Label" Title=@Loc["PriceHistoryLabel"]
+                                      ValueProperty="Price">
+                        <ChildContent>
+                            <RadzenMarkers MarkerType="MarkerType.Square" Fill="#F5EFED" Stroke="rgba(205, 218, 50)" StrokeWidth="2" Size="8"/>
+                        </ChildContent>
+                    </RadzenAreaSeries>
+                    <RadzenColumnOptions Radius="10"/>
+                    <RadzenValueAxis Formatter="@FormatAsCurrency">
+                        <RadzenGridLines Visible="true"/>
+                        <RadzenAxisTitle Text=@Loc["PriceAxisLabel"]/>
+                    </RadzenValueAxis>
+                    <RadzenCategoryAxis Max="DateTime.Today" Step="TimeSpan.FromDays(7)">
+                        <RadzenGridLines Visible="true" LineType="LineType.Dashed"/>
+                        <RadzenAxisTitle Text=@Loc["TimeAxisLabel"]/>
+                    </RadzenCategoryAxis>
+                </RadzenChart>
+            </div>
+            <h2 class="mt-4"> @Loc["SimilarItemsLabel"] </h2>
         }
         else
         {
@@ -121,27 +155,42 @@
     private bool Liked { get; set; } = false;
 
     private ItemModel? Item { get; set; }
+    private IEnumerable<PriceInfo> PriceHistory { get; set; } = Array.Empty<PriceInfo>();
 
     private static (string MainPart, string Cents) SplitPrice(decimal price)
     {
         var priceParts = price.ToString(CultureInfo.CurrentCulture).Split('.');
         return (priceParts[0], priceParts[1]);
     }
-    
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         if (Id != -1)
         {
             var getItemResult = await ItemManagementService.GetItemDetailsAsync(Id);
-            
+
             if (getItemResult.IsSuccess)
             {
                 Item = getItemResult.Value;
+                BuildChartInfo();
                 return;
             }
         }
         NavigationManager.NavigateTo("/notfound");
     }
 
+    private void BuildChartInfo()
+    {
+        ArgumentNullException.ThrowIfNull(Item);
+        PriceHistory = Item.PriceHistory.Select(priceInfo => new PriceInfo
+        {
+            Label = priceInfo.FetchDate, Price = priceInfo.DiscountPrice ?? priceInfo.Price
+        }).ToList();
+    }
+    
+    string FormatAsCurrency(object value)
+    {
+        return ((double)value).ToString("G7", CultureInfo.InvariantCulture) + $" {Item?.Currency}";
+    }
 }
