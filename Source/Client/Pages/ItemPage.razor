@@ -119,12 +119,12 @@
             <h2 class="mt-4">@Loc["PricesGraphLabel"]</h2>
             <div class="row p-4">
                 <RadzenChart Style="height:500px;">
-                    <RadzenAreaSeries Data="@PriceHistory" Stroke="rgb(205, 218, 50)" StrokeWidth="2" Fill="rgba(205, 218, 50,.5)" CategoryProperty="Label" Title=@Loc["PriceHistoryLabel"]
+                    <RadzenAreaSeries Data="@PriceHistory" Stroke="rgb(205, 218, 50)" StrokeWidth="2" Fill="rgba(205, 218, 50,.3)" CategoryProperty="Label" Title=@Loc["PriceHistoryLabel"]
                                       ValueProperty="Price">
-                        <ChildContent>
-                            <RadzenMarkers MarkerType="MarkerType.Square" Fill="#F5EFED" Stroke="rgba(205, 218, 50)" StrokeWidth="2" Size="8"/>
-                        </ChildContent>
                     </RadzenAreaSeries>
+                    <RadzenAreaSeries Data="@DiscountHistory" Stroke="rgb(212, 32, 25)" StrokeWidth="2" Fill="rgba(212, 32, 25,.5)" CategoryProperty="Label" Title=@Loc["DiscountsHistoryLabel"]
+                                                          ValueProperty="Price">
+                                        </RadzenAreaSeries>
                     <RadzenColumnOptions Radius="10"/>
                     <RadzenValueAxis Formatter="@FormatAsCurrency">
                         <RadzenGridLines Visible="true"/>
@@ -154,6 +154,7 @@
 
     private ItemModel? Item { get; set; }
     private IEnumerable<PriceInfo> PriceHistory { get; set; } = Array.Empty<PriceInfo>();
+    private IEnumerable<PriceInfo> DiscountHistory { get; set; } = Array.Empty<PriceInfo>();
 
     private static (string MainPart, string Cents) SplitPrice(decimal price)
     {
@@ -181,10 +182,21 @@
     private void BuildChartInfo()
     {
         ArgumentNullException.ThrowIfNull(Item);
-        PriceHistory = Item.PriceHistory.Select(priceInfo => new PriceInfo
+        var discounts = new List<PriceInfo>();
+        var prices = new List<PriceInfo>();
+        foreach (var priceInfo in Item.PriceHistory)
         {
-            Label = priceInfo.FetchDate, Price = priceInfo.DiscountPrice ?? priceInfo.Price
-        }).ToList();
+            prices.Add(new PriceInfo
+            {
+                Label = priceInfo.FetchDate, Price = priceInfo.Price
+            });
+            discounts.Add(new PriceInfo
+            {
+                Label = priceInfo.FetchDate, Price = priceInfo.DiscountPrice ?? priceInfo.Price
+            });
+        }
+        PriceHistory = prices;
+        DiscountHistory = discounts;
     }
     
     string FormatAsCurrency(object value)
