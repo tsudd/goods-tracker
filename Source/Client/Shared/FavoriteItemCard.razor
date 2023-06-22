@@ -1,14 +1,28 @@
 @inject IStringLocalizer<SharedResource> Loc
+@inject ItemManagementService ItemManagementService
 @using GoodsTracker.Platform.Shared.Models
 @using System.Globalization
+@using FluentResults
+@using GoodsTracker.Platform.Client.Constants.Enumerators
+@inject UserAlertService AlertService
 
-<div class="card mb-3 w-100">
+<div class="card mb-3 w-100" @onmouseover="@MouseOver" @onmouseout="@MouseOut">
     <div class="row">
-        <div class="col-md-4 d-flex justify-content-center align-items-center">
-            <img src="@Item.ImgLink" class="d-block img-fluid w-50" style="min-width: 50%; object-position: center; object-fit: cover; height: 10rem"
-                 alt="@Item.Name">
+        <div class="position-absolute mt-2 ms-2">
+            <button type="button" class="@ButtonAppearance" @onclick="@DeleteFromFavorites">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-square" viewBox="0 0 16 16">
+                    <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
+                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                </svg>
+            </button>
         </div>
-        <div class="col-md-8">
+        <div class="col-md-3 d-flex justify-content-center align-items-center">
+            <NavLink class="nav-link" href="@PageLink">
+                <img src="@Item.ImgLink" class="d-block img-fluid w-50" style="min-width: 50%; object-position: center; object-fit: cover; height: 10rem" href="@PageLink"
+                     alt="@Item.Name">
+            </NavLink>
+        </div>
+        <div class="col">
             <div class="card-body">
                 <h5 class="card-title">@Item.Name</h5>
                 <div class="card-text text-end fw-light">
@@ -41,7 +55,7 @@
                 </div>
                 <div class="text-end">
                     <span>@Item.Country</span>
-                    <span class="@SetShopNameStyle()">Белмаркет</span>
+                    <span class="@SetShopNameStyle()">@GetShopName!(Item.VendorId)</span>
                 </div>
                 <p class="card-text text-end">
                     <small class="text-muted">
@@ -60,10 +74,12 @@
     [Parameter]
     public BaseItemModel Item { get; set; } = new();
 
-    protected string SetShopNameStyle()
-    {
-        return $"col-4 badge text-wrap text-reset bg-primary";
-    }
+    [Parameter]
+    public Func<int, Task>? RemoveItem { get; set; }
+
+    private string PageLink => $"items/{Item.Id}";
+
+    private string ButtonAppearance { get; set; } = "btn d-none";
 
     [Parameter]
     public Func<int, string>? GetBadge { get; set; }
@@ -78,6 +94,43 @@
     {
         var priceParts = price.ToString(CultureInfo.InvariantCulture).Split('.');
         return (priceParts[0], priceParts[1]);
+    }
+
+    private async Task DeleteFromFavorites()
+    {
+        var unLikeItemResult = await ItemManagementService.UnLikeItemAsync(Item.Id).ConfigureAwait(false);
+
+        ProcessActionResult(unLikeItemResult);
+    }
+
+    private void ProcessActionResult(Result<ActionResults> result)
+    {
+        if (result.IsSuccess)
+        {
+            switch (result.Value)
+            {
+                case ActionResults.Success:
+                    RemoveItem?.Invoke(Item.Id);
+                    return;
+            }
+        }
+        AlertService.AddMessage(new UserAlert(Loc["SomethingWentWrongMessage"], Alerts.Warning));
+    }
+
+    void MouseOver(MouseEventArgs e)
+    {
+        ButtonAppearance = "btn";
+    }
+
+    void MouseOut(MouseEventArgs e)
+    {
+        ButtonAppearance = "btn d-none";
+    }
+
+    // TODO: move to base class
+    protected string SetShopNameStyle()
+    {
+        return $"col-4 badge text-wrap text-reset {ItemManagementService.GetShopBadgeStyle(Item.VendorId)}";
     }
 
 }

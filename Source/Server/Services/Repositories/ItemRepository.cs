@@ -97,7 +97,7 @@ internal sealed class ItemRepository : IItemRepository
             ItemsOrder.ByLastUpdateDate => filteredByVendor.OrderByDescending(static i => i.FetchDate),
             ItemsOrder.CheapFirst => filteredByVendor.OrderBy(static i => i.Price),
             ItemsOrder.ExpensiveFirst => filteredByVendor.OrderByDescending(static i => i.Price),
-            var _ => filteredByVendor.OrderByDescending(static i => i.Id),
+            var _ => filteredByVendor.OrderBy(static i => i.Id),
         };
 
         var result = await orderedQuery.Skip(page)

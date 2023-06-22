@@ -13,6 +13,7 @@ using GoodsTracker.Platform.Shared.Models;
 public sealed class ItemManagementService
 {
     private readonly HttpClient httpClient;
+    private InfoModel? info;
 
     public ItemManagementService(HttpClient httpClient)
     {
@@ -21,12 +22,29 @@ public sealed class ItemManagementService
 
     internal async Task<Result<InfoModel>> GetInfoAsync()
     {
+        // TODO: better cache handling
         try
         {
-            return await this.httpClient.GetFromJsonAsync<InfoModel>(
-                                 new Uri(GoodsTrackerRoutes.ItemModuleRoute + "/info", UriKind.Relative))
-                             .ConfigureAwait(false) ??
-                   Result.Fail<InfoModel>("No info received");
+            if (this.info != null)
+            {
+                return Result.Ok(this.info);
+            }
+
+            Result<InfoModel>? getInfoResult = await this.httpClient.GetFromJsonAsync<InfoModel>(
+                                                             new Uri(GoodsTrackerRoutes.ItemModuleRoute + "/info", UriKind.Relative))
+                                                         .ConfigureAwait(false) ??
+                                               Result.Fail<InfoModel>("No info received");
+
+            if (getInfoResult.IsSuccess)
+            {
+                this.info = getInfoResult.Value;
+            }
+            else
+            {
+                return getInfoResult;
+            }
+
+            return Result.Ok(this.info);
         }
         catch (InvalidOperationException ex)
         {
@@ -135,7 +153,9 @@ public sealed class ItemManagementService
         }
 
         HttpResponseMessage result = await this.httpClient.DeleteAsync(
-                                                   new Uri(GoodsTrackerRoutes.ItemModuleRoute + $"/like/{itemId}"))
+                                                   new Uri(
+                                                       GoodsTrackerRoutes.ItemModuleRoute +
+                                                       $"/like/{itemId}", UriKind.Relative))
                                                .ConfigureAwait(false);
 
         return result.IsSuccessStatusCode ? Result.Ok(ActionResults.Success) : Result.Fail("Delete like failed.");

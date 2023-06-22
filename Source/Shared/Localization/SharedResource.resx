@@ -431,4 +431,7 @@
     <data name="WeightLabel" xml:space="preserve">
         <value>Weight</value>
     </data>
+    <data name="NoFavoriteItemsLabel" xml:space="preserve">
+        <value>So empty...</value>
+    </data>
 </root>

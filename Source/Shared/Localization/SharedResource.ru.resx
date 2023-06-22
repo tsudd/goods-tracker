@@ -432,4 +432,7 @@
     <data name="WeightLabel" xml:space="preserve">
         <value>Вес</value>
     </data>
+    <data name="NoFavoriteItemsLabel" xml:space="preserve">
+        <value>Так пусто...</value>
+    </data>
 </root>

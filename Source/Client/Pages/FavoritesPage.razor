@@ -1,5 +1,6 @@
 @page "/favorites"
 @using GoodsTracker.Platform.Shared.Models
+@using System.Globalization
 @inject IStringLocalizer<SharedResource> Loc
 @inject ItemManagementService ItemManagementService
 @inject UserAlertService AlertService
@@ -15,9 +16,16 @@
         <Authorized>
             <div class="container">
                 <div class="col justify-content-center">
-                    @foreach(var item in FavoriteItems)
+                    @if (FavoriteItems.Any())
                     {
-                        <FavoriteItemCard Item="item"></FavoriteItemCard>
+                        @foreach (var item in FavoriteItems)
+                        {
+                            <FavoriteItemCard Item="item" RemoveItem="RemoveItem" GetShopName="GetShopName"/>
+                        }
+                    }
+                    else
+                    {
+                        <h3>@Loc["NoFavoriteItemsLabel"].</h3>
                     }
                 </div>
             </div>
@@ -36,6 +44,8 @@
     
     private IEnumerable<BaseItemModel> FavoriteItems { get; set; } = new List<BaseItemModel>();
     
+    private InfoModel InfoModel { get; set; } = new ();
+    
     protected override async Task OnInitializedAsync()
     {
         if (CurrentUser.IsAuthenticated)
@@ -51,7 +61,27 @@
         {
             AlertService.AddMessage(new UserAlert(Loc["SomethingWentWrongMessage"], Alerts.Warning));
         }
+        var getInfoAsync = await ItemManagementService.GetInfoAsync().ConfigureAwait(false);
+        if (getInfoAsync.IsFailed)
+        {
+            AlertService.AddMessage(new UserAlert(Loc["SomethingWentWrongMessage"], Alerts.Warning));
+        }
         
+        InfoModel = getInfoAsync.Value;
         FavoriteItems = getFavorites.Value;
+    }
+    
+    private Task RemoveItem(int itemId)
+    {
+        FavoriteItems = FavoriteItems.Where(x => x.Id != itemId);
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+    
+    private string GetShopName(int shopId)
+    {
+        return 
+            InfoModel.Shops.FirstOrDefault(shop => shop.Id == shopId)
+            ?.GetShopNameWithCulture(CultureInfo.CurrentCulture) ?? "none";
     }
 }
