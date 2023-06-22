@@ -41,16 +41,23 @@ public class ItemListController : ControllerBase
         }
     }
 
+    // TODO: clean up this mess
     [HttpGet("search")]
     public async Task<IEnumerable<BaseItemModel>?> SearchItems(
-        int index, string q, string orderBy, bool onlyDiscount,
+        int? index, string q, string? orderBy, bool? onlyDiscount,
         int? shop)
     {
         try
         {
+            if (index == null && !string.IsNullOrWhiteSpace(q))
+            {
+                return await this.itemManager.SearchItems(q, this.ReadUserFromTokenOrDefault())
+                                 .ConfigureAwait(false);
+            }
+
             return await this.itemManager.SearchItems(
-                                 index, q, orderBy, shop ?? 0,
-                                 this.ReadUserFromTokenOrDefault(), onlyDiscount)
+                                 index ?? 0, q, orderBy ?? "none", shop ?? 0,
+                                 this.ReadUserFromTokenOrDefault(), onlyDiscount ?? false)
                              .ConfigureAwait(false);
         }
         catch (InvalidOperationException)
@@ -58,6 +65,20 @@ public class ItemListController : ControllerBase
             return null;
         }
     }
+
+    // [HttpGet("search")]
+    // public async Task<IEnumerable<BaseItemModel>?> SearchItems(string q)
+    // {
+    //     try
+    //     {
+    //         return await this.itemManager.SearchItems(q, this.ReadUserFromTokenOrDefault())
+    //                          .ConfigureAwait(false);
+    //     }
+    //     catch (InvalidOperationException)
+    //     {
+    //         return null;
+    //     }
+    // }
 
     [HttpGet("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]

@@ -1,5 +1,6 @@
 namespace GoodsTracker.Platform.Client.Services;
 
+using System.Globalization;
 using System.Net.Http.Json;
 using System.Text;
 
@@ -31,7 +32,9 @@ public sealed class ItemManagementService
             }
 
             Result<InfoModel>? getInfoResult = await this.httpClient.GetFromJsonAsync<InfoModel>(
-                                                             new Uri(GoodsTrackerRoutes.ItemModuleRoute + "/info", UriKind.Relative))
+                                                             new Uri(
+                                                                 GoodsTrackerRoutes.ItemModuleRoute + "/info",
+                                                                 UriKind.Relative))
                                                          .ConfigureAwait(false) ??
                                                Result.Fail<InfoModel>("No info received");
 
@@ -88,6 +91,20 @@ public sealed class ItemManagementService
             $"&q={q}", UriKind.Relative);
 
         return this.GetItemsAsync(url);
+    }
+
+    internal Task<Result<IEnumerable<BaseItemModel>>> SearchItemsAsync(string q)
+    {
+        var url = new Uri(GoodsTrackerRoutes.ItemModuleRoute + "/search" + $"?q={q}", UriKind.Relative);
+
+        return this.GetItemsAsync(url);
+    }
+
+    internal string GetShopName(int id)
+    {
+        return this.info!.Shops.FirstOrDefault(shop => shop.Id == id)
+                   ?.GetShopNameWithCulture(CultureInfo.CurrentCulture) ??
+               "none";
     }
 
     private async Task<Result<IEnumerable<BaseItemModel>>> GetItemsAsync(Uri url)
@@ -154,8 +171,8 @@ public sealed class ItemManagementService
 
         HttpResponseMessage result = await this.httpClient.DeleteAsync(
                                                    new Uri(
-                                                       GoodsTrackerRoutes.ItemModuleRoute +
-                                                       $"/like/{itemId}", UriKind.Relative))
+                                                       GoodsTrackerRoutes.ItemModuleRoute + $"/like/{itemId}",
+                                                       UriKind.Relative))
                                                .ConfigureAwait(false);
 
         return result.IsSuccessStatusCode ? Result.Ok(ActionResults.Success) : Result.Fail("Delete like failed.");

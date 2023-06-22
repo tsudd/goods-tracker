@@ -10,7 +10,6 @@ using FluentResults;
 
 using GoodsTracker.Platform.DB.Entities;
 using GoodsTracker.Platform.Server.Modules.Extensions;
-using GoodsTracker.Platform.Shared.Constants;
 
 internal sealed class ItemManager : IItemManager
 {
@@ -50,6 +49,16 @@ internal sealed class ItemManager : IItemManager
         return this.GetBaseItemsAsync(
             page, order, shopFilterId, userId,
             discountOnly, $"%{q}%");
+    }
+
+    public async Task<IEnumerable<BaseItemModel>> SearchItems(string q, string? userId)
+    {
+        IEnumerable<BaseItem> baseItemsEntities = await this.itemRepository.GetItemsByGroupsAsync(
+                                                                0, 5, ItemsOrder.None, 0,
+                                                                false, userId, $"%{q}%")
+                                                            .ConfigureAwait(false);
+
+        return baseItemsEntities.Select(static i => i.ToModel());
     }
 
     public Task<IEnumerable<BaseItemModel>> GetBaseItemsPage(

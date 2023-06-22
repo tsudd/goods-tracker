@@ -5,6 +5,7 @@
 @using GoodsTracker.Platform.Shared.Models
 @using System.Globalization
 @using Radzen.Blazor
+@using System.Collections
 
 <PageTitle>@Loc["ItemLabel"]</PageTitle>
 <div class="p-3">
@@ -119,24 +120,42 @@
             <h2 class="mt-4">@Loc["PricesGraphLabel"]</h2>
             <div class="row p-4">
                 <RadzenChart Style="height:500px;">
-                    <RadzenAreaSeries Data="@PriceHistory" Stroke="rgb(205, 218, 50)" StrokeWidth="2" Fill="rgba(205, 218, 50,.3)" CategoryProperty="Label" Title=@Loc["PriceHistoryLabel"]
+                    <RadzenAreaSeries Data="@PriceHistory" Stroke="rgb(46, 64, 87)" StrokeWidth="2" Fill="rgba(46, 64, 87,.3)" CategoryProperty="Label" Title=@Loc["PriceHistoryLabel"]
                                       ValueProperty="Price">
+                        <ChildContent>
+                            <RadzenMarkers MarkerType="MarkerType.Circle" Fill="#F5EFED" Stroke="rgb(46, 64, 87)" StrokeWidth="2" Size="8"/>
+                        </ChildContent>
                     </RadzenAreaSeries>
-                    <RadzenAreaSeries Data="@DiscountHistory" Stroke="rgb(212, 32, 25)" StrokeWidth="2" Fill="rgba(212, 32, 25,.5)" CategoryProperty="Label" Title=@Loc["DiscountsHistoryLabel"]
-                                                          ValueProperty="Price">
-                                        </RadzenAreaSeries>
-                    <RadzenColumnOptions Radius="10"/>
+                    <RadzenColumnSeries Data="@DiscountHistory" Stroke="rgb(212, 32, 25)" Fill="rgba(212, 32, 25)" CategoryProperty="Label" Title=@Loc["DiscountsHistoryLabel"]
+                                     ValueProperty="Price">
+                    </RadzenColumnSeries>
+                    <RadzenColumnOptions Radius="3" Width="50"/>
                     <RadzenValueAxis Formatter="@FormatAsCurrency">
                         <RadzenGridLines Visible="true"/>
                         <RadzenAxisTitle Text=@Loc["PriceAxisLabel"]/>
                     </RadzenValueAxis>
-                    <RadzenCategoryAxis Max="DateTime.Today" Step="TimeSpan.FromDays(7)">
+                    <RadzenCategoryAxis Max="DateTime.Today" Step="TimeSpan.FromDays(7)" Padding="30">
                         <RadzenGridLines Visible="true" LineType="LineType.Dashed"/>
                         <RadzenAxisTitle Text=@Loc["TimeAxisLabel"]/>
                     </RadzenCategoryAxis>
                 </RadzenChart>
             </div>
             <h2 class="mt-4"> @Loc["SimilarItemsLabel"] </h2>
+            <div class="row">
+                @if (Similar.Any())
+                {
+                    @foreach (var item in Similar)
+                    {
+                        <ItemCard Item="item" GetShopName="ItemManagementService.GetShopName"/>
+                    }
+                }
+                else
+                {
+                    <div class="d-flex mt-5 justify-content-center">
+                        <h3>@Loc["NoFavoriteItemsLabel"].</h3>
+                    </div>
+                }
+            </div>
         }
         else
         {
@@ -155,6 +174,7 @@
     private ItemModel? Item { get; set; }
     private IEnumerable<PriceInfo> PriceHistory { get; set; } = Array.Empty<PriceInfo>();
     private IEnumerable<PriceInfo> DiscountHistory { get; set; } = Array.Empty<PriceInfo>();
+    private IEnumerable<BaseItemModel> Similar { get; set; } = Array.Empty<BaseItemModel>();
 
     private static (string MainPart, string Cents) SplitPrice(decimal price)
     {
@@ -167,16 +187,26 @@
         await base.OnInitializedAsync();
         if (Id != -1)
         {
-            var getItemResult = await ItemManagementService.GetItemDetailsAsync(Id);
+            var getItemResult = await ItemManagementService.GetItemDetailsAsync(Id).ConfigureAwait(false);
 
             if (getItemResult.IsSuccess)
             {
                 Item = getItemResult.Value;
                 BuildChartInfo();
+                var getSimilarResult = await ItemManagementService.SearchItemsAsync(BuildSimilarQuery(Item.Name)).ConfigureAwait(false);
+                if (getSimilarResult.IsSuccess)
+                {
+                    Similar = getSimilarResult.Value;
+                }
                 return;
             }
         }
         NavigationManager.NavigateTo("/notfound");
+    }
+
+    private string BuildSimilarQuery(string itemName)
+    {
+        return itemName.Split(' ').FirstOrDefault() ?? itemName;
     }
 
     private void BuildChartInfo()
@@ -192,15 +222,16 @@
             });
             discounts.Add(new PriceInfo
             {
-                Label = priceInfo.FetchDate, Price = priceInfo.DiscountPrice ?? priceInfo.Price
+                Label = priceInfo.FetchDate, Price = priceInfo.DiscountPrice != null ? priceInfo.Price - priceInfo.DiscountPrice.Value : 0
             });
         }
         PriceHistory = prices;
         DiscountHistory = discounts;
     }
-    
+
     string FormatAsCurrency(object value)
     {
         return ((double)value).ToString("G7", CultureInfo.InvariantCulture) + $" {Item?.Currency}";
     }
+
 }
